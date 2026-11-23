@@ -1,0 +1,3074 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>《空明・見性》全五章禪風互動合輯</title>
+  <!-- Tailwind CSS for responsive layout & clean utility classes -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Elegant Traditional Chinese Serif Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* =========================================================================
+       ZEN INK-WASH & LUMINOUS DESIGN TOKENS
+       ========================================================================= */
+    :root {
+      --ink-midnight: #0b0d17;
+      --ink-deep: #151424;
+      --lavender-soft: #c4b5fd;
+      --lavender-mid: #a78bfa;
+      --gold-warm: #fbbf24;
+      --gold-pale: #fef08a;
+      --paper-mist: #f5f1e8;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--ink-midnight);
+      color: var(--paper-mist);
+      font-family: 'Noto Serif TC', 'Songti TC', 'PMingLiU', serif;
+      touch-action: none;
+    }
+
+    /* Fullscreen High-DPI Canvas */
+    #mainCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      z-index: 1;
+      cursor: pointer;
+    }
+
+    /* Subtle Xuan-Paper Grain Overlay */
+    .paper-grain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0.04;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.45) 1px, transparent 0);
+      background-size: 24px 24px;
+    }
+
+    /* Glassmorphic Ink Cards */
+    .ink-card {
+      background: linear-gradient(160deg, rgba(20, 18, 34, 0.84) 0%, rgba(11, 13, 23, 0.92) 100%);
+      border: 1px solid rgba(196, 181, 253, 0.22);
+      box-shadow:
+        0 20px 56px rgba(0, 0, 0, 0.58),
+        inset 0 1px 0 rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    /* Chapter Hub Card Hover & Completed Golden Seal Glow */
+    .chapter-card {
+      background: linear-gradient(155deg, rgba(24, 21, 42, 0.78) 0%, rgba(13, 14, 26, 0.86) 100%);
+      border: 1px solid rgba(167, 139, 250, 0.22);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .chapter-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(254, 240, 138, 0.58);
+      background: linear-gradient(155deg, rgba(36, 29, 62, 0.88) 0%, rgba(18, 17, 34, 0.92) 100%);
+      box-shadow: 0 14px 36px rgba(167, 139, 250, 0.2), 0 0 22px rgba(251, 191, 36, 0.14);
+    }
+
+    .chapter-card.completed {
+      border-color: rgba(251, 191, 36, 0.52);
+      box-shadow: 0 8px 28px rgba(251, 191, 36, 0.14), inset 0 0 20px rgba(254, 240, 138, 0.06);
+    }
+
+    /* Primary Zen Gold-Lavender Button */
+    .zen-btn {
+      background: linear-gradient(135deg, rgba(167, 139, 250, 0.32), rgba(251, 191, 36, 0.26));
+      border: 1px solid rgba(254, 240, 138, 0.5);
+      color: #fdf9f0;
+      letter-spacing: 0.22em;
+      transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+      box-shadow: 0 6px 24px rgba(167, 139, 250, 0.22);
+    }
+
+    .zen-btn:hover {
+      border-color: rgba(254, 240, 138, 0.9);
+      background: linear-gradient(135deg, rgba(167, 139, 250, 0.48), rgba(251, 191, 36, 0.36));
+      box-shadow: 0 10px 30px rgba(251, 191, 36, 0.28);
+      transform: translateY(-1px);
+    }
+
+    .zen-btn:active {
+      transform: translateY(1px) scale(0.99);
+    }
+
+    .zen-btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(196, 181, 253, 0.3);
+      color: rgba(245, 241, 232, 0.9);
+      letter-spacing: 0.16em;
+      transition: all 0.3s ease;
+    }
+
+    .zen-btn-secondary:hover {
+      background: rgba(196, 181, 253, 0.15);
+      border-color: rgba(196, 181, 253, 0.65);
+      color: #ffffff;
+    }
+
+    /* Light-theme button for Chapter 5 Pure White Void */
+    .zen-btn-light {
+      background: linear-gradient(135deg, rgba(254, 240, 138, 0.45), rgba(196, 181, 253, 0.42));
+      border: 1px solid rgba(180, 142, 68, 0.55);
+      color: #463761;
+      letter-spacing: 0.22em;
+      box-shadow: 0 10px 30px rgba(167, 139, 250, 0.28);
+      transition: all 0.35s ease;
+    }
+
+    .zen-btn-light:hover {
+      background: linear-gradient(135deg, rgba(254, 240, 138, 0.7), rgba(196, 181, 253, 0.6));
+      border-color: rgba(180, 142, 68, 0.9);
+      transform: translateY(-1px);
+    }
+
+    /* Global Top Navigation Buttons */
+    .hud-btn {
+      background: rgba(11, 13, 23, 0.52);
+      border: 1px solid rgba(196, 181, 253, 0.24);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: all 0.35s ease;
+      color: #f5f1e8;
+    }
+
+    .hud-btn:hover {
+      border-color: rgba(254, 240, 138, 0.65);
+      background: rgba(30, 26, 52, 0.72);
+    }
+
+    .hud-btn.light-theme {
+      background: rgba(255, 255, 255, 0.65);
+      border-color: rgba(167, 139, 250, 0.38);
+      color: #4a3b66;
+    }
+
+    .hud-btn.light-theme:hover {
+      background: rgba(255, 255, 255, 0.92);
+      border-color: rgba(217, 169, 66, 0.75);
+    }
+
+    /* Custom Zen Range Slider (Chapter 3) */
+    input[type="range"].zen-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(167, 139, 250, 0.35), rgba(254, 240, 138, 0.7));
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"].zen-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #ffffff 0%, #fef08a 55%, #a78bfa 100%);
+      border: 1.5px solid rgba(255, 252, 235, 0.92);
+      box-shadow: 0 0 16px rgba(254, 240, 138, 0.78);
+      cursor: grab;
+    }
+
+    input[type="range"].zen-slider::-moz-range-thumb {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #ffffff 0%, #fef08a 55%, #a78bfa 100%);
+      border: 1.5px solid rgba(255, 252, 235, 0.92);
+      box-shadow: 0 0 16px rgba(254, 240, 138, 0.78);
+      cursor: grab;
+    }
+
+    /* Deliberate Ego UI for Chapter 5 Phase 1 */
+    .ego-panel {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(246, 240, 255, 0.92));
+      border: 2px solid rgba(167, 139, 250, 0.58);
+      box-shadow: 0 12px 34px rgba(139, 92, 246, 0.2);
+      transition: opacity 0.2s linear, transform 0.2s ease, filter 0.2s linear;
+    }
+
+    .ego-btn {
+      background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #f59e0b 100%);
+      color: #ffffff;
+      border: 2px solid rgba(255, 255, 255, 0.88);
+      box-shadow: 0 10px 28px rgba(236, 72, 153, 0.35), 0 0 0 4px rgba(139, 92, 246, 0.16);
+      letter-spacing: 0.18em;
+      transition: transform 0.12s ease, opacity 0.2s linear, filter 0.2s linear;
+    }
+
+    .ego-btn:active {
+      transform: scale(0.95);
+    }
+
+    @keyframes egoJitter {
+      0% { transform: translate(0, 0); }
+      25% { transform: translate(-3px, 1px); }
+      50% { transform: translate(3px, -1px); }
+      75% { transform: translate(-2px, -1px); }
+      100% { transform: translate(0, 0); }
+    }
+
+    .jitter-now {
+      animation: egoJitter 0.22s ease-in-out;
+    }
+
+    /* Smooth Visibility Transitions */
+    .fade-layer {
+      transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.65s ease;
+    }
+
+    .fade-hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    /* Traditional Red Zen Seal */
+    .zen-seal {
+      border: 1px solid rgba(214, 82, 74, 0.82);
+      color: rgba(236, 110, 98, 0.95);
+      writing-mode: vertical-rl;
+      letter-spacing: 0.14em;
+      font-size: 0.68rem;
+      padding: 3px 2px;
+      border-radius: 3px;
+      background: rgba(185, 55, 45, 0.1);
+    }
+
+    /* Custom subtle scrollbar for hub on very small screens */
+    .zen-scroll::-webkit-scrollbar {
+      width: 5px;
+    }
+    .zen-scroll::-webkit-scrollbar-thumb {
+      background: rgba(196, 181, 253, 0.28);
+      border-radius: 999px;
+    }
+
+    #scrollCanvas {
+      box-shadow: 0 20px 56px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(254, 240, 138, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <!-- Fullscreen Interactive Canvas -->
+  <canvas id="mainCanvas"></canvas>
+  <div class="paper-grain"></div>
+
+  <!-- =========================================================================
+       GLOBAL PERSISTENT TOP CONTROLS (BACK TO HUB + AUDIO MUTE)
+       ========================================================================= -->
+  <div class="fixed top-4 left-4 sm:top-5 sm:left-6 z-40 pointer-events-none">
+    <button
+      id="backHubBtn"
+      type="button"
+      class="hud-btn pointer-events-auto px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-full text-xs sm:text-sm tracking-[0.16em] flex items-center gap-1.5 cursor-pointer fade-layer fade-hidden"
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+      </svg>
+      <span>返回選單</span>
+    </button>
+  </div>
+
+  <div class="fixed top-4 right-4 sm:top-5 sm:right-6 z-40 flex items-center gap-2">
+    <button
+      id="soundBtn"
+      type="button"
+      title="開啟或關閉禪音"
+      aria-label="切換音效"
+      class="hud-btn w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center cursor-pointer"
+    >
+      <svg id="iconSoundOn" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H3v6h3l5 4V5z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.54 8.46a5 5 0 010 7.07M18.36 5.64a9 9 0 010 12.73" />
+      </svg>
+      <svg id="iconSoundOff" class="w-5 h-5 hidden opacity-60" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H3v6h3l5 4V5z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M22 9l-6 6M16 9l6 6" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- =========================================================================
+       1. UNIFIED CHAPTER SELECT HUB (章節選單)
+       ========================================================================= -->
+  <section id="hubOverlay" class="fixed inset-0 z-30 overflow-y-auto zen-scroll fade-layer">
+    <div class="min-h-full w-full flex flex-col items-center justify-center px-4 py-14 sm:px-8 sm:py-16">
+      <div class="w-full max-w-5xl flex flex-col items-center">
+        <!-- Header Title & Lotus Emblem -->
+        <div class="text-center mb-8 sm:mb-10 relative">
+          <div class="flex justify-center mb-3">
+            <svg class="w-12 h-12 sm:w-14 sm:h-14 text-amber-200/90" viewBox="0 0 64 64" fill="none">
+              <circle cx="32" cy="32" r="24" stroke="rgba(196,181,253,0.35)" stroke-width="1" stroke-dasharray="3 5" />
+              <path d="M32 12C36 22 36 32 32 42C28 32 28 22 32 12Z" stroke="#fef08a" stroke-width="1.25" fill="rgba(254,240,138,0.1)" />
+              <path d="M32 42C23 38 17 30 15 21C24 23 30 30 32 42Z" stroke="rgba(196,181,253,0.85)" stroke-width="1.2" />
+              <path d="M32 42C41 38 47 30 49 21C40 23 34 30 32 42Z" stroke="rgba(196,181,253,0.85)" stroke-width="1.2" />
+              <circle cx="32" cy="46" r="2" fill="#fbbf24" />
+            </svg>
+          </div>
+          <h1 class="text-4xl sm:text-5xl font-semibold tracking-[0.28em] text-stone-100 pl-3 mb-2.5 drop-shadow-[0_4px_20px_rgba(167,139,250,0.35)]">
+            空明・見性
+          </h1>
+          <p class="text-xs sm:text-sm tracking-[0.34em] text-amber-200/85 font-light">
+            空掉意識・佛心印心・明心見性
+          </p>
+          <p id="hubProgressText" class="mt-3 text-[11px] sm:text-xs tracking-[0.2em] text-purple-200/75">
+            已圓滿章節：0 / 5
+          </p>
+        </div>
+
+        <!-- Five Chapter Cards (Responsive Constellation Grid) -->
+        <div id="chapterGrid" class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mb-8">
+          <!-- Dynamically populated by JS for crisp progress seal updates -->
+        </div>
+
+        <!-- Extra Hub Tools: Daily 5-Min Meditation + Scroll Generator -->
+        <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4 w-full">
+          <button
+            id="hubMeditationBtn"
+            type="button"
+            class="zen-btn-secondary px-6 py-3 rounded-full text-xs sm:text-sm flex items-center gap-2 cursor-pointer"
+          >
+            <svg class="w-4 h-4 text-purple-300" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="9" />
+              <path stroke-linecap="round" d="M12 7v5l3 2" />
+            </svg>
+            <span>每日靜心模式（5分鐘）</span>
+          </button>
+
+          <button
+            id="hubScrollBtn"
+            type="button"
+            class="zen-btn px-6 py-3 rounded-full text-xs sm:text-sm font-medium flex items-center gap-2 cursor-pointer"
+          >
+            <svg class="w-4 h-4 text-amber-200" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>禪行心鏡卷軸</span>
+          </button>
+        </div>
+
+        <p class="mt-6 text-[11px] tracking-[0.2em] text-stone-400/70 text-center">
+          全五章皆可自由點選體驗・建議開啟聲音聆聽頌缽與古琴
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       2. SHARED IN-GAME PROGRESS HUD (CHAPTERS 1, 2, 4)
+       ========================================================================= -->
+  <header id="gameHud" class="fixed top-4 left-1/2 -translate-x-1/2 z-20 w-[56%] max-w-xs sm:max-w-sm pointer-events-none fade-layer fade-hidden">
+    <div class="px-4 py-2.5 rounded-2xl bg-[#0e101c]/68 border border-purple-300/20 backdrop-blur-md">
+      <div class="flex items-baseline justify-between text-xs sm:text-sm tracking-widest text-stone-200 mb-1.5">
+        <span id="hudTitle" class="font-light text-purple-200">心鏡透明度</span>
+        <span id="hudPct" class="font-medium text-amber-200 tabular-nums">0%</span>
+      </div>
+      <div class="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+        <div
+          id="hudBar"
+          class="h-full rounded-full transition-all duration-300 ease-out"
+          style="width: 0%; background: linear-gradient(90deg, #a78bfa 0%, #c4b5fd 50%, #fef08a 100%);"
+        ></div>
+      </div>
+      <div class="mt-1 flex items-center justify-between text-[10px] sm:text-[11px] tracking-wider text-stone-400">
+        <span id="hudSubLeft">靜心調息</span>
+        <span id="hudSubRight"></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       3. CHAPTER 3 TOP REALMS BAR & BOTTOM SLIDERS
+       ========================================================================= -->
+  <nav id="ch3Nav" class="fixed top-4 left-1/2 -translate-x-1/2 z-20 px-4 py-2 rounded-full bg-[#0e101c]/70 border border-purple-300/20 backdrop-blur-md text-[11px] sm:text-xs tracking-[0.14em] text-stone-400 flex items-center gap-2 sm:gap-3 pointer-events-none fade-layer fade-hidden">
+    <span id="ch3Step1">一・最究竟大理</span>
+    <span class="opacity-30">·</span>
+    <span id="ch3Step2">二・大圓滿法</span>
+    <span class="opacity-30">·</span>
+    <span id="ch3Step3">三・佛之三身</span>
+  </nav>
+
+  <div id="ch3SliderWrap" class="fixed bottom-16 sm:bottom-20 left-1/2 -translate-x-1/2 z-25 w-[88%] max-w-md px-5 py-3.5 rounded-2xl bg-[#100e1e]/78 border border-purple-300/25 backdrop-blur-md fade-layer fade-hidden">
+    <div class="flex items-center justify-between text-[11px] sm:text-xs tracking-[0.16em] text-stone-300 mb-2">
+      <span id="ch3SliderLeft" class="text-purple-200/85">微觀執著</span>
+      <span id="ch3SliderCenter" class="text-amber-200 font-medium">觀照視野</span>
+      <span id="ch3SliderRight" class="text-amber-200/90">宏觀虛空</span>
+    </div>
+    <input id="ch3Slider" type="range" min="0" max="100" step="0.5" value="0" class="zen-slider" />
+  </div>
+
+  <!-- =========================================================================
+       4. CHAPTER 5 DECEPTIVE EGO UI & ENLIGHTENMENT OVERLAY
+       ========================================================================= -->
+  <div id="ch5EgoLayer" class="fixed inset-0 z-20 pointer-events-none fade-layer fade-hidden">
+    <div id="ch5EgoCard" class="ego-panel rounded-2xl max-w-sm mx-auto mt-16 sm:mt-10 px-5 py-4 mx-4 pointer-events-auto">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs sm:text-sm font-semibold tracking-widest text-purple-900">功德圓滿度</span>
+        <span id="ch5MeritPct" class="text-sm sm:text-base font-bold text-amber-600 tabular-nums">99.9%</span>
+      </div>
+      <div class="w-full h-2.5 rounded-full bg-purple-100 overflow-hidden border border-purple-300/60">
+        <div class="h-full rounded-full" style="width: 99.4%; background: linear-gradient(90deg, #8b5cf6, #ec4899, #f59e0b);"></div>
+      </div>
+      <div class="mt-2 flex items-center justify-between text-xs tracking-wider text-purple-800/85">
+        <span>修行分數：<strong class="text-fuchsia-700 font-bold">99,999</strong></span>
+        <span class="text-amber-700 font-medium">距成佛僅差 0.1%</span>
+      </div>
+    </div>
+
+    <div id="ch5EgoBtnWrap" class="fixed bottom-20 sm:bottom-24 left-0 right-0 flex justify-center px-5 pointer-events-none">
+      <button id="ch5EgoBtn" type="button" class="ego-btn pointer-events-auto px-7 py-3.5 rounded-full text-sm sm:text-base font-semibold cursor-pointer">
+        精進點擊・衝刺成佛
+      </button>
+    </div>
+  </div>
+
+  <section id="ch5EnlightenedOverlay" class="fixed inset-0 z-25 flex flex-col items-center justify-center px-6 text-center pointer-events-none fade-layer fade-hidden">
+    <p class="text-xs sm:text-sm tracking-[0.42em] text-purple-700/75 mb-4">通過如來法則・百分之百透明</p>
+    <h2
+      class="text-2xl sm:text-4xl md:text-5xl font-medium tracking-[0.26em] text-[#473863] leading-relaxed mb-6"
+      style="text-shadow: 0 0 32px rgba(254, 240, 138, 0.95), 0 0 12px rgba(255, 255, 255, 0.95);"
+    >
+      明心見性，見性成佛<br class="sm:hidden" /><span class="hidden sm:inline">，</span>利益十方眾生
+    </h2>
+    <div class="w-28 h-px bg-gradient-to-r from-transparent via-amber-500/60 to-transparent mb-8"></div>
+    <div id="ch5FinalActions" class="flex flex-wrap items-center justify-center gap-3 pointer-events-auto opacity-0 transition-opacity duration-1000">
+      <button id="ch5OpenScrollBtn" type="button" class="zen-btn-light px-7 py-3 rounded-full text-sm font-medium cursor-pointer">
+        展開圓滿心鏡卷軸
+      </button>
+      <button id="ch5BackHubBtn" type="button" class="px-6 py-3 rounded-full text-sm tracking-[0.18em] bg-white/65 border border-purple-300/50 text-[#4c3d69] hover:bg-white/90 transition cursor-pointer">
+        返回章節選單
+      </button>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       5. DAILY 5-MINUTE MEDITATION TIMER CONTROLS
+       ========================================================================= -->
+  <div id="meditationControls" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-25 flex flex-col items-center gap-3 fade-layer fade-hidden">
+    <div id="meditationTimerText" class="text-3xl sm:text-4xl font-light tracking-[0.22em] text-amber-100/95 tabular-nums drop-shadow-[0_2px_14px_rgba(0,0,0,0.8)]">
+      05:00
+    </div>
+    <div class="flex items-center gap-3">
+      <button id="medPauseBtn" type="button" class="zen-btn px-6 py-2.5 rounded-full text-xs sm:text-sm cursor-pointer">
+        暫停調息
+      </button>
+      <button id="medResetBtn" type="button" class="zen-btn-secondary px-5 py-2.5 rounded-full text-xs sm:text-sm cursor-pointer">
+        重置五分鐘
+      </button>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       6. SHARED BOTTOM WHISPER & CENTER VERSE BANNER
+       ========================================================================= -->
+  <div id="centerBanner" class="fixed inset-0 z-25 flex flex-col items-center justify-center px-6 pointer-events-none fade-layer fade-hidden">
+    <p id="bannerSub" class="text-xs sm:text-sm tracking-[0.34em] text-purple-200/85 mb-2.5"></p>
+    <h2 id="bannerTitle" class="text-2xl sm:text-4xl font-medium tracking-[0.24em] text-amber-100 text-center leading-relaxed" style="text-shadow: 0 0 28px rgba(254, 240, 138, 0.7), 0 4px 16px rgba(0,0,0,0.85);"></h2>
+  </div>
+
+  <div class="fixed bottom-4 sm:bottom-6 left-0 right-0 z-20 px-6 flex flex-col items-center pointer-events-none">
+    <p id="whisperText" class="text-center text-xs sm:text-sm tracking-[0.18em] text-amber-100/95 opacity-0 transition-all duration-700 drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)] max-w-xl leading-relaxed"></p>
+    <p id="hintText" class="mt-1 text-[11px] tracking-[0.18em] text-stone-400/80 opacity-0 transition-opacity duration-700 text-center"></p>
+  </div>
+
+  <!-- =========================================================================
+       7. CHAPTER COMPLETION MODAL (CHAPTERS 1–4)
+       ========================================================================= -->
+  <section id="chapterCompleteModal" class="fixed inset-0 z-35 flex items-center justify-center p-5 fade-layer fade-hidden" style="background: radial-gradient(circle at center, rgba(24, 20, 44, 0.72), rgba(11, 13, 23, 0.92));">
+    <div class="ink-card rounded-3xl w-full max-w-md p-7 sm:p-9 text-center relative">
+      <div class="absolute top-6 right-6 zen-seal">圓滿</div>
+      <p id="ccSub" class="text-xs tracking-[0.34em] text-purple-300/85 mb-2">章節圓滿</p>
+      <h2 id="ccTitle" class="text-2xl sm:text-3xl font-semibold tracking-[0.22em] text-amber-100 mb-3"></h2>
+      <p id="ccVerse" class="text-sm tracking-[0.18em] text-stone-300/90 leading-relaxed mb-7"></p>
+      <div class="flex flex-col gap-3">
+        <button id="ccNextBtn" type="button" class="zen-btn w-full py-3 rounded-full text-sm font-medium cursor-pointer">前往下一章</button>
+        <div class="flex gap-3">
+          <button id="ccScrollBtn" type="button" class="zen-btn-secondary flex-1 py-2.5 rounded-full text-xs sm:text-sm cursor-pointer">禪行心鏡卷軸</button>
+          <button id="ccHubBtn" type="button" class="zen-btn-secondary flex-1 py-2.5 rounded-full text-xs sm:text-sm cursor-pointer">返回選單</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       8. DOWNLOADABLE 720x1280 「禪行心鏡卷軸」 MODAL
+       ========================================================================= -->
+  <section id="scrollModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto fade-layer fade-hidden" style="background: radial-gradient(circle at center, rgba(28, 22, 52, 0.8), rgba(9, 10, 18, 0.94));">
+    <div class="ink-card rounded-3xl w-full max-w-md p-5 sm:p-6 flex flex-col items-center my-auto relative">
+      <button id="closeScrollBtn" type="button" aria-label="關閉卷軸" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/5 hover:bg-white/15 flex items-center justify-center text-stone-300 cursor-pointer transition">
+        ✕
+      </button>
+      <p class="text-xs tracking-[0.34em] text-amber-200/90 mb-3">禪行心鏡卷軸・專屬留念</p>
+
+      <div class="w-full flex justify-center mb-5">
+        <canvas id="scrollCanvas" width="720" height="1280" class="w-full max-w-[255px] sm:max-w-[285px] h-auto rounded-2xl"></canvas>
+      </div>
+
+      <div class="w-full flex flex-col sm:flex-row gap-3">
+        <button id="downloadScrollBtn" type="button" class="zen-btn flex-1 py-3 px-4 rounded-full text-sm font-medium cursor-pointer">
+          下載卷軸 PNG
+        </button>
+        <button id="closeScrollBtn2" type="button" class="zen-btn-secondary py-3 px-5 rounded-full text-sm cursor-pointer">
+          返回
+        </button>
+      </div>
+      <p id="downloadMsg" class="mt-2.5 text-xs tracking-widest text-amber-200/85 h-4"></p>
+    </div>
+  </section>
+
+  <script>
+    /**
+     * =========================================================================
+     * 《空明・見性》全五章禪風互動遊戲合輯
+     * Unified Single-File Architecture:
+     *   - ZenAudioEngine (Web Audio API procedural synthesizer)
+     *   - ProgressStore (localStorage completion persistence)
+     *   - Scene Manager (hub, meditation, ch1, ch2, ch3, ch4, ch5)
+     *   - High-Res 720x1280 Scroll Generator
+     * =========================================================================
+     */
+    (function () {
+      'use strict';
+
+      /* -----------------------------------------------------------------------
+         1. CHAPTER METADATA & PERSISTENCE
+         ----------------------------------------------------------------------- */
+      const CHAPTERS = [
+        { id: 1, key: 'ch1', num: '第一章', title: '入靜・每日一禪定',   sub: '調息入定・觀照不執著', verse: '息心靜觀，浮雲散盡見明月' },
+        { id: 2, key: 'ch2', num: '第二章', title: '共心・每週一法會',   sub: '放下對立・同乘大法船', verse: '萬燈共心，照破無明長夜' },
+        { id: 3, key: 'ch3', num: '第三章', title: '開悟・契悟三聖教',   sub: '破相見真・三身歸一如', verse: '天地萬物皆空相，本自俱足如來' },
+        { id: 4, key: 'ch4', num: '第四章', title: '大願・接引利他',     sub: '柔和微光・順緣不強求', verse: '順緣分享，微光綿延成星河' },
+        { id: 5, key: 'ch5', num: '最終章', title: '見性・通過如來法則', sub: '無為靜止・百分之百透明', verse: '明心見性，見性成佛，利益十方眾生' }
+      ];
+
+      const STORAGE_KEY = 'luminance_tathagata_completed_v1';
+      let completedChapters = new Set();
+
+      function loadProgress() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const arr = JSON.parse(raw);
+            if (Array.isArray(arr)) completedChapters = new Set(arr);
+          }
+        } catch (e) { /* Ignore storage restrictions */ }
+      }
+
+      function markChapterCompleted(chapterId) {
+        completedChapters.add(chapterId);
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify([...completedChapters]));
+        } catch (e) { /* Ignore storage restrictions */ }
+        renderHubCards();
+      }
+
+      /* -----------------------------------------------------------------------
+         2. SHARED WEB AUDIO API ZEN SYNTHESIZER (ZERO EXTERNAL FILES)
+         ----------------------------------------------------------------------- */
+      class ZenAudioEngine {
+        constructor() {
+          this.ctx = null;
+          this.enabled = true;
+          this.initialized = false;
+          this.master = null;
+          this.droneGain = null;
+          this.droneFilter = null;
+          this.choirGain = null;
+          this.choirFilter = null;
+        }
+
+        init() {
+          if (this.initialized) {
+            if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+            return;
+          }
+          try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+            this.ctx = new AudioCtx();
+            const now = this.ctx.currentTime;
+
+            this.master = this.ctx.createGain();
+            this.master.gain.setValueAtTime(this.enabled ? 0.85 : 0.0, now);
+            this.master.connect(this.ctx.destination);
+
+            // Warm Om Drone (136.1Hz + Fifth + Octave)
+            this.droneFilter = this.ctx.createBiquadFilter();
+            this.droneFilter.type = 'lowpass';
+            this.droneFilter.frequency.setValueAtTime(220, now);
+
+            this.droneGain = this.ctx.createGain();
+            this.droneGain.gain.setValueAtTime(0.0001, now);
+            this.droneFilter.connect(this.droneGain);
+            this.droneGain.connect(this.master);
+
+            [
+              { f: 136.1, g: 0.15, t: 'sine', d: -2 },
+              { f: 204.15, g: 0.06, t: 'triangle', d: 2 },
+              { f: 272.2, g: 0.04, t: 'sine', d: -1 }
+            ].forEach((n) => {
+              const osc = this.ctx.createOscillator();
+              const g = this.ctx.createGain();
+              osc.type = n.t;
+              osc.frequency.setValueAtTime(n.f, now);
+              osc.detune.setValueAtTime(n.d, now);
+              g.gain.setValueAtTime(n.g, now);
+              osc.connect(g);
+              g.connect(this.droneFilter);
+              osc.start(now);
+            });
+
+            // Celestial Harmonic Choir Pad
+            this.choirFilter = this.ctx.createBiquadFilter();
+            this.choirFilter.type = 'lowpass';
+            this.choirFilter.frequency.setValueAtTime(550, now);
+
+            this.choirGain = this.ctx.createGain();
+            this.choirGain.gain.setValueAtTime(0.0001, now);
+            this.choirFilter.connect(this.choirGain);
+            this.choirGain.connect(this.master);
+
+            [272.2, 342.95, 408.3, 544.4, 685.9].forEach((freq, i) => {
+              const osc = this.ctx.createOscillator();
+              const g = this.ctx.createGain();
+              osc.type = i % 2 === 0 ? 'sine' : 'triangle';
+              osc.frequency.setValueAtTime(freq, now);
+              osc.detune.setValueAtTime((i - 2) * 4.5, now);
+              g.gain.setValueAtTime(0.024, now);
+              osc.connect(g);
+              g.connect(this.choirFilter);
+              osc.start(now);
+            });
+
+            this.initialized = true;
+          } catch (e) { /* Gracefully degrade */ }
+        }
+
+        updateAtmosphere(droneLevel, clarity, choirLevel) {
+          if (!this.initialized || !this.ctx) return;
+          const now = this.ctx.currentTime;
+          this.droneGain.gain.setTargetAtTime(Math.max(0.0001, droneLevel), now, 0.5);
+          this.droneFilter.frequency.setTargetAtTime(200 + clarity * 620, now, 0.6);
+          this.choirGain.gain.setTargetAtTime(Math.max(0.0001, choirLevel), now, 0.55);
+          this.choirFilter.frequency.setTargetAtTime(480 + choirLevel * 1600, now, 0.65);
+        }
+
+        toggle() {
+          this.init();
+          this.enabled = !this.enabled;
+          if (this.master && this.ctx) {
+            this.master.gain.setTargetAtTime(this.enabled ? 0.85 : 0.0, this.ctx.currentTime, 0.14);
+          }
+          return this.enabled;
+        }
+
+        /** Tibetan Singing Bowl (頌缽) */
+        playBowl(pitchMult = 1.0) {
+          if (!this.initialized || !this.enabled || !this.ctx) return;
+          const now = this.ctx.currentTime;
+          const base = 272.2 * pitchMult;
+          [
+            { r: 1.0, a: 0.19, d: 5.2 },
+            { r: 1.004, a: 0.14, d: 4.8 },
+            { r: 2.756, a: 0.065, d: 3.3 },
+            { r: 5.4, a: 0.022, d: 2.0 }
+          ].forEach((p) => {
+            const osc = this.ctx.createOscillator();
+            const g = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(base * p.r, now);
+            g.gain.setValueAtTime(0.0001, now);
+            g.gain.linearRampToValueAtTime(p.a, now + 0.05);
+            g.gain.exponentialRampToValueAtTime(0.0001, now + p.d);
+            osc.connect(g);
+            g.connect(this.master);
+            osc.start(now);
+            osc.stop(now + p.d + 0.12);
+          });
+        }
+
+        /** Pentatonic Guzheng / Guqin Pluck (宮商角徵羽) */
+        playGuzheng(step = 0) {
+          if (!this.initialized || !this.enabled || !this.ctx) return;
+          const now = this.ctx.currentTime;
+          const scale = [293.66, 329.63, 392.0, 440.0, 493.88, 587.33, 659.25];
+          const f = scale[Math.abs(step) % scale.length];
+          [1, 2].forEach((m, idx) => {
+            const osc = this.ctx.createOscillator();
+            const g = this.ctx.createGain();
+            osc.type = idx === 0 ? 'sine' : 'triangle';
+            osc.frequency.setValueAtTime(f * m, now + idx * 0.04);
+            g.gain.setValueAtTime(0.0001, now + idx * 0.04);
+            g.gain.linearRampToValueAtTime(idx === 0 ? 0.15 : 0.04, now + idx * 0.04 + 0.015);
+            g.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.04 + (idx === 0 ? 3.0 : 1.7));
+            osc.connect(g);
+            g.connect(this.master);
+            osc.start(now + idx * 0.04);
+            osc.stop(now + idx * 0.04 + 3.1);
+          });
+        }
+
+        /** Soft Ink Drop Tone */
+        playInkDrop() {
+          if (!this.initialized || !this.enabled || !this.ctx) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.exponentialRampToValueAtTime(86, now + 0.18);
+          g.gain.setValueAtTime(0.0001, now);
+          g.gain.linearRampToValueAtTime(0.14, now + 0.012);
+          g.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+          osc.connect(g);
+          g.connect(this.master);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        }
+
+        /** Gentle Dissonance when rushing/clinging */
+        playDissonance() {
+          if (!this.initialized || !this.enabled || !this.ctx) return;
+          const now = this.ctx.currentTime;
+          [370, 392, 523].forEach((freq, i) => {
+            const osc = this.ctx.createOscillator();
+            const g = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now);
+            osc.detune.setValueAtTime((i - 1) * 14, now);
+            g.gain.setValueAtTime(0.0001, now);
+            g.gain.linearRampToValueAtTime(0.055, now + 0.02);
+            g.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+            osc.connect(g);
+            g.connect(this.master);
+            osc.start(now);
+            osc.stop(now + 0.55);
+          });
+        }
+
+        /** Deep Resonant Temple Bell (法鐘) */
+        playTempleBell() {
+          if (!this.initialized || !this.enabled || !this.ctx) return;
+          const now = this.ctx.currentTime;
+          const f0 = 136.1;
+          [
+            { r: 1.0, a: 0.28, d: 9.8 },
+            { r: 1.003, a: 0.19, d: 9.2 },
+            { r: 2.0, a: 0.13, d: 6.8 },
+            { r: 2.99, a: 0.08, d: 5.2 },
+            { r: 4.18, a: 0.045, d: 3.8 },
+            { r: 6.0, a: 0.022, d: 2.5 }
+          ].forEach((h) => {
+            const osc = this.ctx.createOscillator();
+            const g = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(f0 * h.r, now);
+            g.gain.setValueAtTime(0.0001, now);
+            g.gain.linearRampToValueAtTime(h.a, now + 0.025);
+            g.gain.exponentialRampToValueAtTime(0.0001, now + h.d);
+            osc.connect(g);
+            g.connect(this.master);
+            osc.start(now);
+            osc.stop(now + h.d + 0.2);
+          });
+        }
+      }
+
+      const audio = new ZenAudioEngine();
+
+      /* -----------------------------------------------------------------------
+         3. CANVAS & DOM ELEMENTS
+         ----------------------------------------------------------------------- */
+      const canvas = document.getElementById('mainCanvas');
+      const ctx = canvas.getContext('2d');
+
+      const ui = {
+        hubOverlay: document.getElementById('hubOverlay'),
+        chapterGrid: document.getElementById('chapterGrid'),
+        hubProgressText: document.getElementById('hubProgressText'),
+        hubMeditationBtn: document.getElementById('hubMeditationBtn'),
+        hubScrollBtn: document.getElementById('hubScrollBtn'),
+        backHubBtn: document.getElementById('backHubBtn'),
+        soundBtn: document.getElementById('soundBtn'),
+        iconSoundOn: document.getElementById('iconSoundOn'),
+        iconSoundOff: document.getElementById('iconSoundOff'),
+        gameHud: document.getElementById('gameHud'),
+        hudTitle: document.getElementById('hudTitle'),
+        hudPct: document.getElementById('hudPct'),
+        hudBar: document.getElementById('hudBar'),
+        hudSubLeft: document.getElementById('hudSubLeft'),
+        hudSubRight: document.getElementById('hudSubRight'),
+        ch3Nav: document.getElementById('ch3Nav'),
+        ch3Step1: document.getElementById('ch3Step1'),
+        ch3Step2: document.getElementById('ch3Step2'),
+        ch3Step3: document.getElementById('ch3Step3'),
+        ch3SliderWrap: document.getElementById('ch3SliderWrap'),
+        ch3Slider: document.getElementById('ch3Slider'),
+        ch3SliderLeft: document.getElementById('ch3SliderLeft'),
+        ch3SliderCenter: document.getElementById('ch3SliderCenter'),
+        ch3SliderRight: document.getElementById('ch3SliderRight'),
+        ch5EgoLayer: document.getElementById('ch5EgoLayer'),
+        ch5EgoCard: document.getElementById('ch5EgoCard'),
+        ch5EgoBtnWrap: document.getElementById('ch5EgoBtnWrap'),
+        ch5EgoBtn: document.getElementById('ch5EgoBtn'),
+        ch5EnlightenedOverlay: document.getElementById('ch5EnlightenedOverlay'),
+        ch5FinalActions: document.getElementById('ch5FinalActions'),
+        ch5OpenScrollBtn: document.getElementById('ch5OpenScrollBtn'),
+        ch5BackHubBtn: document.getElementById('ch5BackHubBtn'),
+        meditationControls: document.getElementById('meditationControls'),
+        meditationTimerText: document.getElementById('meditationTimerText'),
+        medPauseBtn: document.getElementById('medPauseBtn'),
+        medResetBtn: document.getElementById('medResetBtn'),
+        centerBanner: document.getElementById('centerBanner'),
+        bannerSub: document.getElementById('bannerSub'),
+        bannerTitle: document.getElementById('bannerTitle'),
+        whisperText: document.getElementById('whisperText'),
+        hintText: document.getElementById('hintText'),
+        chapterCompleteModal: document.getElementById('chapterCompleteModal'),
+        ccSub: document.getElementById('ccSub'),
+        ccTitle: document.getElementById('ccTitle'),
+        ccVerse: document.getElementById('ccVerse'),
+        ccNextBtn: document.getElementById('ccNextBtn'),
+        ccScrollBtn: document.getElementById('ccScrollBtn'),
+        ccHubBtn: document.getElementById('ccHubBtn'),
+        scrollModal: document.getElementById('scrollModal'),
+        scrollCanvas: document.getElementById('scrollCanvas'),
+        downloadScrollBtn: document.getElementById('downloadScrollBtn'),
+        closeScrollBtn: document.getElementById('closeScrollBtn'),
+        closeScrollBtn2: document.getElementById('closeScrollBtn2'),
+        downloadMsg: document.getElementById('downloadMsg')
+      };
+
+      /* -----------------------------------------------------------------------
+         4. GLOBAL APPLICATION STATE
+         ----------------------------------------------------------------------- */
+      const app = {
+        scene: 'hub', // 'hub' | 'meditation' | 'ch1' | 'ch2' | 'ch3' | 'ch4' | 'ch5'
+        width: window.innerWidth,
+        height: window.innerHeight,
+        dpr: Math.min(window.devicePixelRatio || 1, 2),
+        time: 0,
+        keys: {},
+        pointerDown: false,
+        pointerX: 0,
+        pointerY: 0,
+        whisperTimer: null,
+        bannerTimer: null,
+        activeChapterId: 0,
+        // Ambient stars & motes shared by hub/scenes
+        stars: [],
+        motes: [],
+        // Shared transient FX
+        ripples: [],
+        particles: [],
+        floatTexts: [],
+        // Per-scene runtime state objects
+        med: {},
+        ch1: {},
+        ch2: {},
+        ch3: {},
+        ch4: {},
+        ch5: {}
+      };
+
+      function resizeCanvas() {
+        app.width = window.innerWidth;
+        app.height = window.innerHeight;
+        app.dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.floor(app.width * app.dpr);
+        canvas.height = Math.floor(app.height * app.dpr);
+        ctx.setTransform(app.dpr, 0, 0, app.dpr, 0, 0);
+        if (app.scene === 'ch3' && app.ch3.objects) layoutCh3Realm2();
+        if (app.scene === 'ch4') buildCh4City();
+      }
+
+      function initCosmos() {
+        app.stars = [];
+        for (let i = 0; i < 110; i++) {
+          app.stars.push({
+            x: Math.random(),
+            y: Math.random(),
+            r: 0.6 + Math.random() * 1.5,
+            speed: 0.8 + Math.random() * 2.0,
+            phase: Math.random() * Math.PI * 2,
+            gold: Math.random() > 0.6
+          });
+        }
+        app.motes = [];
+        for (let i = 0; i < 40; i++) {
+          app.motes.push({
+            x: Math.random() * app.width,
+            y: Math.random() * app.height,
+            r: 1.1 + Math.random() * 2.4,
+            vy: -(6 + Math.random() * 14),
+            amp: 10 + Math.random() * 22,
+            spd: 0.5 + Math.random() * 1.1,
+            phase: Math.random() * Math.PI * 2,
+            gold: Math.random() > 0.45
+          });
+        }
+      }
+
+      /* -----------------------------------------------------------------------
+         5. SHARED UI & FX HELPERS
+         ----------------------------------------------------------------------- */
+      function setWhisper(text, ms = 4200, light = false) {
+        if (app.whisperTimer) clearTimeout(app.whisperTimer);
+        if (!text) {
+          ui.whisperText.classList.remove('opacity-100');
+          ui.whisperText.classList.add('opacity-0');
+          return;
+        }
+        ui.whisperText.textContent = text;
+        ui.whisperText.style.color = light ? 'rgba(72, 56, 102, 0.92)' : 'rgba(254, 240, 185, 0.96)';
+        ui.whisperText.style.textShadow = light ? '0 1px 12px rgba(255,255,255,0.9)' : '0 2px 10px rgba(0,0,0,0.85)';
+        ui.whisperText.classList.remove('opacity-0');
+        ui.whisperText.classList.add('opacity-100');
+        if (ms > 0) {
+          app.whisperTimer = setTimeout(() => {
+            ui.whisperText.classList.remove('opacity-100');
+            ui.whisperText.classList.add('opacity-0');
+          }, ms);
+        }
+      }
+
+      function setHint(text) {
+        if (!text) {
+          ui.hintText.classList.remove('opacity-100');
+          ui.hintText.classList.add('opacity-0');
+          return;
+        }
+        ui.hintText.textContent = text;
+        ui.hintText.classList.remove('opacity-0');
+        ui.hintText.classList.add('opacity-100');
+      }
+
+      function showBanner(sub, title, ms = 3000) {
+        if (app.bannerTimer) clearTimeout(app.bannerTimer);
+        ui.bannerSub.textContent = sub;
+        ui.bannerTitle.textContent = title;
+        ui.centerBanner.classList.remove('fade-hidden');
+        if (ms > 0) {
+          app.bannerTimer = setTimeout(() => ui.centerBanner.classList.add('fade-hidden'), ms);
+        }
+      }
+
+      function hideBanner() {
+        if (app.bannerTimer) clearTimeout(app.bannerTimer);
+        ui.centerBanner.classList.add('fade-hidden');
+      }
+
+      function updateHud(title, pct, left, right) {
+        ui.hudTitle.textContent = title;
+        ui.hudPct.textContent = `${Math.round(pct)}%`;
+        ui.hudBar.style.width = `${Math.min(100, Math.max(0, pct)).toFixed(1)}%`;
+        ui.hudSubLeft.textContent = left || '';
+        ui.hudSubRight.textContent = right || '';
+      }
+
+      function spawnRipple(x, y, maxR, color = 'gold', speed = 95) {
+        app.ripples.push({ x, y, r: 16, maxR, alpha: 0.78, color, speed });
+      }
+
+      function spawnBurst(x, y, count, gold = true) {
+        for (let i = 0; i < count; i++) {
+          const a = Math.random() * Math.PI * 2;
+          const s = 18 + Math.random() * 72;
+          app.particles.push({
+            x, y,
+            vx: Math.cos(a) * s,
+            vy: Math.sin(a) * s,
+            r: 1.2 + Math.random() * 2.5,
+            life: 1.0,
+            decay: 0.5 + Math.random() * 0.5,
+            color: gold ? (Math.random() > 0.35 ? '254, 240, 138' : '196, 181, 253') : '90, 95, 115'
+          });
+        }
+      }
+
+      function spawnFloatText(x, y, text) {
+        app.floatTexts.push({ x, y, text, alpha: 1.0, vy: -22 });
+      }
+
+      function setTopLightTheme(isLight) {
+        ui.backHubBtn.classList.toggle('light-theme', isLight);
+        ui.soundBtn.classList.toggle('light-theme', isLight);
+      }
+
+      function hideAllOverlays() {
+        ui.hubOverlay.classList.add('fade-hidden');
+        ui.gameHud.classList.add('fade-hidden');
+        ui.ch3Nav.classList.add('fade-hidden');
+        ui.ch3SliderWrap.classList.add('fade-hidden');
+        ui.ch5EgoLayer.classList.add('fade-hidden');
+        ui.ch5EnlightenedOverlay.classList.add('fade-hidden');
+        ui.meditationControls.classList.add('fade-hidden');
+        ui.chapterCompleteModal.classList.add('fade-hidden');
+        hideBanner();
+        setWhisper('');
+        setHint('');
+        app.ripples = [];
+        app.particles = [];
+        app.floatTexts = [];
+        app.pointerDown = false;
+      }
+
+      function openChapterComplete(chapterId) {
+        markChapterCompleted(chapterId);
+        const ch = CHAPTERS.find((c) => c.id === chapterId);
+        ui.ccSub.textContent = `${ch.num}・圓滿`;
+        ui.ccTitle.textContent = ch.title;
+        ui.ccVerse.textContent = `「${ch.verse}」`;
+        ui.ccNextBtn.style.display = chapterId < 5 ? 'block' : 'none';
+        ui.ccNextBtn.onclick = () => switchScene(`ch${chapterId + 1}`);
+        ui.chapterCompleteModal.classList.remove('fade-hidden');
+      }
+
+      /* -----------------------------------------------------------------------
+         6. HUB RENDERING & SCENE SWITCHER
+         ----------------------------------------------------------------------- */
+      function renderHubCards() {
+        ui.hubProgressText.textContent = `已圓滿章節：${completedChapters.size} / 5`;
+        ui.chapterGrid.innerHTML = '';
+
+        CHAPTERS.forEach((ch) => {
+          const done = completedChapters.has(ch.id);
+          const card = document.createElement('button');
+          card.type = 'button';
+          card.className = `chapter-card ${done ? 'completed' : ''} rounded-2xl p-5 text-left relative cursor-pointer flex flex-col justify-between min-h-[126px]`;
+          card.innerHTML = `
+            <div class="flex items-start justify-between gap-2 mb-3">
+              <span class="text-[11px] tracking-[0.26em] ${done ? 'text-amber-300' : 'text-purple-300/80'}">${ch.num}</span>
+              ${done
+                ? `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] tracking-widest bg-amber-300/15 border border-amber-300/50 text-amber-200">✦ 蓮印圓滿</span>`
+                : `<span class="text-[10px] tracking-widest text-stone-400/70">點擊入境</span>`
+              }
+            </div>
+            <div>
+              <h3 class="text-base sm:text-lg font-medium tracking-[0.16em] text-stone-100 mb-1">${ch.title}</h3>
+              <p class="text-xs tracking-[0.14em] text-stone-400/90 font-light">${ch.sub}</p>
+            </div>
+          `;
+          card.addEventListener('click', () => {
+            audio.init();
+            switchScene(ch.key);
+          });
+          ui.chapterGrid.appendChild(card);
+        });
+      }
+
+      function switchScene(sceneKey) {
+        audio.init();
+        hideAllOverlays();
+        app.scene = sceneKey;
+        setTopLightTheme(sceneKey === 'ch5');
+
+        if (sceneKey === 'hub') {
+          ui.backHubBtn.classList.add('fade-hidden');
+          ui.hubOverlay.classList.remove('fade-hidden');
+          renderHubCards();
+          return;
+        }
+
+        ui.backHubBtn.classList.remove('fade-hidden');
+
+        if (sceneKey === 'meditation') initMeditation();
+        else if (sceneKey === 'ch1') initCh1();
+        else if (sceneKey === 'ch2') initCh2();
+        else if (sceneKey === 'ch3') initCh3();
+        else if (sceneKey === 'ch4') initCh4();
+        else if (sceneKey === 'ch5') initCh5();
+      }
+
+      /* -----------------------------------------------------------------------
+         7. DAILY 5-MINUTE MEDITATION MODE (每日靜心模式)
+         ----------------------------------------------------------------------- */
+      function initMeditation() {
+        app.med = {
+          remaining: 300,
+          paused: false,
+          breathTime: 0,
+          lastMinuteChime: 5
+        };
+        ui.meditationControls.classList.remove('fade-hidden');
+        ui.medPauseBtn.textContent = '暫停調息';
+        updateMeditationTimerUI();
+        audio.playBowl(1.0);
+        setWhisper('隨淡紫金光自然深吸、緩吐，每分鐘將響起一聲頌缽。', 5000);
+      }
+
+      function updateMeditationTimerUI() {
+        const s = Math.max(0, Math.ceil(app.med.remaining));
+        const m = String(Math.floor(s / 60)).padStart(2, '0');
+        const sec = String(s % 60).padStart(2, '0');
+        ui.meditationTimerText.textContent = `${m}:${sec}`;
+      }
+
+      function updateMeditation(dt) {
+        if (!app.med.paused && app.med.remaining > 0) {
+          app.med.breathTime += dt;
+          app.med.remaining = Math.max(0, app.med.remaining - dt);
+          updateMeditationTimerUI();
+
+          const currentMin = Math.ceil(app.med.remaining / 60);
+          if (currentMin < app.med.lastMinuteChime && currentMin > 0) {
+            app.med.lastMinuteChime = currentMin;
+            audio.playBowl(1.0);
+            spawnRipple(app.width / 2, app.height * 0.45, Math.min(app.width, app.height) * 0.48, 'gold', 70);
+          }
+          if (app.med.remaining === 0) {
+            app.med.paused = true;
+            audio.playTempleBell();
+            showBanner('五分鐘靜心圓滿', '「身心清淨，自在安然」', 4500);
+            ui.medPauseBtn.textContent = '已完成';
+          }
+        }
+        audio.updateAtmosphere(0.16, 0.5, 0.12);
+      }
+
+      function drawMeditation() {
+        drawMidnightBackdrop(0.55);
+        const cx = app.width / 2;
+        const cy = app.height * 0.44;
+        const cycle = 8.4;
+        const pos = app.med.breathTime % cycle;
+        const isInhale = pos < cycle / 2;
+        const prog = 0.5 - 0.5 * Math.cos((pos / cycle) * Math.PI * 2);
+        const minR = Math.max(52, Math.min(app.width, app.height) * 0.09);
+        const maxR = Math.min(160, Math.min(app.width, app.height) * 0.22);
+        const r = minR + (maxR - minR) * prog;
+
+        const g = ctx.createRadialGradient(cx, cy, 10, cx, cy, r * 1.9);
+        g.addColorStop(0, 'rgba(254, 240, 138, 0.28)');
+        g.addColorStop(0.5, 'rgba(167, 139, 250, 0.2)');
+        g.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * 1.9, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(254, 240, 138, 0.8)';
+        ctx.lineWidth = 2.2;
+        ctx.shadowColor = 'rgba(254, 240, 138, 0.55)';
+        ctx.shadowBlur = 16;
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.font = '400 18px "Noto Serif TC", serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = 'rgba(255, 250, 228, 0.94)';
+        ctx.fillText(app.med.paused ? '靜止' : (isInhale ? '深吸氣' : '緩吐氣'), cx, cy);
+      }
+
+      /* -----------------------------------------------------------------------
+         8. CHAPTER 1: 入靜・每日一禪定
+         ----------------------------------------------------------------------- */
+      const CH1_WORDS = ['焦慮', '比較', '執著', '委屈', '得失', '匆忙', '煩躁'];
+
+      function initCh1() {
+        app.activeChapterId = 1;
+        app.ch1 = {
+          clarity: 0,
+          breathTime: 0,
+          isHolding: false,
+          playerRatio: 0,
+          resonance: 0,
+          letGoCount: 0,
+          cycleIdx: 0,
+          cycleSync: 0,
+          spawnTimer: 2.2,
+          thoughts: [],
+          done: false,
+          ascendTimer: 0
+        };
+        ui.gameHud.classList.remove('fade-hidden');
+        updateHud('心鏡透明度', 0, '靜心調息', '放下雜念：0');
+        audio.playBowl(0.95);
+        setWhisper('隨光環長按吸氣、鬆手吐氣；雜念浮現時切勿拍打，安住呼吸即自化散。', 5200);
+        setHint('長按畫面或空白鍵吸氣・鬆手吐氣');
+      }
+
+      function spawnCh1Thought(parent = null) {
+        if (app.ch1.thoughts.length >= 12) return;
+        const word = CH1_WORDS[Math.floor(Math.random() * CH1_WORDS.length)];
+        if (parent) {
+          const ang = Math.random() * Math.PI * 2;
+          const spd = 24 + Math.random() * 24;
+          app.ch1.thoughts.push({
+            x: parent.x + Math.cos(ang) * 12,
+            y: parent.y + Math.sin(ang) * 12,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd,
+            r: Math.max(24, parent.r * 0.8),
+            word: Math.random() > 0.45 ? parent.word : word,
+            calm: 0,
+            age: 0,
+            dark: Math.min(1, parent.dark + 0.2)
+          });
+          return;
+        }
+        const side = Math.floor(Math.random() * 2);
+        app.ch1.thoughts.push({
+          x: side === 0 ? -40 : app.width + 40,
+          y: app.height * (0.2 + Math.random() * 0.55),
+          vx: (side === 0 ? 1 : -1) * (18 + Math.random() * 16),
+          vy: (Math.random() - 0.5) * 12,
+          r: 32 + Math.random() * 10,
+          word,
+          calm: 0,
+          age: 0,
+          dark: 0.68
+        });
+      }
+
+      function handleCh1Tap(px, py) {
+        const c = app.ch1;
+        if (c.done) return false;
+        for (let i = c.thoughts.length - 1; i >= 0; i--) {
+          const b = c.thoughts[i];
+          if (Math.hypot(px - b.x, py - b.y) <= b.r + 12) {
+            c.thoughts.splice(i, 1);
+            audio.playInkDrop();
+            c.clarity = Math.max(0, c.clarity - 2);
+            c.resonance = Math.max(0, c.resonance - 0.35);
+            spawnBurst(b.x, b.y, 10, false);
+            spawnCh1Thought(b);
+            spawnCh1Thought(b);
+            setWhisper('對抗只會滋生雜念，安住呼吸即可。', 4200);
+            return true;
+          }
+        }
+        return false;
+      }
+
+      function updateCh1(dt) {
+        const c = app.ch1;
+        c.breathTime += dt;
+        const tNorm = c.clarity / 100;
+        audio.updateAtmosphere(0.16 + tNorm * 0.1, tNorm, tNorm * 0.25);
+
+        if (c.done) {
+          c.ascendTimer += dt;
+          if (c.ascendTimer >= 2.2 && ui.chapterCompleteModal.classList.contains('fade-hidden')) {
+            openChapterComplete(1);
+          }
+          return;
+        }
+
+        const cycle = 8.0;
+        const pos = c.breathTime % cycle;
+        const cIdx = Math.floor(c.breathTime / cycle);
+        const isInhale = pos < cycle / 2;
+        const nearSwitch = pos < 0.5 || Math.abs(pos - cycle / 2) < 0.5 || (cycle - pos) < 0.5;
+        const aligned = nearSwitch || (isInhale && c.isHolding) || (!isInhale && !c.isHolding);
+
+        c.playerRatio += ((c.isHolding ? 1 : 0) - c.playerRatio) * Math.min(1, dt * 2.5);
+
+        if (aligned) {
+          c.resonance = Math.min(1, c.resonance + dt * 0.6);
+          c.cycleSync += dt;
+          c.clarity = Math.min(100, c.clarity + (1.4 + c.resonance * 1.4) * dt);
+        } else {
+          c.resonance = Math.max(0, c.resonance - dt * 0.45);
+        }
+
+        if (cIdx > c.cycleIdx) {
+          c.cycleIdx = cIdx;
+          if (c.cycleSync > cycle * 0.6) {
+            audio.playBowl(1 + tNorm * 0.12);
+            spawnRipple(app.width / 2, app.height * 0.48, Math.min(app.width, app.height) * 0.48, 'gold', 70);
+          }
+          c.cycleSync = 0;
+        }
+
+        c.spawnTimer -= dt;
+        if (c.spawnTimer <= 0 && c.clarity < 94) {
+          spawnCh1Thought();
+          c.spawnTimer = 3.0 + Math.random() * 1.6;
+        }
+
+        const cx = app.width / 2;
+        const cy = app.height * 0.48;
+        for (let i = c.thoughts.length - 1; i >= 0; i--) {
+          const b = c.thoughts[i];
+          b.age += dt;
+          b.x += b.vx * dt;
+          b.y += b.vy * dt;
+
+          const dx = b.x - cx, dy = b.y - cy;
+          const dist = Math.hypot(dx, dy);
+          if (dist < 115 && dist > 1) {
+            b.x += (dx / dist) * 28 * dt;
+            b.y += (dy / dist) * 28 * dt;
+          }
+
+          b.calm += dt * (c.resonance > 0.35 ? 0.22 : 0.05);
+          if (b.calm >= 1 || b.age > 13) {
+            c.letGoCount += 1;
+            c.clarity = Math.min(100, c.clarity + 2.2);
+            spawnBurst(b.x, b.y, 12, true);
+            c.thoughts.splice(i, 1);
+            continue;
+          }
+          if (b.x < -100 || b.x > app.width + 100 || b.y < -100 || b.y > app.height + 100) {
+            c.thoughts.splice(i, 1);
+          }
+        }
+
+        updateHud('心鏡透明度', c.clarity, c.resonance > 0.6 ? '印心共振' : '靜心調息', `放下雜念：${c.letGoCount}`);
+
+        if (c.clarity >= 100) {
+          c.done = true;
+          c.isHolding = false;
+          c.thoughts.forEach((b) => spawnBurst(b.x, b.y, 12, true));
+          c.thoughts = [];
+          audio.playTempleBell();
+          spawnRipple(cx, cy, Math.max(app.width, app.height) * 0.8, 'gold', 120);
+          setHint('');
+          setWhisper('心鏡圓明，清淨光束落下。', 3200);
+        }
+      }
+
+      function drawCh1() {
+        const c = app.ch1;
+        const tNorm = c.clarity / 100;
+        drawMidnightBackdrop(tNorm);
+
+        // Lotus water mirror horizon
+        const wy = app.height * 0.76;
+        ctx.fillStyle = `rgba(18, 16, 34, ${0.42 - tNorm * 0.14})`;
+        ctx.fillRect(0, wy, app.width, app.height - wy);
+        for (let i = 0; i < 8; i++) {
+          const y = wy + 12 + i * ((app.height - wy) / 8);
+          const w = app.width * (0.28 + (1 - i / 8) * 0.3);
+          const lg = ctx.createLinearGradient(app.width / 2 - w / 2, y, app.width / 2 + w / 2, y);
+          lg.addColorStop(0, 'rgba(254,240,138,0)');
+          lg.addColorStop(0.5, `rgba(254,240,138,${0.06 + tNorm * 0.2})`);
+          lg.addColorStop(1, 'rgba(254,240,138,0)');
+          ctx.fillStyle = lg;
+          ctx.fillRect(app.width / 2 - w / 2, y, w, 1.4);
+        }
+
+        // Central breathing ring
+        const cx = app.width / 2;
+        const cy = app.height * 0.48;
+        const cycle = 8.0;
+        const pos = c.breathTime % cycle;
+        const isInhale = pos < cycle / 2;
+        const prog = 0.5 - 0.5 * Math.cos((pos / cycle) * Math.PI * 2);
+        const minR = Math.max(50, Math.min(app.width, app.height) * 0.09);
+        const maxR = Math.min(155, Math.min(app.width, app.height) * 0.22);
+        const guideR = minR + (maxR - minR) * prog;
+        const playerR = minR * 0.9 + (maxR - minR * 0.9) * c.playerRatio;
+
+        const g = ctx.createRadialGradient(cx, cy, 8, cx, cy, guideR * 1.85);
+        g.addColorStop(0, `rgba(254, 240, 138, ${0.14 + c.resonance * 0.22})`);
+        g.addColorStop(0.5, `rgba(167, 139, 250, ${0.16 + tNorm * 0.14})`);
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(cx, cy, guideR * 1.85, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, guideR, 0, Math.PI * 2);
+        ctx.strokeStyle = c.resonance > 0.55 ? 'rgba(254, 240, 138, 0.9)' : 'rgba(196, 181, 253, 0.78)';
+        ctx.lineWidth = 2.2;
+        ctx.shadowColor = c.resonance > 0.55 ? 'rgba(254, 240, 138, 0.65)' : 'rgba(167, 139, 250, 0.55)';
+        ctx.shadowBlur = 16;
+        ctx.stroke();
+
+        // Player dashed ring
+        ctx.beginPath();
+        ctx.arc(cx, cy, playerR, 0, Math.PI * 2);
+        ctx.setLineDash([5, 6]);
+        ctx.strokeStyle = c.isHolding ? 'rgba(255, 248, 210, 0.8)' : 'rgba(196, 181, 253, 0.45)';
+        ctx.lineWidth = 1.4;
+        ctx.stroke();
+        ctx.restore();
+
+        if (!c.done) {
+          ctx.font = '400 17px "Noto Serif TC", serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = 'rgba(255, 250, 228, 0.94)';
+          ctx.fillText(isInhale ? '吸氣・長按' : '吐氣・鬆手', cx, cy);
+        }
+
+        // Ink Thought Bubbles
+        c.thoughts.forEach((b) => {
+          const fade = Math.max(0, 1 - b.calm);
+          ctx.save();
+          ctx.translate(b.x, b.y);
+          const bg = ctx.createRadialGradient(-6, -6, 3, 0, 0, b.r);
+          bg.addColorStop(0, `rgba(45, 48, 64, ${0.75 * fade * b.dark})`);
+          bg.addColorStop(1, `rgba(14, 16, 24, ${0.88 * fade * b.dark})`);
+          ctx.fillStyle = bg;
+          ctx.beginPath();
+          ctx.arc(0, 0, b.r, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.strokeStyle = b.calm > 0.3 ? `rgba(254, 240, 138, ${b.calm * fade})` : `rgba(165, 160, 185, ${0.35 * fade})`;
+          ctx.lineWidth = 1.3;
+          ctx.stroke();
+
+          ctx.font = '400 14px "Noto Serif TC", serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = `rgba(240, 236, 248, ${0.88 * fade})`;
+          ctx.fillText(b.word, 0, 1);
+          ctx.restore();
+        });
+
+        // Completion Pure Light Beam
+        if (c.done) {
+          const beamA = Math.min(1, c.ascendTimer / 1.2);
+          const bw = Math.min(app.width * 0.5, 320);
+          const bg = ctx.createLinearGradient(cx, 0, cx, app.height);
+          bg.addColorStop(0, `rgba(255, 252, 232, ${beamA * 0.72})`);
+          bg.addColorStop(0.6, `rgba(254, 240, 138, ${beamA * 0.3})`);
+          bg.addColorStop(1, 'rgba(167, 139, 250, 0)');
+          ctx.fillStyle = bg;
+          ctx.beginPath();
+          ctx.moveTo(cx - bw * 0.25, 0);
+          ctx.lineTo(cx + bw * 0.25, 0);
+          ctx.lineTo(cx + bw * 0.75, app.height);
+          ctx.lineTo(cx - bw * 0.75, app.height);
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
+
+      /* -----------------------------------------------------------------------
+         9. CHAPTER 2: 共心・每週一法會 (PHASE 1 WHEEL -> PHASE 2 DHARMA SHIP)
+         ----------------------------------------------------------------------- */
+      const CH2_CONFLICTS = ['人我是非', '比較', '分別心', '計較', '執見'];
+      const CH2_HARMONY = ['共心', '感恩', '圓融', '包容', '合一'];
+
+      function initCh2() {
+        app.activeChapterId = 2;
+        const minDim = Math.min(app.width, app.height);
+        const orbs = [];
+        for (let i = 0; i < 20; i++) {
+          const ang = (i / 20) * Math.PI * 2;
+          const rad = Math.max(88, minDim * (i % 2 === 0 ? 0.26 : 0.36));
+          orbs.push({
+            id: i,
+            ang,
+            spd: (i % 2 === 0 ? 0.14 : -0.11),
+            baseR: rad,
+            x: app.width / 2 + Math.cos(ang) * rad,
+            y: app.height * 0.48 + Math.sin(ang) * rad,
+            lit: false,
+            offX: (i % 2 === 0 ? -1 : 1) * (44 + Math.floor(i / 2) * 10),
+            offY: -58 + Math.floor(i / 2) * 15
+          });
+        }
+        app.ch2 = {
+          phase: 1, // 1: wheel, 1.5: morph, 2: ship, 3: done
+          coHeart: 0,
+          resolved: 0,
+          orbs,
+          conflicts: [],
+          dragged: null,
+          spawnTimer: 1.0,
+          morphTimer: 0,
+          voyage: 0,
+          scrollDist: 0,
+          shipX: app.width / 2,
+          shipTargetX: app.width / 2,
+          inChannel: true,
+          doneTimer: 0
+        };
+        ui.gameHud.classList.remove('fade-hidden');
+        updateHud('共心值', 0, '放下對立・匯聚法船', '轉化：0 / 6');
+        audio.playBowl(1.0);
+        setWhisper('拖曳暗紅排斥線引導回中央金色法輪，化對立為共心。', 4800);
+        setHint('按住並拖曳暗紅排斥線回中央法輪');
+      }
+
+      function spawnCh2Conflict() {
+        const c = app.ch2;
+        if (c.conflicts.length >= 3) return;
+        const busy = new Set();
+        c.conflicts.forEach((cf) => { busy.add(cf.p1.id); busy.add(cf.p2.id); });
+        const free = c.orbs.filter((o) => !busy.has(o.id));
+        if (free.length < 2) return;
+        const p1 = free[Math.floor(Math.random() * free.length)];
+        const p2 = free.find((o) => o.id !== p1.id && Math.hypot(o.x - p1.x, o.y - p1.y) > 90) || free.find((o) => o.id !== p1.id);
+        c.conflicts.push({
+          p1, p2,
+          cx: (p1.x + p2.x) / 2,
+          cy: (p1.y + p2.y) / 2,
+          word: CH2_CONFLICTS[Math.floor(Math.random() * CH2_CONFLICTS.length)],
+          drag: false
+        });
+      }
+
+      function ch2ChannelX(worldY) {
+        const amp = Math.min(app.width * 0.24, 175);
+        return app.width / 2 + Math.sin(worldY * 0.0024) * amp * 0.65 + Math.sin(worldY * 0.005 + 1.0) * amp * 0.35;
+      }
+
+      function updateCh2(dt) {
+        const c = app.ch2;
+        const wx = app.width / 2;
+        const wy = app.height * 0.48;
+        const wheelR = Math.max(44, Math.min(app.width, app.height) * 0.085);
+
+        if (c.phase === 1) {
+          audio.updateAtmosphere(0.16, c.coHeart / 100, (c.coHeart / 100) * 0.2);
+          c.orbs.forEach((o) => {
+            o.ang += o.spd * dt;
+            o.x = wx + Math.cos(o.ang) * o.baseR;
+            o.y = wy + Math.sin(o.ang) * o.baseR;
+          });
+
+          c.spawnTimer -= dt;
+          if (c.spawnTimer <= 0) {
+            spawnCh2Conflict();
+            c.spawnTimer = 2.4;
+          }
+
+          for (let i = c.conflicts.length - 1; i >= 0; i--) {
+            const cf = c.conflicts[i];
+            const mx = (cf.p1.x + cf.p2.x) / 2;
+            const my = (cf.p1.y + cf.p2.y) / 2;
+            if (cf.drag && app.pointerDown) {
+              cf.cx += (app.pointerX - cf.cx) * Math.min(1, dt * 16);
+              cf.cy += (app.pointerY - cf.cy) * Math.min(1, dt * 16);
+              if (Math.hypot(cf.cx - wx, cf.cy - wy) <= wheelR + 36) {
+                c.conflicts.splice(i, 1);
+                c.dragged = null;
+                c.resolved += 1;
+                c.coHeart = Math.min(100, (c.resolved / 6) * 100);
+                cf.p1.lit = true;
+                cf.p2.lit = true;
+                audio.playGuzheng(c.resolved);
+                spawnRipple(wx, wy, Math.min(app.width, app.height) * 0.5, 'gold', 95);
+                spawnBurst(wx, wy, 20, true);
+                spawnFloatText(wx, wy - wheelR - 14, CH2_HARMONY[c.resolved % CH2_HARMONY.length]);
+                updateHud('共心值', c.coHeart, '放下對立・匯聚法船', `轉化：${c.resolved} / 6`);
+
+                if (c.resolved >= 6) {
+                  c.phase = 1.5;
+                  c.conflicts = [];
+                  audio.playBowl(1.1);
+                  setWhisper('萬燈共心，同乘大法船，啟航穿越迷霧海。', 3600);
+                  setHint('');
+                }
+              }
+            } else {
+              cf.drag = false;
+              cf.cx += (mx - cf.cx) * Math.min(1, dt * 6);
+              cf.cy += (my - cf.cy) * Math.min(1, dt * 6);
+            }
+          }
+        } else if (c.phase === 1.5) {
+          c.morphTimer += dt;
+          const by = app.height * 0.72;
+          c.orbs.forEach((o) => {
+            o.x += (app.width / 2 + o.offX - o.x) * Math.min(1, dt * 3.5);
+            o.y += (by + o.offY - o.y) * Math.min(1, dt * 3.5);
+            o.lit = true;
+          });
+          if (c.morphTimer >= 2.6) {
+            c.phase = 2;
+            c.shipX = app.width / 2;
+            c.shipTargetX = app.width / 2;
+            setHint('左右拖曳畫面或使用方向鍵 / A、D 沿金色航道前行');
+          }
+        } else if (c.phase === 2) {
+          const by = app.height * 0.72;
+          const spd = Math.max(240, app.width * 0.42);
+          if (app.keys['ArrowLeft'] || app.keys['KeyA']) c.shipTargetX -= spd * dt;
+          if (app.keys['ArrowRight'] || app.keys['KeyD']) c.shipTargetX += spd * dt;
+          c.shipTargetX = Math.max(44, Math.min(app.width - 44, c.shipTargetX));
+          c.shipX += (c.shipTargetX - c.shipX) * Math.min(1, dt * 7.5);
+
+          const chX = ch2ChannelX(c.scrollDist + (app.height - by));
+          const halfW = Math.max(56, Math.min(92, app.width * 0.14));
+          c.inChannel = Math.abs(c.shipX - chX) <= halfW;
+
+          c.scrollDist += (c.inChannel ? 150 : 95) * dt;
+          c.voyage = Math.min(100, c.voyage + (c.inChannel ? 3.5 : 1.7) * dt);
+
+          c.orbs.forEach((o, i) => {
+            const spread = c.inChannel ? 1.0 : 1.25;
+            o.x += (c.shipX + o.offX * spread + Math.sin(app.time * 1.8 + i) * 6 - o.x) * Math.min(1, dt * 4.5);
+            o.y += (by + o.offY + Math.cos(app.time * 1.5 + i) * 5 - o.y) * Math.min(1, dt * 4.5);
+          });
+
+          audio.updateAtmosphere(0.18, c.voyage / 100, c.inChannel ? 0.35 : 0.05);
+          updateHud('星海航程', c.voyage, c.inChannel ? '金光同頻・共心前行' : '穩住心念・隨光同行', '萬燈同舟');
+
+          if (c.voyage >= 100) {
+            c.phase = 3;
+            audio.playTempleBell();
+            spawnRipple(c.shipX, by, Math.max(app.width, app.height) * 0.85, 'gold', 130);
+            setHint('');
+            setWhisper('穿越迷霧海，萬燈共心圓滿。', 3000);
+          }
+        } else if (c.phase === 3) {
+          c.doneTimer += dt;
+          if (c.doneTimer >= 2.2 && ui.chapterCompleteModal.classList.contains('fade-hidden')) {
+            openChapterComplete(2);
+          }
+        }
+      }
+
+      function drawCh2() {
+        const c = app.ch2;
+        drawMidnightBackdrop(c.phase >= 2 ? 0.72 : 0.35 + (c.coHeart / 100) * 0.35);
+
+        if (c.phase === 1 || c.phase === 1.5) {
+          const wx = app.width / 2, wy = app.height * 0.48;
+          const r = Math.max(44, Math.min(app.width, app.height) * 0.085);
+          const alpha = c.phase === 1.5 ? Math.max(0, 1 - c.morphTimer / 1.8) : 1;
+
+          if (alpha > 0.01) {
+            ctx.save();
+            ctx.globalAlpha = alpha;
+            ctx.translate(wx, wy);
+            ctx.rotate(app.time * 0.22);
+            ctx.strokeStyle = 'rgba(254, 240, 138, 0.85)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(0, 0, r, 0, Math.PI * 2);
+            ctx.stroke();
+            for (let i = 0; i < 8; i++) {
+              ctx.rotate(Math.PI / 4);
+              ctx.beginPath();
+              ctx.moveTo(0, 0);
+              ctx.lineTo(0, -r);
+              ctx.stroke();
+            }
+            ctx.restore();
+          }
+
+          // Tension lines
+          c.conflicts.forEach((cf) => {
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(cf.p1.x, cf.p1.y);
+            ctx.quadraticCurveTo(cf.cx, cf.cy, cf.p2.x, cf.p2.y);
+            ctx.strokeStyle = cf.drag ? 'rgba(254, 240, 138, 0.92)' : 'rgba(225, 82, 92, 0.88)';
+            ctx.lineWidth = cf.drag ? 3 : 2.2;
+            ctx.stroke();
+
+            const mx = 0.25 * cf.p1.x + 0.5 * cf.cx + 0.25 * cf.p2.x;
+            const my = 0.25 * cf.p1.y + 0.5 * cf.cy + 0.25 * cf.p2.y;
+            ctx.fillStyle = cf.drag ? 'rgba(254, 240, 138, 0.35)' : 'rgba(225, 82, 92, 0.3)';
+            ctx.beginPath();
+            ctx.arc(mx, my, 10, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.font = '400 13px "Noto Serif TC", serif';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = cf.drag ? '#fef08a' : '#fecaca';
+            ctx.fillText(cf.word, mx, my - 16);
+            ctx.restore();
+          });
+        }
+
+        if (c.phase >= 2) {
+          // Golden Resonance Channel
+          const steps = 36;
+          const halfW = Math.max(56, Math.min(92, app.width * 0.14));
+          const left = [], right = [];
+          for (let i = 0; i <= steps; i++) {
+            const sy = (i / steps) * (app.height + 40) - 20;
+            const cx = ch2ChannelX(c.scrollDist + (app.height - sy));
+            left.push({ x: cx - halfW, y: sy });
+            right.push({ x: cx + halfW, y: sy });
+          }
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(left[0].x, left[0].y);
+          left.forEach((p) => ctx.lineTo(p.x, p.y));
+          for (let i = right.length - 1; i >= 0; i--) ctx.lineTo(right[i].x, right[i].y);
+          ctx.closePath();
+          ctx.fillStyle = c.inChannel ? 'rgba(254, 240, 138, 0.14)' : 'rgba(167, 139, 250, 0.08)';
+          ctx.fill();
+
+          [left, right].forEach((edge) => {
+            ctx.beginPath();
+            ctx.moveTo(edge[0].x, edge[0].y);
+            edge.forEach((p) => ctx.lineTo(p.x, p.y));
+            ctx.strokeStyle = c.inChannel ? 'rgba(254, 240, 138, 0.65)' : 'rgba(196, 181, 253, 0.35)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          });
+          ctx.restore();
+
+          // Luminous Dharma Ship
+          const bx = c.shipX, by = app.height * 0.72;
+          ctx.save();
+          // Golden web to orbs
+          ctx.strokeStyle = c.inChannel ? 'rgba(254, 240, 138, 0.25)' : 'rgba(196, 181, 253, 0.14)';
+          ctx.lineWidth = 1;
+          c.orbs.forEach((o) => {
+            ctx.beginPath();
+            ctx.moveTo(bx, by);
+            ctx.lineTo(o.x, o.y);
+            ctx.stroke();
+          });
+
+          ctx.translate(bx, by);
+          ctx.beginPath();
+          ctx.moveTo(0, -44);
+          ctx.bezierCurveTo(22, -22, 26, 12, 12, 38);
+          ctx.quadraticCurveTo(0, 46, -12, 38);
+          ctx.bezierCurveTo(-26, 12, -22, -22, 0, -44);
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(254, 240, 138, 0.35)';
+          ctx.fill();
+          ctx.strokeStyle = '#fef08a';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Practitioner Orbs
+        c.orbs.forEach((o) => {
+          const g = ctx.createRadialGradient(o.x, o.y, 1, o.x, o.y, 16);
+          g.addColorStop(0, '#fffef5');
+          g.addColorStop(0.45, o.lit ? 'rgba(254, 240, 138, 0.72)' : 'rgba(196, 181, 253, 0.55)');
+          g.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(o.x, o.y, 16, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      }
+
+      /* -----------------------------------------------------------------------
+         10. CHAPTER 3: 開悟・契悟三聖教 (THREE SEQUENTIAL PUZZLES)
+         ----------------------------------------------------------------------- */
+      const CH3_OBJECTS = [
+        { id: 'rock', name: '頑石', verse: '頑石點頭，亦含佛性', rx: -0.26, ry: -0.16 },
+        { id: 'leaf', name: '落葉', verse: '一葉知秋，枯榮皆如來', rx: 0.26, ry: -0.15 },
+        { id: 'dust', name: '微塵', verse: '一沙一世界，微塵藏法界', rx: -0.24, ry: 0.18 },
+        { id: 'branch', name: '枯枝', verse: '枯木逢春，本源不滅', rx: 0.25, ry: 0.17 },
+        { id: 'self', name: '倒影', verse: '回光返照，自性本俱足', rx: 0, ry: 0.01 }
+      ];
+
+      function initCh3() {
+        app.activeChapterId = 3;
+        const wallDust = [];
+        for (let i = 0; i < 240; i++) {
+          const side = i % 4;
+          const pos = (Math.random() - 0.5) * 2;
+          const d = 0.55 + (i % 3) * 0.25;
+          const bx = side % 2 === 0 ? pos * d : (side === 1 ? d : -d);
+          const by = side % 2 === 1 ? pos * d : (side === 0 ? -d : d);
+          const ang = Math.atan2(by, bx) + (Math.random() - 0.5) * 0.6;
+          const dist = 120 + Math.random() * 280;
+          wallDust.push({ bx, by, sx: Math.cos(ang) * dist, sy: Math.sin(ang) * dist, r: 1 + Math.random() * 2.2, gold: Math.random() > 0.65 });
+        }
+        app.ch3 = {
+          realm: 1, // 1, 1.5, 2, 2.5, 3, 3.5
+          zoomTarget: 0,
+          zoomCur: 0,
+          wallDust,
+          objects: CH3_OBJECTS.map((o, idx) => ({ ...o, x: 0, y: 0, lit: false, glow: 0, phase: idx * 1.2 })),
+          litCount: 0,
+          angleTarget: -54,
+          angleCur: -54,
+          lockProg: 0,
+          transTimer: 0,
+          dragLastX: 0,
+          pinchDist: null,
+          pinchStartZoom: 0
+        };
+        layoutCh3Realm2();
+        ui.ch3Nav.classList.remove('fade-hidden');
+        setupCh3RealmUI(1);
+        audio.playBowl(0.95);
+      }
+
+      function layoutCh3Realm2() {
+        if (!app.ch3.objects) return;
+        const cx = app.width / 2, cy = app.height * 0.48;
+        const sx = Math.min(app.width * 0.85, 720);
+        const sy = Math.min(app.height * 0.62, 480);
+        app.ch3.objects.forEach((o) => {
+          o.x = cx + o.rx * sx;
+          o.y = cy + o.ry * sy;
+        });
+      }
+
+      function setupCh3RealmUI(realm) {
+        [ui.ch3Step1, ui.ch3Step2, ui.ch3Step3].forEach((el, i) => {
+          el.style.color = (i + 1 === realm) ? '#fef08a' : (i + 1 < realm ? '#c4b5fd' : 'rgba(168,162,158,0.65)');
+        });
+        if (realm === 1) {
+          ui.ch3SliderWrap.classList.remove('fade-hidden');
+          ui.ch3SliderLeft.textContent = '微觀執著';
+          ui.ch3SliderCenter.textContent = '觀照視野';
+          ui.ch3SliderRight.textContent = '宏觀虛空';
+          ui.ch3Slider.min = '0';
+          ui.ch3Slider.max = '100';
+          ui.ch3Slider.value = '0';
+          setWhisper('高牆業力看似無路可走……試著滑動滾輪、雙指縮放或拉動下方「觀照視野」拉遠視角。', 5500);
+        } else if (realm === 2) {
+          ui.ch3SliderWrap.classList.add('fade-hidden');
+          setWhisper('於空寂星水中輕觸五件凡常之物，照見本自俱足之金光。', 5000);
+        } else if (realm === 3) {
+          ui.ch3SliderWrap.classList.remove('fade-hidden');
+          ui.ch3SliderLeft.textContent = '左旋光軸';
+          ui.ch3SliderCenter.textContent = '光軸旋轉・三身歸一';
+          ui.ch3SliderRight.textContent = '右旋光軸';
+          ui.ch3Slider.min = '-90';
+          ui.ch3Slider.max = '90';
+          ui.ch3Slider.value = String(app.ch3.angleTarget);
+          setWhisper('左右拖曳畫面或拉桿旋轉光軸，令法身、報身、應化身三身重疊歸一並安住片刻。', 5500);
+        }
+      }
+
+      function updateCh3(dt) {
+        const c = app.ch3;
+        if (c.realm === 1) {
+          c.zoomCur += (c.zoomTarget - c.zoomCur) * Math.min(1, dt * 6);
+          audio.updateAtmosphere(0.16, c.zoomCur, c.zoomCur * 0.3);
+          if (c.zoomCur >= 0.97) {
+            c.realm = 1.5;
+            c.transTimer = 0;
+            ui.ch3SliderWrap.classList.add('fade-hidden');
+            audio.playBowl(1.02);
+            spawnRipple(app.width / 2, app.height * 0.46, Math.max(app.width, app.height) * 0.7, 'gold', 110);
+            showBanner('境一・最究竟大理', '「天地萬物與業力，皆是空相」', 2600);
+          }
+        } else if (c.realm === 1.5) {
+          c.transTimer += dt;
+          if (c.transTimer >= 2.8) {
+            c.realm = 2;
+            setupCh3RealmUI(2);
+          }
+        } else if (c.realm === 2) {
+          c.objects.forEach((o) => {
+            o.phase += dt * 1.2;
+            if (o.lit) o.glow = Math.min(1, o.glow + dt * 1.4);
+          });
+          audio.updateAtmosphere(0.16, 0.3 + (c.litCount / 5) * 0.7, (c.litCount / 5) * 0.35);
+          if (c.litCount >= 5 && c.objects.every((o) => o.glow > 0.9)) {
+            c.realm = 2.5;
+            c.transTimer = 0;
+            audio.playBowl(1.12);
+            spawnRipple(app.width / 2, app.height * 0.48, Math.max(app.width, app.height) * 0.75, 'gold', 110);
+            showBanner('境二・大圓滿法', '「萬物皆如來所創，本自俱足如來」', 2600);
+          }
+        } else if (c.realm === 2.5) {
+          c.transTimer += dt;
+          if (c.transTimer >= 2.8) {
+            c.realm = 3;
+            setupCh3RealmUI(3);
+          }
+        } else if (c.realm === 3) {
+          if (!app.pointerDown && Math.abs(c.angleTarget) < 6) {
+            c.angleTarget *= Math.max(0, 1 - dt * 5);
+            ui.ch3Slider.value = c.angleTarget.toFixed(1);
+          }
+          c.angleCur += (c.angleTarget - c.angleCur) * Math.min(1, dt * 9);
+          const absA = Math.abs(c.angleCur);
+          const align = Math.max(0, 1 - absA / 65);
+          audio.updateAtmosphere(0.18, 0.35 + align * 0.65, align * 0.5);
+
+          if (absA < 4.5) {
+            c.lockProg = Math.min(1, c.lockProg + dt / 1.5);
+          } else {
+            c.lockProg = Math.max(0, c.lockProg - dt * 1.3);
+          }
+          if (c.lockProg >= 1) {
+            c.realm = 3.5;
+            c.transTimer = 0;
+            ui.ch3SliderWrap.classList.add('fade-hidden');
+            audio.playTempleBell();
+            spawnRipple(app.width / 2, app.height * 0.56, Math.max(app.width, app.height) * 0.85, 'gold', 130);
+            showBanner('境三・佛之三身', '「法、報、應化，三身本一如」', 2400);
+          }
+        } else if (c.realm === 3.5) {
+          c.transTimer += dt;
+          if (c.transTimer >= 2.6 && ui.chapterCompleteModal.classList.contains('fade-hidden')) {
+            openChapterComplete(3);
+          }
+        }
+      }
+
+      function drawCh3() {
+        const c = app.ch3;
+        drawMidnightBackdrop(0.5);
+        const cx = app.width / 2;
+
+        if (c.realm === 1 || c.realm === 1.5) {
+          const cy = app.height * 0.46;
+          const z = c.zoomCur;
+          const base = Math.min(app.width, app.height) * 0.32;
+          const sc = Math.max(0.12, 1 - z * 0.88);
+          const solid = Math.max(0, 1 - z * 1.25);
+
+          if (z > 0.05) {
+            c.wallDust.forEach((p) => {
+              const px = cx + p.bx * base * sc + p.sx * Math.pow(z, 1.3);
+              const py = cy + p.by * base * sc + p.sy * Math.pow(z, 1.3);
+              ctx.fillStyle = p.gold ? `rgba(254,240,138,${Math.min(1, z * 1.3) * 0.8})` : `rgba(196,181,253,${Math.min(1, z * 1.3) * 0.75})`;
+              ctx.beginPath();
+              ctx.arc(px, py, p.r, 0, Math.PI * 2);
+              ctx.fill();
+            });
+          }
+
+          if (solid > 0.01) {
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.scale(sc, sc);
+            ctx.globalAlpha = solid;
+            [1.1, 0.78, 0.46].forEach((m, i) => {
+              const s = base * m;
+              ctx.strokeStyle = i === 2 ? 'rgba(254,240,138,0.45)' : 'rgba(196,181,253,0.45)';
+              ctx.lineWidth = 14 - i * 2;
+              ctx.strokeRect(-s, -s, s * 2, s * 2);
+            });
+            // Red Karma Chains
+            ctx.strokeStyle = 'rgba(220, 78, 92, 0.7)';
+            ctx.lineWidth = 2.2;
+            ctx.setLineDash([8, 7]);
+            ctx.beginPath();
+            ctx.moveTo(-base * 1.1, -base * 1.1); ctx.lineTo(base * 1.1, base * 1.1);
+            ctx.moveTo(base * 1.1, -base * 1.1); ctx.lineTo(-base * 1.1, base * 1.1);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.font = '400 14px "Noto Serif TC", serif';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = 'rgba(252, 165, 165, 0.8)';
+            ctx.fillText('執念', 0, -base * 0.96);
+            ctx.fillText('業力', base * 0.96, 4);
+            ctx.fillText('我執', 0, base * 0.98);
+            ctx.restore();
+          }
+
+          // Center Soul Spark
+          const g = ctx.createRadialGradient(cx, cy, 2, cx, cy, 40 + z * 34);
+          g.addColorStop(0, '#ffffff');
+          g.addColorStop(0.4, z > 0.5 ? 'rgba(254,240,138,0.85)' : 'rgba(196,181,253,0.75)');
+          g.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 40 + z * 34, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (c.realm === 2 || c.realm === 2.5) {
+          const cy = app.height * 0.48;
+          // Golden mandala connections
+          const litObjs = c.objects.filter((o) => o.lit);
+          litObjs.forEach((o) => {
+            const oy = o.y + Math.sin(o.phase) * 6;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(o.x, oy);
+            ctx.strokeStyle = `rgba(254, 240, 138, ${o.glow * 0.6})`;
+            ctx.lineWidth = 1.4;
+            ctx.stroke();
+          });
+
+          c.objects.forEach((o) => {
+            const oy = o.y + Math.sin(o.phase) * 6;
+            ctx.save();
+            ctx.translate(o.x, oy);
+            if (o.glow > 0.02) {
+              const g = ctx.createRadialGradient(0, 0, 2, 0, 0, 62);
+              g.addColorStop(0, `rgba(255, 252, 232, ${o.glow})`);
+              g.addColorStop(0.45, `rgba(254, 240, 138, ${o.glow * 0.72})`);
+              g.addColorStop(1, 'rgba(0,0,0,0)');
+              ctx.fillStyle = g;
+              ctx.beginPath();
+              ctx.arc(0, 0, 62, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            ctx.beginPath();
+            ctx.arc(0, 0, 32, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(34, 32, 48, ${Math.max(0.18, 1 - o.glow * 0.78)})`;
+            ctx.fill();
+            ctx.strokeStyle = o.lit ? '#fef08a' : 'rgba(196, 181, 253, 0.48)';
+            ctx.lineWidth = o.lit ? 2 : 1.3;
+            ctx.stroke();
+
+            ctx.font = '400 15px "Noto Serif TC", serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = o.lit ? '#fef08a' : '#e7e5e4';
+            ctx.fillText(o.name, 0, 1);
+            ctx.restore();
+          });
+        } else {
+          // Realm 3: Three Bodies Alignment
+          const waterY = app.height * 0.58;
+          const rad = (c.angleCur * Math.PI) / 180;
+          const align = Math.max(0, 1 - Math.abs(c.angleCur) / 65);
+          const swing = Math.min(app.width * 0.34, 220);
+
+          ctx.fillStyle = '#0d0b1a';
+          ctx.fillRect(0, waterY, app.width, app.height - waterY);
+
+          // Pillar of unity light
+          const pillarA = Math.pow(align, 2) * 0.45 + c.lockProg * 0.55;
+          if (pillarA > 0.02) {
+            const pw = 28 + pillarA * 78;
+            const pg = ctx.createLinearGradient(cx - pw, 0, cx + pw, 0);
+            pg.addColorStop(0, 'rgba(254,240,138,0)');
+            pg.addColorStop(0.5, `rgba(255,252,230,${Math.min(0.9, pillarA * 0.85)})`);
+            pg.addColorStop(1, 'rgba(254,240,138,0)');
+            ctx.fillStyle = pg;
+            ctx.fillRect(cx - pw, 0, pw * 2, app.height);
+          }
+
+          // 1. Dharmakaya (法身)
+          const dx = cx + Math.sin(rad) * swing;
+          const dy = app.height * 0.17;
+          const dg = ctx.createRadialGradient(dx, dy, 3, dx, dy, 80);
+          dg.addColorStop(0, '#ffffff');
+          dg.addColorStop(0.4, 'rgba(254,240,138,0.65)');
+          dg.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = dg;
+          ctx.beginPath();
+          ctx.arc(dx, dy, 80, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.font = '300 13px "Noto Serif TC", serif';
+          ctx.textAlign = 'center';
+          ctx.fillStyle = 'rgba(254,240,138,0.88)';
+          ctx.fillText('法身・無形光源', dx, dy - 42);
+
+          // 2. Sambhogakaya (報身 Full Moon)
+          const mx = cx - Math.sin(rad * 0.65) * swing * 0.58;
+          const my = app.height * 0.38;
+          const mg = ctx.createRadialGradient(mx - 8, my - 8, 4, mx, my, 40);
+          mg.addColorStop(0, '#fffef4');
+          mg.addColorStop(0.65, 'rgba(254,240,138,0.88)');
+          mg.addColorStop(1, 'rgba(196,181,253,0.75)');
+          ctx.fillStyle = mg;
+          ctx.beginPath();
+          ctx.arc(mx, my, 40, 0, Math.PI * 2);
+          ctx.fill();
+          if (c.lockProg > 0.01) {
+            ctx.beginPath();
+            ctx.arc(mx, my, 52, -Math.PI / 2, -Math.PI / 2 + c.lockProg * Math.PI * 2);
+            ctx.strokeStyle = '#fef08a';
+            ctx.lineWidth = 2.6;
+            ctx.stroke();
+          }
+          ctx.fillStyle = 'rgba(225,210,255,0.9)';
+          ctx.fillText('報身・圓明法月', mx + 92, my + 4);
+
+          // 3. Nirmanakaya (應化身 Water Reflections)
+          [-1, -0.5, 0, 0.5, 1].forEach((seed, idx) => {
+            const rx = cx + seed * Math.sin(rad) * swing * 1.1;
+            const ry = waterY + 32 + idx * 14;
+            const rg = ctx.createRadialGradient(rx, ry, 2, rx, ry, 42);
+            rg.addColorStop(0, `rgba(255,248,215,${0.35 + align * 0.55})`);
+            rg.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = rg;
+            ctx.beginPath();
+            ctx.ellipse(rx, ry, 42, 7, 0, 0, Math.PI * 2);
+            ctx.fill();
+          });
+          ctx.fillStyle = 'rgba(254,240,138,0.82)';
+          ctx.fillText('應化身・千江月影', cx, waterY + 118);
+        }
+      }
+
+      /* -----------------------------------------------------------------------
+         11. CHAPTER 4: 大願・接引利他 (WISDOM OF NON-FORCING)
+         ----------------------------------------------------------------------- */
+      function buildCh4City() {
+        const bld = [];
+        let x = -20;
+        while (x < app.width + 60) {
+          const w = 52 + Math.random() * 88;
+          const h = 75 + Math.random() * 120;
+          bld.push({ x, w, h });
+          x += w + 4;
+        }
+        app.ch4.buildings = bld;
+      }
+
+      function initCh4() {
+        app.activeChapterId = 4;
+        const npcs = [];
+        for (let i = 0; i < 20; i++) {
+          const depth = Math.random();
+          npcs.push({
+            id: i,
+            x: Math.random() * app.width,
+            y: app.height * (0.54 + depth * 0.32),
+            dir: Math.random() > 0.5 ? 1 : -1,
+            spd: 22 + Math.random() * 22,
+            scale: 0.74 + depth * 0.38,
+            hesitant: i % 3 === 0,
+            hits: 0,
+            lastHit: -10,
+            lit: false,
+            glow: 0,
+            scared: 0,
+            walk: Math.random() * Math.PI * 2
+          });
+        }
+        app.ch4 = {
+          px: app.width / 2,
+          py: app.height * 0.7,
+          tx: app.width / 2,
+          ty: app.height * 0.7,
+          npcs,
+          litCount: 0,
+          lightNorm: 0,
+          lastRipple: -10,
+          overheat: 0,
+          buildings: [],
+          done: false,
+          doneTimer: 0
+        };
+        buildCh4City();
+        ui.gameHud.classList.remove('fade-hidden');
+        updateHud('城市燈火', 0, '柔和順緣・微光分享', '已點亮：0 / 10');
+        audio.playBowl(0.98);
+        setWhisper('移動光暈靠近路人，輕點畫面或空白鍵釋放柔和漣漪；切勿連點急切強求。', 5200);
+        setHint('移動光暈（滑鼠／觸控／WASD）・輕點或空白鍵分享微光');
+      }
+
+      function emitCh4Ripple() {
+        const c = app.ch4;
+        if (c.done) return;
+        const dt = app.time - c.lastRipple;
+        c.lastRipple = app.time;
+        if (dt < 1.1) c.overheat = Math.min(1, c.overheat + 0.52);
+        else c.overheat = Math.max(0, c.overheat - 0.28);
+
+        const harsh = c.overheat > 0.55;
+        if (harsh) {
+          audio.playDissonance();
+          setWhisper('過於急切反令眾生卻步，放緩步調順緣分享。', 3600);
+        } else {
+          audio.playGuzheng(c.litCount);
+        }
+
+        app.ripples.push({
+          x: c.px,
+          y: c.py,
+          r: 14,
+          maxR: harsh ? 175 : 155,
+          alpha: 0.85,
+          speed: harsh ? 230 : 132,
+          color: harsh ? 'harsh' : 'lavender',
+          ch4Hit: new Set(),
+          harsh
+        });
+      }
+
+      function updateCh4(dt) {
+        const c = app.ch4;
+        c.overheat = Math.max(0, c.overheat - dt * 0.25);
+        c.lightNorm += (Math.min(1, c.litCount / 10) - c.lightNorm) * Math.min(1, dt * 2);
+        audio.updateAtmosphere(0.16, 0.2 + c.lightNorm * 0.75, c.lightNorm * 0.35);
+
+        if (c.done) {
+          c.doneTimer += dt;
+          if (c.doneTimer >= 2.2 && ui.chapterCompleteModal.classList.contains('fade-hidden')) {
+            openChapterComplete(4);
+          }
+          return;
+        }
+
+        const kspd = 270;
+        if (app.keys['ArrowLeft'] || app.keys['KeyA']) c.tx -= kspd * dt;
+        if (app.keys['ArrowRight'] || app.keys['KeyD']) c.tx += kspd * dt;
+        if (app.keys['ArrowUp'] || app.keys['KeyW']) c.ty -= kspd * dt;
+        if (app.keys['ArrowDown'] || app.keys['KeyS']) c.ty += kspd * dt;
+        c.tx = Math.max(24, Math.min(app.width - 24, c.tx));
+        c.ty = Math.max(app.height * 0.48, Math.min(app.height - 28, c.ty));
+        c.px += (c.tx - c.px) * Math.min(1, dt * 8);
+        c.py += (c.ty - c.py) * Math.min(1, dt * 8);
+
+        // Ripple hits
+        app.ripples.forEach((rp) => {
+          if (!rp.ch4Hit) return;
+          c.npcs.forEach((n) => {
+            if (n.lit || rp.ch4Hit.has(n.id)) return;
+            if (Math.abs(Math.hypot(n.x - rp.x, n.y - 16 - rp.y) - rp.r) < 20) {
+              rp.ch4Hit.add(n.id);
+              if (rp.harsh) {
+                n.scared = 2.4;
+                n.dir = n.x < rp.x ? -1 : 1;
+              } else if (app.time - n.lastHit > 0.75) {
+                n.lastHit = app.time;
+                n.hits += 1;
+                if (n.hits >= (n.hesitant ? 2 : 1)) {
+                  n.lit = true;
+                  c.litCount += 1;
+                  audio.playGuzheng(c.litCount + 2);
+                  spawnBurst(n.x, n.y - 16, 12, true);
+                  spawnFloatText(n.x, n.y - 42, '溫暖入心');
+                  if (c.litCount >= 10) {
+                    c.done = true;
+                    audio.playTempleBell();
+                    setHint('');
+                    setWhisper('萬家燈火綿延成河，照亮塵世長夜。', 3200);
+                  }
+                } else {
+                  spawnFloatText(n.x, n.y - 42, '微光初入');
+                }
+              }
+            }
+          });
+        });
+
+        c.npcs.forEach((n) => {
+          if (n.scared > 0) n.scared = Math.max(0, n.scared - dt);
+          if (n.lit) n.glow = Math.min(1, n.glow + dt * 1.4);
+          const v = n.scared > 0 ? n.spd * 2.4 : (n.lit ? n.spd * 0.75 : n.spd);
+          n.x += n.dir * v * dt;
+          n.walk += dt * v * 0.14;
+          if (n.dir === 1 && n.x > app.width + 40) n.x = -40;
+          if (n.dir === -1 && n.x < -40) n.x = app.width + 40;
+        });
+
+        updateHud(
+          '城市燈火',
+          (c.litCount / 10) * 100,
+          c.overheat > 0.55 ? '過於急切・光過刺眼' : '柔和順緣・微光分享',
+          `已點亮：${Math.min(10, c.litCount)} / 10`
+        );
+      }
+
+      function drawCh4() {
+        const c = app.ch4;
+        const hy = app.height * 0.52;
+        const l = c.lightNorm;
+
+        // Twilight sky
+        const sky = ctx.createLinearGradient(0, 0, 0, hy + 20);
+        sky.addColorStop(0, `rgb(${Math.round(16 + l * 18)}, ${Math.round(18 + l * 10)}, ${Math.round(28 + l * 32)})`);
+        sky.addColorStop(1, `rgb(${Math.round(44 + l * 120)}, ${Math.round(44 + l * 82)}, ${Math.round(56 + l * 65)})`);
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, app.width, hy + 20);
+
+        // Ink Skyline
+        ctx.fillStyle = '#151422';
+        c.buildings.forEach((b) => ctx.fillRect(b.x, hy - b.h, b.w, b.h + 4));
+
+        // Street
+        ctx.fillStyle = '#11121c';
+        ctx.fillRect(0, hy, app.width, app.height - hy);
+
+        // Golden Light Filaments connecting illuminated passersby
+        const litNPCs = c.npcs.filter((n) => n.lit);
+        ctx.strokeStyle = 'rgba(254, 240, 138, 0.25)';
+        ctx.lineWidth = 1.2;
+        for (let i = 0; i < litNPCs.length - 1; i++) {
+          ctx.beginPath();
+          ctx.moveTo(litNPCs[i].x, litNPCs[i].y - 16);
+          ctx.lineTo(litNPCs[i + 1].x, litNPCs[i + 1].y - 16);
+          ctx.stroke();
+        }
+
+        // Passersby
+        c.npcs.forEach((n) => {
+          const s = n.scale;
+          ctx.save();
+          ctx.translate(n.x, n.y);
+          if (n.glow > 0.02) {
+            const g = ctx.createRadialGradient(0, -18 * s, 2, 0, -18 * s, 40 * s);
+            g.addColorStop(0, `rgba(255, 250, 224, ${n.glow * 0.9})`);
+            g.addColorStop(0.5, `rgba(254, 240, 138, ${n.glow * 0.45})`);
+            g.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = g;
+            ctx.beginPath();
+            ctx.arc(0, -18 * s, 40 * s, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.fillStyle = n.lit ? '#fff9e6' : (n.scared > 0 ? '#7f4f5c' : '#252736');
+          ctx.beginPath();
+          ctx.arc(0, -30 * s, 5 * s, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillRect(-5 * s, -24 * s, 10 * s, 16 * s);
+          ctx.restore();
+        });
+
+        // Player Aura
+        const harsh = c.overheat > 0.55;
+        const pg = ctx.createRadialGradient(c.px, c.py, 2, c.px, c.py, 44);
+        pg.addColorStop(0, '#ffffff');
+        pg.addColorStop(0.4, harsh ? 'rgba(248, 113, 113, 0.78)' : 'rgba(254, 240, 138, 0.65)');
+        pg.addColorStop(0.75, harsh ? 'rgba(244, 63, 94, 0.22)' : 'rgba(167, 139, 250, 0.25)');
+        pg.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = pg;
+        ctx.beginPath();
+        ctx.arc(c.px, c.py, 44, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      /* -----------------------------------------------------------------------
+         12. CHAPTER 5: 最終章｜見性・通過如來法則 (10-SECOND STILLNESS)
+         ----------------------------------------------------------------------- */
+      function initCh5() {
+        app.activeChapterId = 5;
+        app.ch5 = {
+          grace: 0.9,
+          still: 0,
+          egoClicks: 0,
+          egoFlare: 0,
+          enlightened: false,
+          enlTimer: 0,
+          lastMX: null,
+          lastMY: null,
+          coreY: app.height * 0.68,
+          tenDir: [],
+          subStage: 0
+        };
+        ui.ch5EgoCard.style.opacity = '1';
+        ui.ch5EgoCard.style.filter = 'none';
+        ui.ch5EgoBtnWrap.style.opacity = '1';
+        ui.ch5EgoBtnWrap.style.filter = 'none';
+        ui.ch5EgoBtn.style.pointerEvents = 'auto';
+        ui.ch5EgoLayer.classList.remove('fade-hidden');
+        ui.ch5FinalActions.classList.remove('opacity-100');
+        ui.ch5FinalActions.classList.add('opacity-0');
+        audio.playBowl(1.15);
+        setWhisper('最後一步就在眼前……似乎只差這 0.1% 便能成佛？', 5000, true);
+      }
+
+      function ch5Activity(fromBtn = false) {
+        const c = app.ch5;
+        if (c.enlightened) return;
+        audio.init();
+        c.egoFlare = 1.0;
+        if (fromBtn) {
+          c.egoClicks += 1;
+          audio.playInkDrop();
+          ui.ch5EgoCard.classList.remove('jitter-now');
+          void ui.ch5EgoCard.offsetWidth;
+          ui.ch5EgoCard.classList.add('jitter-now');
+          setWhisper(c.egoClicks < 3 ? '努力仍是意識心的執著…' : '放下雙手，完全靜止，全然交付。', 4800, true);
+        }
+        if (c.still > 1.2) {
+          c.still = Math.max(0, c.still - 2.2);
+          if (!fromBtn) setWhisper('放下雙手，全然交付。', 3600, true);
+        } else {
+          c.still = 0;
+        }
+      }
+
+      function updateCh5(dt) {
+        const c = app.ch5;
+        if (c.enlightened) {
+          c.enlTimer += dt;
+          audio.updateAtmosphere(0.22, 1.0, 0.95);
+          const cx = app.width / 2, cy = app.height * 0.45;
+          c.tenDir.forEach((p) => {
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            if (p.x < -30 || p.x > app.width + 30 || p.y < -30 || p.y > app.height + 30) {
+              p.x = cx;
+              p.y = cy;
+            }
+          });
+          return;
+        }
+
+        c.egoFlare = Math.max(0, c.egoFlare - dt * 1.6);
+        if (c.grace > 0) c.grace -= dt;
+        else c.still = Math.min(10.0, c.still + dt);
+
+        const s = c.still;
+        audio.updateAtmosphere(0.16, 0.6 + (s / 10) * 0.4, Math.max(0, (s - 3) / 7) * 0.85);
+
+        if (s > 1.8 && c.subStage === 0) {
+          c.subStage = 1;
+          setWhisper('努力仍是意識心的執著… 放下分數與色彩。', 4200, true);
+        } else if (s > 5.0 && c.subStage === 1) {
+          c.subStage = 2;
+          setWhisper('放下雙手，全然交付，化作百分之百透明…', 4200, true);
+        }
+
+        // 0–3s: Dissolve Fake Ego UI into gold dust
+        const uiFade = Math.max(0, 1 - s / 3.0);
+        ui.ch5EgoCard.style.opacity = String(uiFade.toFixed(3));
+        ui.ch5EgoCard.style.filter = `blur(${((1 - uiFade) * 6).toFixed(1)}px)`;
+        ui.ch5EgoBtnWrap.style.opacity = String(uiFade.toFixed(3));
+        ui.ch5EgoBtnWrap.style.filter = `blur(${((1 - uiFade) * 6).toFixed(1)}px)`;
+        ui.ch5EgoBtn.style.pointerEvents = uiFade > 0.2 ? 'auto' : 'none';
+
+        if (s > 0.2 && s < 3.0 && Math.random() < 0.6) {
+          app.particles.push({
+            x: app.width / 2 + (Math.random() - 0.5) * 280,
+            y: Math.random() > 0.5 ? 90 : app.height - 105,
+            vx: (Math.random() - 0.5) * 24,
+            vy: -(16 + Math.random() * 28),
+            r: 1.4 + Math.random() * 2.2,
+            life: 0.9,
+            decay: 0.8,
+            color: '245, 200, 95'
+          });
+        }
+
+        // 6–9.5s: Merge crystal core naturally into central golden source
+        const drift = Math.max(0, Math.min(1, (s - 5.6) / 4.0));
+        const ease = drift * drift * (3 - 2 * drift);
+        c.coreY = app.height * 0.68 + (app.height * 0.45 - app.height * 0.68) * ease;
+
+        if (s >= 10.0) {
+          c.enlightened = true;
+          markChapterCompleted(5);
+          ui.ch5EgoLayer.classList.add('fade-hidden');
+          setWhisper('');
+          audio.playTempleBell();
+
+          const cx = app.width / 2, cy = app.height * 0.45;
+          for (let i = 0; i < 420; i++) {
+            const a = Math.random() * Math.PI * 2;
+            const spd = 30 + Math.random() * 240;
+            c.tenDir.push({ x: cx, y: cy, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, r: 1 + Math.random() * 2.6, gold: Math.random() > 0.35 });
+          }
+          spawnRipple(cx, cy, Math.max(app.width, app.height) * 1.1, 'gold', 140);
+
+          setTimeout(() => {
+            if (app.scene === 'ch5' && app.ch5.enlightened) {
+              ui.ch5EnlightenedOverlay.classList.remove('fade-hidden');
+            }
+          }, 900);
+          setTimeout(() => {
+            if (app.scene === 'ch5' && app.ch5.enlightened) {
+              ui.ch5FinalActions.classList.remove('opacity-0');
+              ui.ch5FinalActions.classList.add('opacity-100');
+            }
+          }, 2600);
+        }
+      }
+
+      function drawCh5() {
+        const c = app.ch5;
+        const cx = app.width / 2;
+        const cy = app.height * 0.45;
+        const s = c.still;
+
+        // Pure Luminous White & Pale Lavender Void
+        const bg = ctx.createRadialGradient(cx, cy, 20, cx, cy, Math.max(app.width, app.height) * 0.85);
+        bg.addColorStop(0, '#ffffff');
+        bg.addColorStop(0.5, '#f9f5ff');
+        bg.addColorStop(1, '#ebe2fa');
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, app.width, app.height);
+
+        // Central Golden Dharma Source
+        const sr = Math.min(app.width, app.height) * 0.14 * (1 + 0.06 * Math.sin(app.time * 1.8) + (c.enlightened ? 0.55 : (s / 10) * 0.4));
+        const sg = ctx.createRadialGradient(cx, cy, 4, cx, cy, sr * 2.6);
+        sg.addColorStop(0, '#ffffff');
+        sg.addColorStop(0.32, 'rgba(254, 240, 138, 0.85)');
+        sg.addColorStop(0.65, 'rgba(196, 181, 253, 0.28)');
+        sg.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        ctx.fillStyle = sg;
+        ctx.beginPath();
+        ctx.arc(cx, cy, sr * 2.6, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (!c.enlightened) {
+          // Player Ego-Shell -> 100% Transparent Crystal Glass (3–6s)
+          const egoA = Math.max(0, Math.min(1, 1 - (s - 2.6) / 3.4 + c.egoFlare * 0.45));
+          const py = c.coreY;
+          if (egoA > 0.01) {
+            const eg = ctx.createRadialGradient(cx, py, 4, cx, py, 50);
+            eg.addColorStop(0, `rgba(236, 72, 153, ${egoA * 0.6})`);
+            eg.addColorStop(0.55, `rgba(139, 92, 246, ${egoA * 0.45})`);
+            eg.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.fillStyle = eg;
+            ctx.beginPath();
+            ctx.arc(cx, py, 50, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // Transparent Crystal Sphere (琉璃光)
+          ctx.beginPath();
+          ctx.arc(cx, py, 24, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.92)';
+          ctx.lineWidth = 1.6;
+          ctx.stroke();
+        } else {
+          c.tenDir.forEach((p) => {
+            ctx.fillStyle = p.gold ? 'rgba(234, 179, 8, 0.72)' : 'rgba(167, 139, 250, 0.65)';
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fill();
+          });
+        }
+      }
+
+      /* -----------------------------------------------------------------------
+         13. SHARED BACKDROP & FX RENDERERS
+         ----------------------------------------------------------------------- */
+      function drawMidnightBackdrop(clarity = 0.4) {
+        const bg = ctx.createLinearGradient(0, 0, 0, app.height);
+        bg.addColorStop(0, '#0b0d17');
+        bg.addColorStop(0.55, `rgb(${Math.round(18 + clarity * 28)}, ${Math.round(16 + clarity * 18)}, ${Math.round(34 + clarity * 44)})`);
+        bg.addColorStop(1, '#121022');
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, app.width, app.height);
+
+        app.stars.forEach((s) => {
+          const tw = 0.4 + 0.6 * Math.sin(app.time * s.speed + s.phase);
+          ctx.fillStyle = s.gold
+            ? `rgba(254, 240, 138, ${tw * (0.25 + clarity * 0.55)})`
+            : `rgba(196, 181, 253, ${tw * (0.25 + clarity * 0.5)})`;
+          ctx.beginPath();
+          ctx.arc(s.x * app.width, s.y * app.height, s.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        app.motes.forEach((m) => {
+          const x = m.x + Math.sin(m.phase) * m.amp;
+          ctx.fillStyle = m.gold ? 'rgba(254, 240, 138, 0.35)' : 'rgba(196, 181, 253, 0.32)';
+          ctx.beginPath();
+          ctx.arc(x, m.y, m.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      }
+
+      function drawSharedFX() {
+        app.ripples.forEach((rp) => {
+          ctx.beginPath();
+          ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI * 2);
+          ctx.strokeStyle = rp.color === 'harsh'
+            ? `rgba(248, 113, 113, ${rp.alpha})`
+            : (rp.color === 'lavender' ? `rgba(196, 181, 253, ${rp.alpha})` : `rgba(254, 240, 138, ${rp.alpha})`);
+          ctx.lineWidth = 1.8;
+          ctx.stroke();
+        });
+
+        app.particles.forEach((p) => {
+          ctx.fillStyle = `rgba(${p.color}, ${Math.max(0, p.life)})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        app.floatTexts.forEach((ft) => {
+          ctx.font = '400 15px "Noto Serif TC", serif';
+          ctx.textAlign = 'center';
+          ctx.fillStyle = `rgba(254, 240, 138, ${Math.max(0, ft.alpha)})`;
+          ctx.fillText(ft.text, ft.x, ft.y);
+        });
+      }
+
+      /* -----------------------------------------------------------------------
+         14. HIGH-RES 720x1280 「禪行心鏡卷軸」 GENERATOR
+         ----------------------------------------------------------------------- */
+      function generateZenScroll() {
+        const sc = ui.scrollCanvas;
+        const sctx = sc.getContext('2d');
+        const W = sc.width;   // 720
+        const H = sc.height;  // 1280
+        const doneCount = completedChapters.size;
+        const allDone = doneCount === 5;
+
+        const verses = [
+          '放下色彩，方見本真；萬相皆空，唯心如來',
+          '息心靜觀見明月，萬燈共心渡星河',
+          '破相見真歸一如，明心見性利十方'
+        ];
+        const verse = allDone ? verses[0] : verses[doneCount % verses.length];
+
+        // 1. Rice-Paper / Midnight-Violet Scroll Background
+        const bg = sctx.createLinearGradient(0, 0, 0, H);
+        if (allDone) {
+          bg.addColorStop(0, '#fcfaff');
+          bg.addColorStop(0.5, '#f5effd');
+          bg.addColorStop(1, '#f6efe3');
+        } else {
+          bg.addColorStop(0, '#0d0f1c');
+          bg.addColorStop(0.5, '#1b1633');
+          bg.addColorStop(1, '#10101e');
+        }
+        sctx.fillStyle = bg;
+        sctx.fillRect(0, 0, W, H);
+
+        // Xuan-paper weave
+        sctx.strokeStyle = allDone ? 'rgba(130, 108, 175, 0.045)' : 'rgba(255, 255, 255, 0.025)';
+        sctx.lineWidth = 1;
+        for (let x = 14; x < W; x += 18) {
+          sctx.beginPath();
+          sctx.moveTo(x, 0);
+          sctx.lineTo(x, H);
+          sctx.stroke();
+        }
+
+        // Double Gold & Lavender Border
+        sctx.strokeStyle = allDone ? 'rgba(196, 152, 66, 0.65)' : 'rgba(254, 240, 138, 0.5)';
+        sctx.lineWidth = 2.2;
+        sctx.strokeRect(28, 28, W - 56, H - 56);
+        sctx.strokeStyle = allDone ? 'rgba(167, 139, 250, 0.35)' : 'rgba(196, 181, 253, 0.25)';
+        sctx.lineWidth = 1;
+        sctx.strokeRect(40, 40, W - 80, H - 80);
+
+        // Header
+        sctx.textAlign = 'center';
+        sctx.fillStyle = allDone ? '#6b5694' : 'rgba(196, 181, 253, 0.88)';
+        sctx.font = '300 22px "Noto Serif TC", serif';
+        sctx.fillText('空 明 ・ 見 性', W / 2, 98);
+
+        sctx.fillStyle = allDone ? '#3a2c54' : '#fbf6e9';
+        sctx.font = '600 42px "Noto Serif TC", serif';
+        sctx.fillText('禪 行 心 鏡 卷 軸', W / 2, 158);
+
+        // Algorithmic Lotus Mandala & Golden Rings reflecting completed chapters
+        const mx = W / 2, my = 468;
+        const aura = sctx.createRadialGradient(mx, my, 12, mx, my, 235);
+        aura.addColorStop(0, allDone ? 'rgba(255,255,255,1)' : 'rgba(254,240,138,0.34)');
+        aura.addColorStop(0.45, allDone ? 'rgba(254,240,138,0.55)' : 'rgba(167,139,250,0.22)');
+        aura.addColorStop(1, 'rgba(0,0,0,0)');
+        sctx.fillStyle = aura;
+        sctx.beginPath();
+        sctx.arc(mx, my, 235, 0, Math.PI * 2);
+        sctx.fill();
+
+        const rings = Math.max(2, doneCount + 1);
+        for (let i = 0; i < rings; i++) {
+          sctx.beginPath();
+          sctx.arc(mx, my, 58 + i * 34, 0, Math.PI * 2);
+          sctx.strokeStyle = i % 2 === 0
+            ? (allDone ? 'rgba(196,152,66,0.48)' : 'rgba(254,240,138,0.38)')
+            : (allDone ? 'rgba(139,92,246,0.38)' : 'rgba(196,181,253,0.34)');
+          sctx.lineWidth = i === 0 ? 1.8 : 1.1;
+          sctx.stroke();
+        }
+
+        // Sacred Lotus Petals (8 + doneCount * 2 petals)
+        const petals = 8 + doneCount * 2;
+        sctx.save();
+        sctx.translate(mx, my);
+        sctx.strokeStyle = allDone ? 'rgba(196, 152, 66, 0.7)' : 'rgba(254, 240, 138, 0.62)';
+        sctx.lineWidth = 1.4;
+        for (let i = 0; i < petals; i++) {
+          sctx.save();
+          sctx.rotate((i * Math.PI * 2) / petals);
+          sctx.beginPath();
+          sctx.moveTo(0, -18);
+          sctx.quadraticCurveTo(34, -84, 0, -158);
+          sctx.quadraticCurveTo(-34, -84, 0, -18);
+          sctx.stroke();
+          sctx.restore();
+        }
+        sctx.restore();
+
+        // Five Chapter Seals Row
+        const sealY = 755;
+        const labels = ['入靜', '共心', '開悟', '大願', '見性'];
+        labels.forEach((lbl, idx) => {
+          const sx = 120 + idx * 120;
+          const isDone = completedChapters.has(idx + 1);
+          sctx.beginPath();
+          sctx.arc(sx, sealY, 34, 0, Math.PI * 2);
+          sctx.fillStyle = isDone
+            ? (allDone ? 'rgba(251, 191, 36, 0.25)' : 'rgba(254, 240, 138, 0.2)')
+            : (allDone ? 'rgba(139, 92, 246, 0.06)' : 'rgba(255, 255, 255, 0.04)');
+          sctx.fill();
+          sctx.strokeStyle = isDone
+            ? (allDone ? '#c69332' : '#fef08a')
+            : (allDone ? 'rgba(139, 92, 246, 0.28)' : 'rgba(196, 181, 253, 0.28)');
+          sctx.lineWidth = isDone ? 2.2 : 1.1;
+          sctx.stroke();
+
+          sctx.font = '500 20px "Noto Serif TC", serif';
+          sctx.fillStyle = isDone
+            ? (allDone ? '#5a3e1b' : '#fef08a')
+            : (allDone ? 'rgba(100, 86, 130, 0.5)' : 'rgba(200, 194, 215, 0.45)');
+          sctx.fillText(lbl, sx, sealY + 7);
+        });
+
+        // Dharma Verse
+        sctx.fillStyle = allDone ? '#433360' : '#fef08a';
+        sctx.font = '500 26px "Noto Serif TC", serif';
+        sctx.fillText(`「${verse}」`, W / 2, 888);
+
+        // Progress Summary Card
+        sctx.fillStyle = allDone ? 'rgba(255,255,255,0.68)' : 'rgba(255,255,255,0.045)';
+        sctx.strokeStyle = allDone ? 'rgba(196,152,66,0.35)' : 'rgba(196,181,253,0.25)';
+        sctx.lineWidth = 1.2;
+        sctx.beginPath();
+        sctx.roundRect(80, 945, W - 160, 128, 18);
+        sctx.fill();
+        sctx.stroke();
+
+        sctx.fillStyle = allDone ? '#6b5694' : 'rgba(216, 208, 234, 0.8)';
+        sctx.font = '300 21px "Noto Serif TC", serif';
+        sctx.fillText('禪行圓滿進度', W / 2, 995);
+        sctx.fillStyle = allDone ? '#3a2c54' : '#ffffff';
+        sctx.font = '600 34px "Noto Serif TC", serif';
+        sctx.fillText(`${doneCount} / 5 章　${allDone ? '・明心見性圓滿' : '・精進禪行中'}`, W / 2, 1046);
+
+        // Date Stamp & Red Seal
+        const now = new Date();
+        const dateStr = `${now.getFullYear()} 年 ${now.getMonth() + 1} 月 ${now.getDate()} 日`;
+        sctx.fillStyle = allDone ? 'rgba(100, 84, 132, 0.78)' : 'rgba(186, 178, 208, 0.7)';
+        sctx.font = '300 19px "Noto Serif TC", serif';
+        sctx.fillText(`空明見性合輯留念　｜　${dateStr}`, W / 2, 1175);
+
+        const sx = W - 114, sy = 1126;
+        sctx.strokeStyle = 'rgba(208, 72, 64, 0.88)';
+        sctx.fillStyle = 'rgba(208, 72, 64, 0.1)';
+        sctx.lineWidth = 2;
+        sctx.strokeRect(sx, sy, 46, 72);
+        sctx.fillRect(sx, sy, 46, 72);
+        sctx.fillStyle = 'rgba(208, 72, 64, 0.94)';
+        sctx.font = '600 21px "Noto Serif TC", serif';
+        sctx.fillText('空', sx + 23, sy + 30);
+        sctx.fillText('明', sx + 23, sy + 58);
+      }
+
+      function openScrollModal() {
+        generateZenScroll();
+        ui.downloadMsg.textContent = '';
+        ui.scrollModal.classList.remove('fade-hidden');
+      }
+
+      /* -----------------------------------------------------------------------
+         15. UNIFIED INPUT HANDLING (MOUSE, TOUCH, WHEEL, KEYBOARD)
+         ----------------------------------------------------------------------- */
+      function getPoint(e) {
+        const rect = canvas.getBoundingClientRect();
+        if (e.touches && e.touches.length > 0) {
+          return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+        }
+        return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      }
+
+      function onPointerDown(e) {
+        audio.init();
+        const pt = getPoint(e);
+        app.pointerDown = true;
+        app.pointerX = pt.x;
+        app.pointerY = pt.y;
+
+        if (app.scene === 'ch1') {
+          if (!handleCh1Tap(pt.x, pt.y)) app.ch1.isHolding = true;
+        } else if (app.scene === 'ch2') {
+          if (app.ch2.phase === 1) {
+            for (const cf of app.ch2.conflicts) {
+              const mx = 0.25 * cf.p1.x + 0.5 * cf.cx + 0.25 * cf.p2.x;
+              const my = 0.25 * cf.p1.y + 0.5 * cf.cy + 0.25 * cf.p2.y;
+              if (Math.hypot(pt.x - mx, pt.y - my) < 52) {
+                cf.drag = true;
+                app.ch2.dragged = cf;
+                break;
+              }
+            }
+          } else if (app.ch2.phase === 2) {
+            app.ch2.shipTargetX = pt.x;
+          }
+        } else if (app.scene === 'ch3') {
+          if (app.ch3.realm === 2) {
+            for (const o of app.ch3.objects) {
+              if (o.lit) continue;
+              const oy = o.y + Math.sin(o.phase) * 6;
+              if (Math.hypot(pt.x - o.x, pt.y - oy) <= 48) {
+                o.lit = true;
+                app.ch3.litCount += 1;
+                audio.playGuzheng(app.ch3.litCount - 1);
+                spawnRipple(o.x, oy, 100, 'gold', 95);
+                spawnBurst(o.x, oy, 18, true);
+                spawnFloatText(o.x, oy - 44, o.verse);
+                break;
+              }
+            }
+          } else if (app.ch3.realm === 3) {
+            app.ch3.dragLastX = pt.x;
+          }
+        } else if (app.scene === 'ch4') {
+          app.ch4.tx = pt.x;
+          app.ch4.ty = Math.max(app.height * 0.48, pt.y);
+          emitCh4Ripple();
+        } else if (app.scene === 'ch5') {
+          ch5Activity(false);
+        }
+      }
+
+      function onPointerMove(e) {
+        const pt = getPoint(e);
+        app.pointerX = pt.x;
+        app.pointerY = pt.y;
+
+        if (app.scene === 'ch2' && app.pointerDown) {
+          if (app.ch2.phase === 1 && !app.ch2.dragged) {
+            for (const cf of app.ch2.conflicts) {
+              const mx = 0.25 * cf.p1.x + 0.5 * cf.cx + 0.25 * cf.p2.x;
+              const my = 0.25 * cf.p1.y + 0.5 * cf.cy + 0.25 * cf.p2.y;
+              if (Math.hypot(pt.x - mx, pt.y - my) < 46) {
+                cf.drag = true;
+                app.ch2.dragged = cf;
+                break;
+              }
+            }
+          } else if (app.ch2.phase === 2) {
+            app.ch2.shipTargetX = pt.x;
+          }
+        } else if (app.scene === 'ch3' && app.ch3.realm === 3 && app.pointerDown) {
+          const dx = pt.x - app.ch3.dragLastX;
+          app.ch3.dragLastX = pt.x;
+          app.ch3.angleTarget = Math.max(-90, Math.min(90, app.ch3.angleTarget + dx * 0.35));
+          ui.ch3Slider.value = app.ch3.angleTarget.toFixed(1);
+        } else if (app.scene === 'ch4') {
+          app.ch4.tx = pt.x;
+          app.ch4.ty = Math.max(app.height * 0.48, pt.y);
+        } else if (app.scene === 'ch5' && !app.ch5.enlightened) {
+          if (app.ch5.lastMX === null) {
+            app.ch5.lastMX = pt.x;
+            app.ch5.lastMY = pt.y;
+            return;
+          }
+          if (Math.hypot(pt.x - app.ch5.lastMX, pt.y - app.ch5.lastMY) > 12) {
+            app.ch5.lastMX = pt.x;
+            app.ch5.lastMY = pt.y;
+            if (app.ch5.grace <= 0) ch5Activity(false);
+          }
+        }
+      }
+
+      function onPointerUp() {
+        app.pointerDown = false;
+        if (app.scene === 'ch1') app.ch1.isHolding = false;
+        if (app.scene === 'ch2' && app.ch2.dragged) {
+          app.ch2.dragged.drag = false;
+          app.ch2.dragged = null;
+        }
+        if (app.scene === 'ch3') app.ch3.pinchDist = null;
+      }
+
+      canvas.addEventListener('mousedown', (e) => { if (e.button === 0) onPointerDown(e); });
+      window.addEventListener('mousemove', onPointerMove);
+      window.addEventListener('mouseup', onPointerUp);
+
+      canvas.addEventListener('wheel', (e) => {
+        if (app.scene === 'ch3' && app.ch3.realm === 1) {
+          e.preventDefault();
+          audio.init();
+          app.ch3.zoomTarget = Math.max(0, Math.min(1, app.ch3.zoomTarget + (e.deltaY > 0 ? 0.07 : -0.05)));
+          ui.ch3Slider.value = (app.ch3.zoomTarget * 100).toFixed(1);
+        }
+      }, { passive: false });
+
+      canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (app.scene === 'ch3' && app.ch3.realm === 1 && e.touches.length === 2) {
+          app.ch3.pinchDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          app.ch3.pinchStartZoom = app.ch3.zoomTarget;
+          return;
+        }
+        onPointerDown(e);
+      }, { passive: false });
+
+      canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (app.scene === 'ch3' && app.ch3.realm === 1 && e.touches.length === 2 && app.ch3.pinchDist) {
+          const cur = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          app.ch3.zoomTarget = Math.max(0, Math.min(1, app.ch3.pinchStartZoom + (app.ch3.pinchDist - cur) / 180));
+          ui.ch3Slider.value = (app.ch3.zoomTarget * 100).toFixed(1);
+          return;
+        }
+        onPointerMove(e);
+      }, { passive: false });
+
+      window.addEventListener('touchend', onPointerUp);
+      window.addEventListener('touchcancel', onPointerUp);
+
+      window.addEventListener('keydown', (e) => {
+        app.keys[e.code] = true;
+        if (app.scene === 'ch1' && e.code === 'Space') {
+          e.preventDefault();
+          audio.init();
+          app.ch1.isHolding = true;
+        } else if (app.scene === 'ch4' && e.code === 'Space') {
+          e.preventDefault();
+          emitCh4Ripple();
+        } else if (app.scene === 'ch5' && !app.ch5.enlightened) {
+          e.preventDefault();
+          ch5Activity(false);
+        }
+      });
+
+      window.addEventListener('keyup', (e) => {
+        app.keys[e.code] = false;
+        if (app.scene === 'ch1' && e.code === 'Space') app.ch1.isHolding = false;
+      });
+
+      // UI Button Bindings
+      ui.backHubBtn.addEventListener('click', () => switchScene('hub'));
+      ui.hubMeditationBtn.addEventListener('click', () => switchScene('meditation'));
+      ui.hubScrollBtn.addEventListener('click', () => { audio.init(); openScrollModal(); });
+
+      ui.soundBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const on = audio.toggle();
+        ui.iconSoundOn.classList.toggle('hidden', !on);
+        ui.iconSoundOff.classList.toggle('hidden', on);
+      });
+
+      ui.ch3Slider.addEventListener('input', (e) => {
+        audio.init();
+        const v = parseFloat(e.target.value);
+        if (app.ch3.realm === 1) app.ch3.zoomTarget = v / 100;
+        else if (app.ch3.realm === 3) app.ch3.angleTarget = v;
+      });
+
+      ui.ch5EgoBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        ch5Activity(true);
+      });
+      ui.ch5OpenScrollBtn.addEventListener('click', openScrollModal);
+      ui.ch5BackHubBtn.addEventListener('click', () => switchScene('hub'));
+
+      ui.medPauseBtn.addEventListener('click', () => {
+        if (app.med.remaining <= 0) return;
+        app.med.paused = !app.med.paused;
+        ui.medPauseBtn.textContent = app.med.paused ? '繼續調息' : '暫停調息';
+      });
+      ui.medResetBtn.addEventListener('click', initMeditation);
+
+      ui.ccScrollBtn.addEventListener('click', openScrollModal);
+      ui.ccHubBtn.addEventListener('click', () => switchScene('hub'));
+
+      ui.closeScrollBtn.addEventListener('click', () => ui.scrollModal.classList.add('fade-hidden'));
+      ui.closeScrollBtn2.addEventListener('click', () => ui.scrollModal.classList.add('fade-hidden'));
+      ui.downloadScrollBtn.addEventListener('click', () => {
+        try {
+          const url = ui.scrollCanvas.toDataURL('image/png');
+          const a = document.createElement('a');
+          a.download = '空明見性_禪行心鏡卷軸.png';
+          a.href = url;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          ui.downloadMsg.textContent = '卷軸已開始下載，願清淨常伴。';
+        } catch (err) {
+          ui.downloadMsg.textContent = '請長按上方卷軸圖片以儲存至相簿。';
+        }
+      });
+
+      window.addEventListener('resize', resizeCanvas);
+
+      /* -----------------------------------------------------------------------
+         16. MAIN ANIMATION LOOP (CLEAN SCENE DELEGATION)
+         ----------------------------------------------------------------------- */
+      let lastTime = performance.now();
+
+      function tick(now) {
+        const dt = Math.min((now - lastTime) / 1000, 0.06);
+        lastTime = now;
+        app.time += dt;
+
+        // Shared ambient motes & FX updates
+        app.motes.forEach((m) => {
+          m.y += m.vy * dt;
+          m.phase += m.spd * dt;
+          if (m.y < -15) { m.y = app.height + 15; m.x = Math.random() * app.width; }
+        });
+        for (let i = app.ripples.length - 1; i >= 0; i--) {
+          const r = app.ripples[i];
+          r.r += r.speed * dt;
+          r.alpha -= dt * 0.35;
+          if (r.alpha <= 0 || r.r >= r.maxR) app.ripples.splice(i, 1);
+        }
+        for (let i = app.particles.length - 1; i >= 0; i--) {
+          const p = app.particles[i];
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.life -= p.decay * dt;
+          if (p.life <= 0) app.particles.splice(i, 1);
+        }
+        for (let i = app.floatTexts.length - 1; i >= 0; i--) {
+          const ft = app.floatTexts[i];
+          ft.y += ft.vy * dt;
+          ft.alpha -= dt * 0.35;
+          if (ft.alpha <= 0) app.floatTexts.splice(i, 1);
+        }
+
+        // Delegate Update & Render to Active Scene
+        if (app.scene === 'hub') {
+          audio.updateAtmosphere(0.04, 0.3, 0.0);
+          drawMidnightBackdrop(0.42);
+        } else if (app.scene === 'meditation') {
+          updateMeditation(dt);
+          drawMeditation();
+        } else if (app.scene === 'ch1') {
+          updateCh1(dt);
+          drawCh1();
+        } else if (app.scene === 'ch2') {
+          updateCh2(dt);
+          drawCh2();
+        } else if (app.scene === 'ch3') {
+          updateCh3(dt);
+          drawCh3();
+        } else if (app.scene === 'ch4') {
+          updateCh4(dt);
+          drawCh4();
+        } else if (app.scene === 'ch5') {
+          updateCh5(dt);
+          drawCh5();
+        }
+
+        drawSharedFX();
+        requestAnimationFrame(tick);
+      }
+
+      window.onload = function () {
+        loadProgress();
+        resizeCanvas();
+        initCosmos();
+        renderHubCards();
+        lastTime = performance.now();
+        requestAnimationFrame(tick);
+      };
+    })();
+  </script>
+</body>
+</html>
