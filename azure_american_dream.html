@@ -1,0 +1,2433 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>蔚藍名流・美國夢豪華遠征</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts for Luxury Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --azure-light: #e0f4ff;
+      --azure-bright: #38bdf8;
+      --azure-deep: #0284c7;
+      --gold-light: #fef08a;
+      --gold-main: #f59e0b;
+      --gold-deep: #b45309;
+      --glass-bg: rgba(255, 255, 255, 0.78);
+      --glass-border: rgba(255, 255, 255, 0.92);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(155deg, #d6f1ff 0%, #9ce0ff 38%, #67d0ff 72%, #c7eeff 100%);
+      background-attachment: fixed;
+      color: #0c4a6e;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .font-serif-lux {
+      font-family: 'Playfair Display', 'Noto Sans TC', serif;
+    }
+
+    /* Ambient Background Canvas */
+    #bgParticles {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Pearl White Glassmorphism Card */
+    .glass-card {
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.86), rgba(240, 249, 255, 0.72));
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1.5px solid rgba(255, 255, 255, 0.95);
+      box-shadow:
+        0 18px 42px rgba(2, 132, 199, 0.14),
+        0 4px 12px rgba(56, 189, 248, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    }
+
+    /* Champagne Gold Metallic Button */
+    .btn-gold {
+      background: linear-gradient(135deg, #fde047 0%, #f59e0b 48%, #d97706 100%);
+      color: #451a03;
+      border: 1.5px solid #fef08a;
+      box-shadow: 0 8px 22px rgba(245, 158, 11, 0.38), inset 0 1px 2px rgba(255, 255, 255, 0.8);
+      transition: transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-gold::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 45%;
+      height: 200%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+      transform: rotate(25deg);
+      animation: sheenSweep 3.4s infinite ease-in-out;
+    }
+    .btn-gold:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(245, 158, 11, 0.48);
+      filter: brightness(1.04);
+    }
+    .btn-gold:active {
+      transform: translateY(1px) scale(0.98);
+    }
+
+    /* Bright Azure Glossy Button */
+    .btn-azure {
+      background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 55%, #0284c7 100%);
+      color: #ffffff;
+      border: 1.5px solid #bae6fd;
+      box-shadow: 0 8px 22px rgba(14, 165, 233, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .btn-azure:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 26px rgba(14, 165, 233, 0.45);
+    }
+    .btn-azure:active {
+      transform: translateY(1px) scale(0.97);
+    }
+
+    /* Gold Text Gradient */
+    .text-gold-gradient {
+      background: linear-gradient(135deg, #b45309 0%, #f59e0b 45%, #d97706 75%, #92400e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Keyframes */
+    @keyframes sheenSweep {
+      0% { left: -60%; }
+      45% { left: 130%; }
+      100% { left: 130%; }
+    }
+
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.7); opacity: 0; }
+      70% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes coinRise {
+      0% { transform: translate(-50%, 0) scale(0.7); opacity: 1; }
+      100% { transform: translate(-50%, -72px) scale(1.18); opacity: 0; }
+    }
+
+    @keyframes swayBeat {
+      0%, 100% { transform: rotate(-4deg) translateY(0); }
+      50% { transform: rotate(4deg) translateY(-5px); }
+    }
+
+    @keyframes batonWave {
+      0%, 100% { transform: rotate(-28deg); }
+      50% { transform: rotate(28deg); }
+    }
+
+    @keyframes lyricBounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes confettiFall {
+      0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(340px) rotate(520deg); opacity: 0; }
+    }
+
+    @keyframes fanPop {
+      0% { transform: scale(0.3); opacity: 0; }
+      65% { transform: scale(1.12); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes certBorderGlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .animate-float { animation: floatSlow 3.4s ease-in-out infinite; }
+    .animate-pop { animation: popIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+    .animate-sway { animation: swayBeat 0.72s ease-in-out infinite; transform-origin: bottom center; }
+    .animate-sway-delay { animation: swayBeat 0.72s ease-in-out 0.36s infinite; transform-origin: bottom center; }
+    .animate-baton { animation: batonWave 0.65s ease-in-out infinite; transform-origin: 12px 24px; }
+    .animate-lyric { animation: lyricBounce 0.9s ease-in-out infinite; }
+
+    /* Sponsor Bubble */
+    .sponsor-bubble {
+      position: absolute;
+      cursor: pointer;
+      user-select: none;
+      animation: popIn 0.3s ease-out forwards, floatSlow 2.6s ease-in-out infinite;
+      transition: transform 0.12s ease;
+    }
+    .sponsor-bubble:active {
+      transform: scale(0.9);
+    }
+
+    /* Floating Coin Text */
+    .coin-float {
+      position: absolute;
+      pointer-events: none;
+      font-weight: 900;
+      color: #d97706;
+      text-shadow: 0 2px 6px rgba(255, 255, 255, 0.95);
+      animation: coinRise 0.85s ease-out forwards;
+      z-index: 30;
+    }
+
+    /* Super Golden Certificate Shimmer Frame */
+    .cert-gold-frame {
+      position: relative;
+      padding: 6px;
+      border-radius: 22px;
+      background: linear-gradient(125deg, #fef08a, #f59e0b, #38bdf8, #fde047, #d97706, #bae6fd);
+      background-size: 300% 300%;
+      animation: certBorderGlow 4.5s ease infinite;
+      box-shadow: 0 20px 50px rgba(245, 158, 11, 0.35), 0 0 32px rgba(56, 189, 248, 0.35);
+      overflow: hidden;
+    }
+    .cert-gold-frame::after {
+      content: '';
+      position: absolute;
+      top: -30%;
+      left: -80%;
+      width: 50%;
+      height: 180%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+      transform: rotate(22deg);
+      pointer-events: none;
+      animation: sheenSweep 3.8s ease-in-out infinite;
+    }
+
+    /* Stage Visibility */
+    .stage-section {
+      display: none;
+    }
+    .stage-section.active {
+      display: block;
+      animation: popIn 0.38s ease-out;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(224, 242, 254, 0.6); }
+    ::-webkit-scrollbar-thumb { background: rgba(14, 165, 233, 0.45); border-radius: 99px; }
+  </style>
+</head>
+<body class="relative selection:bg-sky-200 selection:text-sky-900">
+
+  <!-- Ambient Bright Azure Shimmer Particles Canvas -->
+  <canvas id="bgParticles"></canvas>
+
+  <!-- Toast Notification Container (No alert() used anywhere) -->
+  <div id="toastBox" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex flex-col items-center gap-2 w-[90%] max-w-md"></div>
+
+  <!-- 0. Top Navigation & 4-Stage Progress Bar -->
+  <header class="sticky top-0 z-40 px-3 pt-3 pb-2">
+    <div class="max-w-4xl mx-auto glass-card rounded-2xl px-4 py-3">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <!-- Brand & Player Badge -->
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center shadow-md border border-sky-200 shrink-0">
+            <svg class="w-5 h-5 text-yellow-200" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-sm sm:text-base font-black tracking-tight text-sky-900 leading-tight">
+              蔚藍名流・美國夢豪華遠征
+            </h1>
+            <div class="flex items-center gap-1.5 mt-0.5">
+              <span class="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-700 border border-sky-200">
+                <span>👑</span>
+                <span id="navPlayerName">貴賓尚未登錄</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audio Toggle Button -->
+        <button id="audioToggleBtn" onclick="toggleAudio()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/80 hover:bg-white border border-sky-200 text-sky-800 text-xs font-bold shadow-sm transition active:scale-95">
+          <span id="audioIcon">🔊</span>
+          <span id="audioLabel">音效開啟</span>
+        </button>
+      </div>
+
+      <!-- 4-Stage Progress Stepper -->
+      <div class="mt-3 pt-2.5 border-t border-sky-100/80">
+        <div class="grid grid-cols-4 gap-1.5 sm:gap-2 text-center">
+          <div id="step-1" class="step-pill rounded-xl py-1.5 px-1 text-[11px] sm:text-xs font-bold bg-sky-50/70 text-sky-400 border border-sky-100 transition-all">
+            1. 集資啟程
+          </div>
+          <div id="step-2" class="step-pill rounded-xl py-1.5 px-1 text-[11px] sm:text-xs font-bold bg-sky-50/70 text-sky-400 border border-sky-100 transition-all">
+            2. 美國舉重
+          </div>
+          <div id="step-3" class="step-pill rounded-xl py-1.5 px-1 text-[11px] sm:text-xs font-bold bg-sky-50/70 text-sky-400 border border-sky-100 transition-all">
+            3. 豪華見面會
+          </div>
+          <div id="step-4" class="step-pill rounded-xl py-1.5 px-1 text-[11px] sm:text-xs font-bold bg-sky-50/70 text-sky-400 border border-sky-100 transition-all">
+            4. 金光證照
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="relative z-10 max-w-4xl mx-auto px-3 pt-3 pb-16">
+
+    <!-- =========================================================
+         STAGE 0: HOME / NAME INPUT
+    ========================================================== -->
+    <section id="stage-0" class="stage-section active">
+      <div class="glass-card rounded-3xl p-6 sm:p-9 text-center relative overflow-hidden">
+        <!-- Decorative Top Glow -->
+        <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-80 h-40 bg-sky-300/35 blur-3xl rounded-full pointer-events-none"></div>
+
+        <!-- Emblem SVG -->
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-sky-300 via-sky-400 to-blue-500 shadow-xl border-2 border-white mb-4 animate-float">
+          <svg class="w-12 h-12" viewBox="0 0 64 64" fill="none">
+            <circle cx="32" cy="32" r="28" fill="url(#emblemGrad)" stroke="#FEF08A" stroke-width="2.5"/>
+            <path d="M14 36L52 22L38 46L31 35L14 36Z" fill="#FFFFFF"/>
+            <path d="M31 35L52 22L35 39L31 35Z" fill="#BAE6FD"/>
+            <circle cx="20" cy="20" r="3" fill="#FEF08A"/>
+            <circle cx="46" cy="44" r="2.2" fill="#FEF08A"/>
+            <defs>
+              <linearGradient id="emblemGrad" x1="6" y1="6" x2="58" y2="58" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#38BDF8"/>
+                <stop offset="1" stop-color="#0284C7"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+        <p class="text-xs sm:text-sm font-bold tracking-[0.22em] text-sky-600 uppercase mb-1">
+          AZURE CELEBRITY LUXURY EXPEDITION
+        </p>
+        <h2 class="text-2xl sm:text-4xl font-black text-sky-950 tracking-tight mb-2">
+          蔚藍名流・<span class="text-gold-gradient">美國夢豪華遠征</span>
+        </h2>
+        <p class="text-sm sm:text-base text-sky-800/80 max-w-xl mx-auto mb-6">
+          輸入你的尊榮大名，啟動頭等艙集資計畫、在加州舉重場技壓群芳、橫掃五大名企粉絲見面會，並領取專屬「超級金光證照」！
+        </p>
+
+        <!-- Name Input Box -->
+        <div class="max-w-md mx-auto bg-white/80 rounded-2xl p-4 sm:p-5 border border-sky-200 shadow-inner mb-6">
+          <label for="playerNameInput" class="block text-left text-xs font-bold text-sky-700 mb-2">
+            ✨ 請輸入你的名流大名（將燙金印製於最終證照）
+          </label>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input
+              id="playerNameInput"
+              type="text"
+              maxlength="16"
+              placeholder="例如：蔚藍公爵、星光艾莉絲..."
+              class="flex-1 px-4 py-3 rounded-xl bg-sky-50/70 border-2 border-sky-200 focus:border-sky-400 focus:bg-white focus:outline-none text-sky-950 font-bold text-base placeholder:text-sky-400 transition"
+            />
+            <button
+              type="button"
+              onclick="fillRandomName()"
+              class="px-4 py-3 rounded-xl bg-sky-100 hover:bg-sky-200 text-sky-800 font-bold text-sm border border-sky-200 transition active:scale-95 shrink-0"
+            >
+              🎲 隨機暱稱
+            </button>
+          </div>
+          <p id="nameErrorMsg" class="hidden text-left text-xs font-bold text-rose-500 mt-2">
+            請先輸入你的名字，或點擊「隨機暱稱」快速啟程！
+          </p>
+        </div>
+
+        <!-- 3-Stage Luxury Itinerary Preview -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left mb-7">
+          <div class="bg-white/75 rounded-2xl p-4 border border-sky-100 shadow-sm">
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="w-7 h-7 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center font-black text-sm">01</span>
+              <h3 class="font-black text-sky-900 text-sm">揪團集資 × 禮儀樂團</h3>
+            </div>
+            <p class="text-xs text-sky-700/85 leading-relaxed">
+              接住 VIP 贊助突破 US$100,000，解鎖高級禮儀樂團為你現場演奏高歌祝賀！
+            </p>
+          </div>
+          <div class="bg-white/75 rounded-2xl p-4 border border-sky-100 shadow-sm">
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="w-7 h-7 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center font-black text-sm">02</span>
+              <h3 class="font-black text-sky-900 text-sm">加州競技 × 洋妞舉重</h3>
+            </div>
+            <p class="text-xs text-sky-700/85 leading-relaxed">
+              直飛陽光加州，挑選神力槓鈴與舉重女王 Jessica 展開 8 秒極限高度對決！
+            </p>
+          </div>
+          <div class="bg-white/75 rounded-2xl p-4 border border-sky-100 shadow-sm">
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="w-7 h-7 rounded-lg bg-cyan-100 text-cyan-600 flex items-center justify-center font-black text-sm">03</span>
+              <h3 class="font-black text-sky-900 text-sm">名企見面會 × 金光證照</h3>
+            </div>
+            <p class="text-xs text-sky-700/85 leading-relaxed">
+              巡迴五大美國名企收集 5 朵頂級花束，紅毯拍照領取專屬超級金光證照！
+            </p>
+          </div>
+        </div>
+
+        <button onclick="startJourney()" class="btn-gold w-full sm:w-auto px-10 py-4 rounded-2xl font-black text-lg tracking-wide cursor-pointer">
+          ✈️ 開啟美國夢旅程
+        </button>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         STAGE 1: CROWDFUNDING + GRAND CEREMONIAL ORCHESTRA
+    ========================================================== -->
+    <section id="stage-1" class="stage-section">
+      <!-- Part A: Crowdfunding Gameplay -->
+      <div id="s1-fund-view" class="glass-card rounded-3xl p-5 sm:p-7">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <span class="inline-block text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-sky-100 text-sky-700 border border-sky-200 mb-1">
+              STAGE 01 · 頭等艙集資計畫
+            </span>
+            <h2 class="text-xl sm:text-2xl font-black text-sky-950">揪團集資去美國！</h2>
+          </div>
+          <div class="text-right">
+            <div class="text-xs font-bold text-sky-600">目標金額：US$ 100,000（超過即觸發祝賀）</div>
+            <div class="text-2xl sm:text-3xl font-black text-gold-gradient font-serif-lux" id="fundAmountDisplay">
+              US$ 0
+            </div>
+          </div>
+        </div>
+
+        <!-- Shiny Light-Blue & Gold Progress Bar -->
+        <div class="relative w-full h-7 rounded-full bg-sky-100/90 border-2 border-amber-300/80 shadow-inner overflow-hidden mb-2 p-0.5">
+          <div id="fundProgressBar" class="h-full rounded-full bg-gradient-to-r from-sky-400 via-cyan-300 to-amber-400 transition-all duration-200 relative" style="width: 0%;">
+            <div class="absolute inset-0 bg-white/25 animate-pulse"></div>
+          </div>
+          <div id="fundPercentText" class="absolute inset-0 flex items-center justify-center text-xs font-black text-sky-950 drop-shadow-sm">
+            0%
+          </div>
+        </div>
+        <p class="text-xs text-sky-700 mb-4 text-center">
+          💡 點擊下方「揪團號召」或快速接住畫面上浮現的 <strong class="text-amber-600">VIP 贊助氣泡</strong>，金額超過 US$ 100,000 立即迎接高級禮儀樂團！
+        </p>
+
+        <!-- Interactive Sponsor Bubble Stage -->
+        <div id="bubbleArena" class="relative w-full h-64 sm:h-72 rounded-2xl bg-gradient-to-b from-sky-200/60 via-sky-100/50 to-white/80 border-2 border-sky-200/90 overflow-hidden mb-5 shadow-inner">
+          <!-- Decorative Clouds -->
+          <svg class="absolute top-3 left-4 w-24 opacity-60 pointer-events-none" viewBox="0 0 120 50" fill="white">
+            <circle cx="30" cy="30" r="18"/><circle cx="55" cy="24" r="22"/><circle cx="84" cy="30" r="16"/><rect x="28" y="28" width="56" height="18" rx="8"/>
+          </svg>
+          <svg class="absolute top-8 right-6 w-28 opacity-55 pointer-events-none" viewBox="0 0 120 50" fill="white">
+            <circle cx="30" cy="30" r="18"/><circle cx="55" cy="24" r="22"/><circle cx="84" cy="30" r="16"/><rect x="28" y="28" width="56" height="18" rx="8"/>
+          </svg>
+          <!-- Center Jet Silhouette -->
+          <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
+            <svg class="w-40 h-40 text-sky-500" viewBox="0 0 100 100" fill="currentColor">
+              <path d="M12 58 L88 24 L62 76 L50 56 L12 58 Z"/>
+            </svg>
+          </div>
+          <!-- Bubbles dynamically injected here -->
+        </div>
+
+        <!-- Main Click Button -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <button
+            id="rallyBtn"
+            onclick="clickRally(event)"
+            class="btn-azure w-full sm:w-auto px-8 py-4 rounded-2xl font-black text-base sm:text-lg flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <span>📣</span>
+            <span>揪團號召親友團 (+$3,500)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Part B: Grand Ceremonial Orchestra Celebration (Hidden until > $100,000) -->
+      <div id="s1-orchestra-view" class="hidden glass-card rounded-3xl p-5 sm:p-8 text-center relative overflow-hidden">
+        <!-- Confetti Layer -->
+        <div id="orchestraConfetti" class="absolute inset-0 pointer-events-none overflow-hidden z-10"></div>
+
+        <div class="relative z-20">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-100 to-yellow-100 border border-amber-300 text-amber-800 text-xs font-black mb-3 shadow-sm">
+            <span>🎺</span>
+            <span>集資超標達成！最終總金額：<span id="finalFundBadge">US$ 100,000+</span></span>
+          </div>
+
+          <h2 class="text-2xl sm:text-3xl font-black text-sky-950 mb-1">
+            高級禮儀樂團・盛大祝賀演出
+          </h2>
+          <p class="text-xs sm:text-sm text-sky-700 mb-4">
+            皇家藍金交響禮儀樂團已就位，為 <strong class="text-amber-700" id="orchPlayerName">貴賓</strong> 獻上最高規格啟程頌歌！
+          </p>
+
+          <!-- Luxury Concert Stage SVG -->
+          <div class="relative rounded-2xl bg-gradient-to-b from-sky-900 via-sky-800 to-sky-950 border-2 border-amber-300/90 p-4 sm:p-6 shadow-2xl overflow-hidden mb-5">
+            <!-- Stage Spotlights -->
+            <div class="absolute top-0 left-1/4 w-32 h-56 bg-sky-300/20 blur-2xl -rotate-12 pointer-events-none"></div>
+            <div class="absolute top-0 right-1/4 w-32 h-56 bg-amber-300/25 blur-2xl rotate-12 pointer-events-none"></div>
+
+            <!-- Synchronized Celebratory Lyrics Banner -->
+            <div class="relative z-10 bg-white/10 backdrop-blur-md border border-amber-300/50 rounded-xl px-4 py-3 mb-4">
+              <div id="orchestraLyricText" class="text-base sm:text-xl font-black text-amber-200 tracking-wide animate-lyric drop-shadow">
+                ♪ 恭喜貴賓集資大爆棚～ ♪
+              </div>
+            </div>
+
+            <!-- Orchestra Musicians SVG -->
+            <svg class="w-full max-w-2xl mx-auto h-44 sm:h-52 relative z-10" viewBox="0 0 600 220" fill="none">
+              <!-- Stage Arch & Gold Curtains -->
+              <path d="M10 20 Q300 -10 590 20 L590 42 Q300 18 10 42 Z" fill="url(#goldCurtain)"/>
+              <!-- Stage Floor -->
+              <ellipse cx="300" cy="202" rx="285" ry="18" fill="#0369A1" stroke="#FDE047" stroke-width="2"/>
+
+              <!-- Floating Musical Notes -->
+              <text x="85" y="65" fill="#FDE047" font-size="22" class="animate-float">♪</text>
+              <text x="195" y="48" fill="#7DD3FC" font-size="26" class="animate-float">♫</text>
+              <text x="405" y="50" fill="#FDE047" font-size="24" class="animate-float">♬</text>
+              <text x="510" y="68" fill="#BAE6FD" font-size="22" class="animate-float">♪</text>
+
+              <!-- 1. Violinist (Left) -->
+              <g class="animate-sway" transform="translate(55, 82)">
+                <circle cx="32" cy="22" r="14" fill="#FDE68A"/>
+                <path d="M18 18 Q32 4 46 18" fill="#1E293B"/>
+                <!-- Evening Gown -->
+                <path d="M16 40 L48 40 L56 112 L8 112 Z" fill="#38BDF8" stroke="#E0F2FE" stroke-width="1.5"/>
+                <!-- Violin -->
+                <ellipse cx="52" cy="48" rx="14" ry="8" transform="rotate(-22 52 48)" fill="#B45309" stroke="#FDE047" stroke-width="1.2"/>
+                <line x1="36" y1="36" x2="72" y2="56" stroke="#FEF08A" stroke-width="2"/>
+              </g>
+
+              <!-- 2. Golden Trumpet (Mid-Left) -->
+              <g class="animate-sway-delay" transform="translate(155, 76)">
+                <circle cx="32" cy="22" r="14" fill="#FED7AA"/>
+                <path d="M18 16 Q32 5 46 16" fill="#0F172A"/>
+                <!-- Tuxedo -->
+                <rect x="16" y="38" width="32" height="76" rx="8" fill="#0F172A" stroke="#38BDF8" stroke-width="1.2"/>
+                <polygon points="32,38 24,56 40,56" fill="#FFFFFF"/>
+                <rect x="29" y="42" width="6" height="4" rx="1" fill="#F59E0B"/>
+                <!-- Golden Trumpet -->
+                <path d="M40 30 L74 20 L74 36 L40 34 Z" fill="#FACC15" stroke="#FEF08A" stroke-width="1.2"/>
+              </g>
+
+              <!-- 3. Grand Conductor (Center) -->
+              <g class="animate-sway" transform="translate(262, 62)">
+                <circle cx="38" cy="24" r="16" fill="#FDE68A"/>
+                <path d="M22 20 Q38 4 54 20" fill="#E2E8F0"/>
+                <!-- Royal Tuxedo -->
+                <path d="M18 44 L58 44 L64 130 L12 130 Z" fill="#0F172A" stroke="#FACC15" stroke-width="2"/>
+                <polygon points="38,44 28,68 48,68" fill="#FFFFFF"/>
+                <path d="M33 48 L43 48 L38 54 Z" fill="#F59E0B"/>
+                <!-- Waving Baton Arm -->
+                <g class="animate-baton" transform="translate(52, 46)">
+                  <line x1="0" y1="10" x2="26" y2="-16" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+                  <circle cx="28" cy="-18" r="3" fill="#FDE047"/>
+                </g>
+              </g>
+
+              <!-- 4. Cellist (Mid-Right) -->
+              <g class="animate-sway-delay" transform="translate(380, 78)">
+                <circle cx="32" cy="22" r="14" fill="#FED7AA"/>
+                <path d="M18 18 Q32 4 46 18" fill="#334155"/>
+                <path d="M16 40 L48 40 L54 114 L10 114 Z" fill="#0284C7" stroke="#BAE6FD" stroke-width="1.5"/>
+                <!-- Cello -->
+                <ellipse cx="32" cy="76" rx="16" ry="26" fill="#D97706" stroke="#FEF08A" stroke-width="1.5"/>
+                <line x1="32" y1="36" x2="32" y2="112" stroke="#451A03" stroke-width="3"/>
+                <line x1="8" y1="74" x2="58" y2="66" stroke="#FEF08A" stroke-width="2"/>
+              </g>
+
+              <!-- 5. Choir Singer (Right) -->
+              <g class="animate-sway" transform="translate(480, 82)">
+                <circle cx="32" cy="22" r="14" fill="#FDE68A"/>
+                <path d="M16 20 Q32 2 48 20" fill="#78350F"/>
+                <!-- Singing Mouth -->
+                <ellipse cx="32" cy="29" rx="3.5" ry="4.5" fill="#BE123C"/>
+                <path d="M14 40 L50 40 L58 112 L6 112 Z" fill="#7DD3FC" stroke="#FFFFFF" stroke-width="1.5"/>
+                <!-- Songbook -->
+                <rect x="18" y="56" width="28" height="20" rx="3" fill="#FEF08A" stroke="#D97706" stroke-width="1.5"/>
+              </g>
+
+              <defs>
+                <linearGradient id="goldCurtain" x1="0" y1="0" x2="600" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#D97706"/>
+                  <stop offset="0.5" stop-color="#FEF08A"/>
+                  <stop offset="1" stop-color="#D97706"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-center gap-3">
+            <button onclick="playOrchestraCelebration()" class="px-5 py-3 rounded-xl bg-white/85 hover:bg-white border border-sky-200 text-sky-800 font-bold text-sm shadow-sm transition active:scale-95 cursor-pointer">
+              🎵 再聽一次禮儀樂團祝賀曲
+            </button>
+            <button onclick="goToStage(2)" class="btn-gold px-8 py-3.5 rounded-2xl font-black text-base sm:text-lg cursor-pointer">
+              ✈️ 搭乘頭等艙飛往美國
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         STAGE 2: CALIFORNIA WEIGHTLIFTING VS. JESSICA
+    ========================================================== -->
+    <section id="stage-2" class="stage-section">
+      <div class="glass-card rounded-3xl p-5 sm:p-7">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <span class="inline-block text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200 mb-1">
+              STAGE 02 · 加州陽光豪華舉重競技場
+            </span>
+            <h2 class="text-xl sm:text-2xl font-black text-sky-950">與加州舉重女王 Jessica 同場對決！</h2>
+          </div>
+          <div class="px-3.5 py-1.5 rounded-xl bg-sky-100/90 border border-sky-200 text-sky-800 text-xs font-bold">
+            🏆 勝利條件：綜合戰力（重量 × 最高高度）超越 Jessica（29,250）
+          </div>
+        </div>
+
+        <!-- Weight Selection Panel (Shown before lifting starts) -->
+        <div id="weightSelectPanel" class="bg-white/75 rounded-2xl p-4 border border-sky-200 mb-4">
+          <div class="text-sm font-black text-sky-900 mb-2.5">🏋️ 步驟 1：選擇你要挑戰的槓鈴重量（越重加成越高，阻力也越大）</div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4">
+            <button type="button" onclick="selectWeight(100)" id="wbtn-100" class="weight-opt p-3 rounded-xl border-2 border-sky-200 bg-sky-50/70 hover:bg-sky-100 text-left transition cursor-pointer">
+              <div class="text-lg font-black text-sky-900">100 kg</div>
+              <div class="text-[11px] font-bold text-sky-600">標準暖身・阻力低</div>
+            </button>
+            <button type="button" onclick="selectWeight(150)" id="wbtn-150" class="weight-opt p-3 rounded-xl border-2 border-sky-400 bg-sky-100 text-left transition cursor-pointer ring-2 ring-sky-300">
+              <div class="text-lg font-black text-sky-900">150 kg</div>
+              <div class="text-[11px] font-bold text-sky-700">重量級・勢均力敵</div>
+            </button>
+            <button type="button" onclick="selectWeight(220)" id="wbtn-220" class="weight-opt p-3 rounded-xl border-2 border-sky-200 bg-sky-50/70 hover:bg-sky-100 text-left transition cursor-pointer">
+              <div class="text-lg font-black text-amber-700">220 kg</div>
+              <div class="text-[11px] font-bold text-amber-600">傳奇金槓・高分推薦</div>
+            </button>
+            <button type="button" onclick="selectWeight(280)" id="wbtn-280" class="weight-opt p-3 rounded-xl border-2 border-sky-200 bg-sky-50/70 hover:bg-sky-100 text-left transition cursor-pointer">
+              <div class="text-lg font-black text-amber-700">280 kg</div>
+              <div class="text-[11px] font-bold text-rose-600">宇宙神力・極限王者</div>
+            </button>
+          </div>
+          <div class="text-center">
+            <button onclick="startWeightlifting()" class="btn-gold px-8 py-3.5 rounded-2xl font-black text-base cursor-pointer">
+              🔥 開始 8 秒極限舉重對決！
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Scoreboard -->
+        <div class="grid grid-cols-3 gap-2 sm:gap-3 mb-4 text-center">
+          <div class="bg-white/85 rounded-2xl p-2.5 sm:p-3 border border-sky-200 shadow-sm">
+            <div class="text-[11px] font-bold text-sky-600" id="liftPlayerLabel">你的成績</div>
+            <div class="text-base sm:text-xl font-black text-sky-950">
+              <span id="pWeightDisp">150</span>kg · <span id="pHeightDisp">0</span>cm
+            </div>
+            <div class="text-[11px] font-bold text-amber-600">戰力：<span id="pScoreDisp">0</span></div>
+          </div>
+          <div class="bg-gradient-to-b from-sky-500 to-blue-600 rounded-2xl p-2.5 sm:p-3 text-white shadow-md flex flex-col justify-center">
+            <div class="text-[11px] font-bold text-sky-100">剩餘時間</div>
+            <div id="liftTimerDisp" class="text-2xl sm:text-3xl font-black font-serif-lux leading-none mt-0.5">8.0s</div>
+          </div>
+          <div class="bg-white/85 rounded-2xl p-2.5 sm:p-3 border border-amber-200 shadow-sm">
+            <div class="text-[11px] font-bold text-amber-700">Jessica (加州女王)</div>
+            <div class="text-base sm:text-xl font-black text-sky-950">
+              150kg · <span id="jHeightDisp">0</span>cm
+            </div>
+            <div class="text-[11px] font-bold text-sky-600">目標戰力：29,250</div>
+          </div>
+        </div>
+
+        <!-- California Arena Visual Stage -->
+        <div class="relative w-full h-72 sm:h-80 rounded-2xl bg-gradient-to-b from-sky-300 via-sky-100 to-amber-50 border-2 border-sky-200 overflow-hidden mb-4 shadow-inner">
+          <!-- California Sun & Palm Trees -->
+          <div class="absolute top-4 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full bg-gradient-to-br from-yellow-200 to-amber-400 shadow-[0_0_40px_#fde047] opacity-90"></div>
+          <svg class="absolute bottom-10 left-3 w-20 opacity-30 pointer-events-none" viewBox="0 0 80 120" fill="#0284C7">
+            <path d="M36 120 Q40 70 42 35 L48 35 Q46 70 44 120 Z"/>
+            <path d="M44 36 Q15 20 6 42 Q26 36 44 40 Z"/>
+            <path d="M44 36 Q70 18 78 40 Q60 35 44 40 Z"/>
+            <path d="M44 35 Q30 6 14 14 Q32 22 44 36 Z"/>
+            <path d="M44 35 Q62 5 74 16 Q56 24 44 36 Z"/>
+          </svg>
+          <svg class="absolute bottom-10 right-3 w-20 opacity-30 pointer-events-none" viewBox="0 0 80 120" fill="#0284C7">
+            <path d="M36 120 Q40 70 42 35 L48 35 Q46 70 44 120 Z"/>
+            <path d="M44 36 Q15 20 6 42 Q26 36 44 40 Z"/>
+            <path d="M44 36 Q70 18 78 40 Q60 35 44 40 Z"/>
+          </svg>
+
+          <!-- Arena Floor -->
+          <div class="absolute bottom-0 inset-x-0 h-12 bg-gradient-to-r from-sky-700 via-sky-600 to-sky-700 border-t-4 border-amber-300"></div>
+
+          <!-- Center Height Ruler -->
+          <div class="absolute inset-y-4 left-1/2 -translate-x-1/2 w-12 flex flex-col justify-between items-center pointer-events-none z-10">
+            <span class="text-[10px] font-black bg-white/85 px-1.5 py-0.5 rounded text-sky-800 border border-sky-200">240cm</span>
+            <div class="w-0.5 flex-1 bg-sky-500/35 my-1"></div>
+            <span class="text-[10px] font-black bg-white/85 px-1.5 py-0.5 rounded text-sky-800 border border-sky-200">120cm</span>
+            <div class="w-0.5 flex-1 bg-sky-500/35 my-1"></div>
+            <span class="text-[10px] font-black bg-white/85 px-1.5 py-0.5 rounded text-sky-800 border border-sky-200">0cm</span>
+          </div>
+
+          <!-- Left: Player SVG Lifter -->
+          <div class="absolute bottom-8 left-[8%] sm:left-[15%] w-36 sm:w-44 h-60 flex flex-col items-center justify-end">
+            <svg id="playerLifterSvg" class="w-full h-full overflow-visible" viewBox="0 0 180 230">
+              <!-- Barbell Group (Moves Up with height!) -->
+              <g id="playerBarbell" transform="translate(0, 0)">
+                <rect x="16" y="142" width="148" height="7" rx="3.5" fill="#94A3B8" stroke="#475569" stroke-width="1"/>
+                <!-- Gold/Blue Plates -->
+                <rect x="22" y="124" width="14" height="42" rx="4" fill="#0284C7" stroke="#BAE6FD" stroke-width="1.5"/>
+                <rect x="38" y="130" width="10" height="30" rx="3" fill="#F59E0B" stroke="#FEF08A" stroke-width="1.2"/>
+                <rect x="144" y="124" width="14" height="42" rx="4" fill="#0284C7" stroke="#BAE6FD" stroke-width="1.5"/>
+                <rect x="132" y="130" width="10" height="30" rx="3" fill="#F59E0B" stroke="#FEF08A" stroke-width="1.2"/>
+              </g>
+              <!-- Player Body -->
+              <g id="playerBody">
+                <!-- Legs -->
+                <rect x="72" y="172" width="14" height="44" rx="6" fill="#0369A1"/>
+                <rect x="94" y="172" width="14" height="44" rx="6" fill="#0369A1"/>
+                <!-- Shoes -->
+                <rect x="66" y="210" width="22" height="10" rx="4" fill="#F59E0B"/>
+                <rect x="92" y="210" width="22" height="10" rx="4" fill="#F59E0B"/>
+                <!-- Torso -->
+                <rect x="68" y="126" width="44" height="52" rx="14" fill="#38BDF8" stroke="#E0F2FE" stroke-width="2"/>
+                <text x="90" y="156" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="900">VIP</text>
+                <!-- Head -->
+                <circle cx="90" cy="105" r="19" fill="#FDE68A" stroke="#F59E0B" stroke-width="1.5"/>
+                <!-- Headband -->
+                <rect x="72" y="94" width="36" height="6" rx="3" fill="#0284C7"/>
+                <!-- Eyes & Determined Smile -->
+                <circle cx="83" cy="106" r="2.3" fill="#0F172A"/>
+                <circle cx="97" cy="106" r="2.3" fill="#0F172A"/>
+                <path d="M84 114 Q90 119 96 114" stroke="#B45309" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+                <!-- Dynamic Arms -->
+                <line id="pArmL" x1="70" y1="136" x2="58" y2="145" stroke="#FDE68A" stroke-width="9" stroke-linecap="round"/>
+                <line id="pArmR" x1="110" y1="136" x2="122" y2="145" stroke="#FDE68A" stroke-width="9" stroke-linecap="round"/>
+              </g>
+            </svg>
+            <div class="text-xs font-black text-white bg-sky-600/90 px-2.5 py-0.5 rounded-full shadow -mt-2" id="arenaPlayerTag">玩家</div>
+          </div>
+
+          <!-- Right: Jessica (American Girl Rival) SVG Lifter -->
+          <div class="absolute bottom-8 right-[8%] sm:right-[15%] w-36 sm:w-44 h-60 flex flex-col items-center justify-end">
+            <svg id="jessicaLifterSvg" class="w-full h-full overflow-visible" viewBox="0 0 180 230">
+              <!-- Jessica Barbell -->
+              <g id="jessicaBarbell" transform="translate(0, 0)">
+                <rect x="16" y="142" width="148" height="7" rx="3.5" fill="#94A3B8" stroke="#475569" stroke-width="1"/>
+                <rect x="22" y="126" width="14" height="38" rx="4" fill="#EC4899" stroke="#FBCFE8" stroke-width="1.5"/>
+                <rect x="38" y="131" width="9" height="28" rx="3" fill="#FACC15" stroke="#FEF08A" stroke-width="1.2"/>
+                <rect x="144" y="126" width="14" height="38" rx="4" fill="#EC4899" stroke="#FBCFE8" stroke-width="1.5"/>
+                <rect x="133" y="131" width="9" height="28" rx="3" fill="#FACC15" stroke="#FEF08A" stroke-width="1.2"/>
+              </g>
+              <!-- Jessica Body -->
+              <g>
+                <!-- Blonde Ponytail -->
+                <path d="M106 96 Q130 92 126 118 Q116 112 104 106 Z" fill="#FACC15" stroke="#EAB308" stroke-width="1.2"/>
+                <!-- Legs -->
+                <rect x="74" y="172" width="13" height="44" rx="6" fill="#0EA5E9"/>
+                <rect x="93" y="172" width="13" height="44" rx="6" fill="#0EA5E9"/>
+                <rect x="68" y="210" width="21" height="10" rx="4" fill="#EC4899"/>
+                <rect x="91" y="210" width="21" height="10" rx="4" fill="#EC4899"/>
+                <!-- Athletic Top -->
+                <rect x="70" y="128" width="40" height="46" rx="13" fill="#F472B6" stroke="#FCE7F3" stroke-width="2"/>
+                <text x="90" y="155" text-anchor="middle" fill="#FFFFFF" font-size="10" font-weight="900">USA</text>
+                <!-- Head -->
+                <circle cx="90" cy="105" r="19" fill="#FED7AA" stroke="#FB923C" stroke-width="1.5"/>
+                <!-- Blonde Hair Bangs -->
+                <path d="M71 102 Q78 82 95 85 Q108 87 109 102 Q98 92 71 102 Z" fill="#FACC15"/>
+                <!-- Cool Sunglasses -->
+                <rect x="76" y="100" width="12" height="7" rx="2.5" fill="#0F172A"/>
+                <rect x="92" y="100" width="12" height="7" rx="2.5" fill="#0F172A"/>
+                <line x1="88" y1="103" x2="92" y2="103" stroke="#FACC15" stroke-width="2"/>
+                <!-- Confident Smile -->
+                <path d="M84 114 Q90 119 96 113" stroke="#BE123C" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <!-- Dynamic Arms -->
+                <line id="jArmL" x1="72" y1="136" x2="58" y2="145" stroke="#FED7AA" stroke-width="8.5" stroke-linecap="round"/>
+                <line id="jArmR" x1="108" y1="136" x2="122" y2="145" stroke="#FED7AA" stroke-width="8.5" stroke-linecap="round"/>
+              </g>
+            </svg>
+            <div class="text-xs font-black text-white bg-pink-500/90 px-2.5 py-0.5 rounded-full shadow -mt-2">Jessica</div>
+          </div>
+        </div>
+
+        <!-- Tap / Spacebar Action Area -->
+        <div id="liftActionPanel" class="hidden text-center">
+          <button
+            id="liftTapBtn"
+            onclick="tapLift()"
+            class="btn-azure w-full sm:w-96 py-5 rounded-2xl font-black text-xl sm:text-2xl shadow-xl cursor-pointer select-none active:scale-95"
+          >
+            💪 用力舉高！（狂點或按空白鍵）
+          </button>
+        </div>
+
+        <!-- Result Panel (Win or Retry) -->
+        <div id="liftResultPanel" class="hidden rounded-2xl p-5 bg-white/90 border-2 border-amber-300 text-center animate-pop">
+          <div id="liftResultIcon" class="text-4xl mb-1">🏆</div>
+          <h3 id="liftResultTitle" class="text-xl sm:text-2xl font-black text-sky-950 mb-1">太神啦！擊敗加州舉重女王！</h3>
+          <p id="liftResultDesc" class="text-sm text-sky-700 mb-4"></p>
+          <div class="flex flex-wrap items-center justify-center gap-3">
+            <button onclick="resetWeightlifting()" class="px-5 py-3 rounded-xl bg-sky-100 hover:bg-sky-200 text-sky-800 font-bold text-sm border border-sky-200 transition cursor-pointer">
+              🔄 再次挑戰（可更換重量）
+            </button>
+            <button id="toStage3Btn" onclick="goToStage(3)" class="hidden btn-gold px-8 py-3 rounded-2xl font-black text-base cursor-pointer">
+              🌸 前往豪華名企見面會
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         STAGE 3: LUXURY ITINERARY × 5 COMPANY FAN MEETINGS
+    ========================================================== -->
+    <section id="stage-3" class="stage-section">
+      <div class="glass-card rounded-3xl p-5 sm:p-7">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <span class="inline-block text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-cyan-100 text-cyan-800 border border-cyan-200 mb-1">
+              STAGE 03 · 美國五大名企豪華巡迴
+            </span>
+            <h2 class="text-xl sm:text-2xl font-black text-sky-950">拜訪各大公司粉絲見面會</h2>
+          </div>
+          <div class="px-4 py-1.5 rounded-full bg-amber-100 border border-amber-300 text-amber-800 font-black text-sm">
+            💐 已收集花朵：<span id="flowerCountDisp">0</span> / 5
+          </div>
+        </div>
+        <p class="text-xs sm:text-sm text-sky-700 mb-5">
+          點擊下方尚未造訪的頂級企業展開粉絲見面會，與熱情的美國粉絲互動集滿 5 次，即可獲得該場專屬名流花朵！
+        </p>
+
+        <!-- 5 Companies Map Grid -->
+        <div id="companyGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 mb-6">
+          <!-- Dynamically rendered by JS -->
+        </div>
+
+        <!-- Luxury Bouquet Collection Bar -->
+        <div class="bg-gradient-to-r from-sky-50/90 via-white/95 to-amber-50/90 rounded-2xl p-4 border-2 border-sky-200 shadow-inner mb-5">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm font-black text-sky-900">✨ 豪華花束收藏欄</span>
+            <span class="text-xs font-bold text-sky-600" id="bouquetStatusText">尚需收集 5 朵花解鎖紅毯證照</span>
+          </div>
+          <div id="bouquetSlots" class="grid grid-cols-5 gap-2">
+            <!-- 5 Flower Slots rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Unlock Stage 4 Button -->
+        <div class="text-center">
+          <button
+            id="toStage4Btn"
+            onclick="goToStage(4)"
+            disabled
+            class="w-full sm:w-auto px-9 py-4 rounded-2xl font-black text-base sm:text-lg transition bg-sky-200 text-sky-500 cursor-not-allowed"
+          >
+            🔒 集滿 5 朵花解鎖「紅毯拍照・超級金光證照」
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         STAGE 4: PHOTO UPLOAD / CAMERA & SUPER GOLDEN CERTIFICATE
+    ========================================================== -->
+    <section id="stage-4" class="stage-section">
+      <div class="glass-card rounded-3xl p-5 sm:p-8">
+        <div class="text-center mb-6">
+          <span class="inline-block text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-300 mb-2">
+            GRAND FINALE · 紅毯榮耀加冕
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-black text-sky-950">
+            拍照上傳 × <span class="text-gold-gradient">超級金光證照</span>
+          </h2>
+          <p class="text-xs sm:text-sm text-sky-700 mt-1">
+            放上你的專屬大頭照，立即即時鑄造 900×1280 高解析度「超級金光榮譽證照」！
+          </p>
+        </div>
+
+        <!-- Photo Selection Controls -->
+        <div class="bg-white/80 rounded-2xl p-4 sm:p-5 border border-sky-200 mb-6">
+          <div class="text-sm font-black text-sky-900 mb-3 text-center">📸 選擇你的紅毯證照大頭照</div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <label class="btn-azure py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-pointer text-center">
+              <span>📁</span>
+              <span>上傳照片</span>
+              <input id="photoFileInput" type="file" accept="image/*" class="hidden" onchange="handlePhotoUpload(event)" />
+            </label>
+            <button type="button" onclick="openCamera()" class="py-3 px-4 rounded-xl bg-white hover:bg-sky-50 border-2 border-sky-300 text-sky-800 font-bold text-sm flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer">
+              <span>📷</span>
+              <span>開啟相機拍照</span>
+            </button>
+            <button type="button" onclick="useLuxuryAvatar()" class="py-3 px-4 rounded-xl bg-amber-50 hover:bg-amber-100 border-2 border-amber-300 text-amber-800 font-bold text-sm flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer">
+              <span>✨</span>
+              <span>使用名流質感頭像</span>
+            </button>
+          </div>
+
+          <!-- Camera Preview Panel (Hidden until opened) -->
+          <div id="cameraPanel" class="hidden mt-4 pt-4 border-t border-sky-100 text-center">
+            <div class="relative inline-block w-56 h-56 rounded-full overflow-hidden border-4 border-amber-300 shadow-lg bg-sky-950">
+              <video id="cameraVideo" autoplay playsinline muted class="w-full h-full object-cover scale-x-[-1]"></video>
+              <div id="cameraCountdown" class="hidden absolute inset-0 bg-black/35 flex items-center justify-center text-6xl font-black text-amber-300">3</div>
+            </div>
+            <div class="flex items-center justify-center gap-2.5 mt-3">
+              <button type="button" onclick="takeCameraSnapshot(true)" class="btn-gold px-5 py-2.5 rounded-xl font-black text-sm cursor-pointer">
+                ⏱ 3秒倒數快門
+              </button>
+              <button type="button" onclick="takeCameraSnapshot(false)" class="btn-azure px-5 py-2.5 rounded-xl font-bold text-sm cursor-pointer">
+                📸 立即拍照
+              </button>
+              <button type="button" onclick="stopCamera()" class="px-4 py-2.5 rounded-xl bg-sky-100 text-sky-700 font-bold text-sm cursor-pointer">
+                關閉
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Super Golden Certificate Preview (Animated Shimmer Frame) -->
+        <div class="max-w-md mx-auto mb-6">
+          <div class="cert-gold-frame">
+            <div class="bg-sky-950 rounded-2xl overflow-hidden relative">
+              <!-- High-res Hidden Canvas used for drawing -->
+              <canvas id="certCanvas" width="900" height="1280" class="hidden"></canvas>
+              <!-- Synced IMG for crisp responsive display & mobile long-press save -->
+              <img id="certPreviewImg" alt="美國夢超級金光榮譽證照" class="w-full h-auto block rounded-xl select-auto" />
+            </div>
+          </div>
+          <p class="text-center text-xs font-bold text-sky-700 mt-3">
+            📱 手機用戶可直接「長按上方證照圖片」儲存至相簿，或點擊下方按鈕一鍵下載高解析度 PNG！
+          </p>
+        </div>
+
+        <!-- Final Action Buttons -->
+        <div class="flex flex-wrap items-center justify-center gap-3">
+          <button onclick="downloadCertificate()" class="btn-gold px-8 py-4 rounded-2xl font-black text-base sm:text-lg cursor-pointer">
+            ⬇ 下載超級金光證照 (PNG)
+          </button>
+          <button onclick="restartGame()" class="px-6 py-4 rounded-2xl bg-white/85 hover:bg-white border border-sky-200 text-sky-800 font-bold text-sm sm:text-base shadow-sm transition active:scale-95 cursor-pointer">
+            🔄 重新開啟新旅程
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- =========================================================
+       FAN MEETING INTERACTIVE MODAL (STAGE 3)
+  ========================================================== -->
+  <div id="fanMeetingModal" class="hidden fixed inset-0 z-50 bg-sky-950/55 backdrop-blur-sm flex items-center justify-center p-3">
+    <div class="glass-card rounded-3xl w-full max-w-lg p-5 sm:p-6 relative animate-pop">
+      <button onclick="closeFanModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-sky-100 hover:bg-sky-200 text-sky-700 font-black flex items-center justify-center cursor-pointer">✕</button>
+
+      <div class="mb-3 pr-8">
+        <span id="fmBadge" class="inline-block text-[11px] font-black px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-700 mb-1">VIP 粉絲見面會</span>
+        <h3 id="fmTitle" class="text-xl font-black text-sky-950">公司名稱</h3>
+        <p class="text-xs text-sky-700 mt-0.5">點擊舞台上冒出的 ❤️ 愛心、✍️ 簽名板、📸 閃光燈（集滿 5 次互動即可獲贈花朵！）</p>
+      </div>
+
+      <!-- Progress -->
+      <div class="flex items-center justify-between text-xs font-black text-sky-800 mb-1.5">
+        <span>粉絲熱情互動進度</span>
+        <span id="fmProgressText">0 / 5</span>
+      </div>
+      <div class="w-full h-3 rounded-full bg-sky-100 overflow-hidden mb-4 border border-sky-200">
+        <div id="fmProgressBar" class="h-full bg-gradient-to-r from-sky-400 to-amber-400 transition-all duration-200" style="width: 0%;"></div>
+      </div>
+
+      <!-- Interactive Fan Stage -->
+      <div id="fmStage" class="relative w-full h-60 rounded-2xl bg-gradient-to-b from-sky-800 via-sky-600 to-sky-400 border-2 border-amber-300/80 overflow-hidden shadow-inner">
+        <!-- Stage Spotlight & Crowd Silhouette -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-52 h-40 bg-amber-200/20 blur-2xl pointer-events-none"></div>
+        <div id="fmStageCompanyWatermark" class="absolute top-3 left-1/2 -translate-x-1/2 text-white/30 font-black text-sm tracking-widest uppercase pointer-events-none whitespace-nowrap"></div>
+        <svg class="absolute bottom-0 inset-x-0 w-full h-14 opacity-35 pointer-events-none" viewBox="0 0 400 60" preserveAspectRatio="none" fill="#0C4A6E">
+          <circle cx="30" cy="45" r="22"/><circle cx="75" cy="40" r="24"/><circle cx="125" cy="46" r="22"/><circle cx="175" cy="38" r="26"/>
+          <circle cx="230" cy="44" r="23"/><circle cx="285" cy="40" r="25"/><circle cx="340" cy="46" r="22"/><circle cx="380" cy="42" r="24"/>
+        </svg>
+        <!-- Interactive targets spawn here -->
+      </div>
+
+      <!-- Flower Bloom Reward Overlay inside modal -->
+      <div id="fmRewardOverlay" class="hidden absolute inset-0 bg-white/95 backdrop-blur-md rounded-3xl flex flex-col items-center justify-center p-6 text-center z-20 animate-pop">
+        <div id="fmRewardFlowerSvg" class="w-28 h-28 mb-2 animate-float"></div>
+        <div class="text-xs font-black text-amber-600 uppercase tracking-wider mb-1">見面會圓滿成功！</div>
+        <h4 id="fmRewardTitle" class="text-xl font-black text-sky-950 mb-1">獲得「藍星玫瑰」</h4>
+        <p class="text-xs text-sky-700 mb-4">已典雅收入你的豪華花束收藏欄！</p>
+        <button onclick="closeFanModal()" class="btn-gold px-7 py-2.5 rounded-xl font-black text-sm cursor-pointer">
+          ✨ 收下花朵繼續行程
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       GAME LOGIC, AUDIO SYNTHESIZER, SVG & CANVAS ENGINE
+  ========================================================== -->
+  <script>
+    /* ============================================================
+       1. GLOBAL STATE
+    ============================================================ */
+    const state = {
+      playerName: '',
+      currentStage: 0,
+      audioEnabled: true,
+
+      // Stage 1: Crowdfunding
+      funds: 0,
+      fundTarget: 100000,
+      fundCompleted: false,
+      bubbleInterval: null,
+      lyricTimer: null,
+
+      // Stage 2: Weightlifting
+      selectedWeight: 150,
+      isLifting: false,
+      liftTimeLeft: 8.0,
+      playerHeight: 0,
+      playerPeakHeight: 0,
+      jessicaHeight: 0,
+      bestWeight: 150,
+      bestHeight: 0,
+      liftRaf: null,
+      liftLastTs: 0,
+      stage2Won: false,
+
+      // Stage 3: Companies & Flowers
+      visitedCompanies: new Set(),
+      activeCompanyId: null,
+      fanHits: 0,
+      fanSpawnTimer: null,
+
+      // Stage 4: Photo & Certificate
+      photoImage: null, // HTMLImageElement or HTMLCanvasElement
+      mediaStream: null
+    };
+
+    const RANDOM_NAMES = [
+      '蔚藍公爵', '星光艾莉絲', '香檳薇薇安', '加州傑克',
+      '藍鑽凱文', '金光安娜', '天際克里斯', '名流蘇菲亞'
+    ];
+
+    const SPONSOR_TYPES = [
+      { label: '親友頭等艙應援', amount: 8000, icon: '✈️', color: 'from-sky-50 to-sky-100 border-sky-300 text-sky-900' },
+      { label: '富豪團購包機', amount: 15000, icon: '💎', color: 'from-amber-50 to-yellow-100 border-amber-300 text-amber-900' },
+      { label: '神秘天使投資', amount: 22000, icon: '🌟', color: 'from-yellow-50 to-amber-100 border-amber-400 text-amber-950' },
+      { label: '粉絲早鳥加碼', amount: 6000, icon: '💙', color: 'from-cyan-50 to-sky-100 border-cyan-300 text-cyan-900' },
+      { label: '名流俱樂部贊助', amount: 12000, icon: '🥂', color: 'from-white to-sky-100 border-sky-300 text-sky-900' }
+    ];
+
+    const COMPANIES = [
+      {
+        id: 'apple',
+        name: '矽谷・蘋果光環總部',
+        city: 'Cupertino, CA',
+        flowerName: '藍星玫瑰',
+        flowerKey: 'rose',
+        accent: '#0ea5e9',
+        desc: '在玻璃圓環園區舉行科技名流見面會'
+      },
+      {
+        id: 'google',
+        name: '灣區・搜尋巨頭園區',
+        city: 'Mountain View, CA',
+        flowerName: '香檳鬱金香',
+        flowerKey: 'tulip',
+        accent: '#f59e0b',
+        desc: '彩色單車草坪與全球粉絲近距離簽名'
+      },
+      {
+        id: 'spacex',
+        name: '德州・星際火箭基地',
+        city: 'Starbase, TX',
+        flowerName: '金光向日葵',
+        flowerKey: 'sunflower',
+        accent: '#eab308',
+        desc: '火箭發射台前舉辦宇宙級星光派對'
+      },
+      {
+        id: 'wallstreet',
+        name: '紐約・華爾街金牛大廳',
+        city: 'New York, NY',
+        flowerName: '夢幻淺藍繡球花',
+        flowerKey: 'hydrangea',
+        accent: '#38bdf8',
+        desc: '華爾街金融殿堂 VIP 敲鐘見面會'
+      },
+      {
+        id: 'hollywood',
+        name: '洛杉磯・好萊塢星光影業',
+        city: 'Los Angeles, CA',
+        flowerName: '皇家白金百合',
+        flowerKey: 'lily',
+        accent: '#6366f1',
+        desc: '星光大道頂級紅毯閃光燈見面會'
+      }
+    ];
+
+    /* ============================================================
+       2. WEB AUDIO API SYNTHESIZER (NO EXTERNAL AUDIO FILES)
+    ============================================================ */
+    let audioCtx = null;
+
+    function ensureAudio() {
+      if (!state.audioEnabled) return null;
+      try {
+        if (!audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          audioCtx = new AudioContextClass();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        return audioCtx;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function toggleAudio() {
+      state.audioEnabled = !state.audioEnabled;
+      document.getElementById('audioIcon').textContent = state.audioEnabled ? '🔊' : '🔇';
+      document.getElementById('audioLabel').textContent = state.audioEnabled ? '音效開啟' : '已靜音';
+      if (state.audioEnabled) playSparkleSound();
+    }
+
+    function playTone(freq, startTime, duration, type = 'sine', volume = 0.12) {
+      const ctx = ensureAudio();
+      if (!ctx) return;
+      try {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, startTime);
+
+        gain.gain.setValueAtTime(0.001, startTime);
+        gain.gain.linearRampToValueAtTime(volume, startTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0008, startTime + duration);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(startTime);
+        osc.stop(startTime + duration + 0.02);
+      } catch (e) {}
+    }
+
+    function playCoinSound() {
+      const ctx = ensureAudio();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      playTone(987.77, now, 0.12, 'triangle', 0.14); // B5
+      playTone(1318.51, now + 0.06, 0.22, 'sine', 0.15); // E6
+    }
+
+    function playSparkleSound() {
+      const ctx = ensureAudio();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      [523.25, 659.25, 783.99, 1046.5].forEach((f, idx) => {
+        playTone(f, now + idx * 0.05, 0.25, 'sine', 0.1);
+      });
+    }
+
+    function playLiftTick(heightRatio) {
+      const ctx = ensureAudio();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const baseFreq = 260 + heightRatio * 340;
+      playTone(baseFreq, now, 0.08, 'triangle', 0.12);
+    }
+
+    function playShutterSound() {
+      const ctx = ensureAudio();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      playTone(1200, now, 0.04, 'square', 0.06);
+      playTone(600, now + 0.04, 0.06, 'triangle', 0.08);
+    }
+
+    function playFlowerBloomSound() {
+      const ctx = ensureAudio();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      [523.25, 659.25, 783.99, 987.77, 1318.51].forEach((f, i) => {
+        playTone(f, now + i * 0.07, 0.45, 'triangle', 0.11);
+      });
+    }
+
+    function playVictoryFanfare() {
+      const ctx = ensureAudio();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const notes = [
+        [523.25, 0.0, 0.16], [659.25, 0.16, 0.16], [783.99, 0.32, 0.16],
+        [1046.5, 0.48, 0.55]
+      ];
+      notes.forEach(([f, t, d]) => {
+        playTone(f, now + t, d, 'triangle', 0.14);
+        playTone(f * 0.5, now + t, d, 'sawtooth', 0.04);
+      });
+    }
+
+    // Grand Ceremonial Brass & Strings March for Stage 1 Celebration
+    function playOrchestraCelebration() {
+      const ctx = ensureAudio();
+      if (!ctx) return;
+      const now = ctx.currentTime + 0.05;
+      // Joyful ceremonial melody (C Major Fanfare)
+      const melody = [
+        [523.25, 0.0, 0.25], [523.25, 0.28, 0.14], [523.25, 0.44, 0.14],
+        [659.25, 0.62, 0.36], [587.33, 1.02, 0.24], [659.25, 1.28, 0.24],
+        [783.99, 1.56, 0.55],
+        [880.00, 2.20, 0.26], [783.99, 2.48, 0.26], [659.25, 2.76, 0.26],
+        [587.33, 3.04, 0.26], [659.25, 3.32, 0.26], [783.99, 3.60, 0.35],
+        [1046.50, 4.00, 0.85]
+      ];
+      // Warm Bass / Cello Accompaniment
+      const bass = [
+        [130.81, 0.0, 0.55], [196.00, 0.62, 0.55], [146.83, 1.28, 0.26],
+        [196.00, 1.56, 0.55], [174.61, 2.20, 0.52], [130.81, 2.76, 0.52],
+        [196.00, 3.32, 0.62], [130.81, 4.00, 0.88]
+      ];
+      melody.forEach(([f, t, d]) => {
+        // Golden Trumpet layer
+        playTone(f, now + t, d, 'sawtooth', 0.055);
+        // Violin / Choir shimmer layer
+        playTone(f, now + t, d + 0.06, 'triangle', 0.11);
+      });
+      bass.forEach(([f, t, d]) => {
+        playTone(f, now + t, d, 'triangle', 0.1);
+      });
+    }
+
+    /* ============================================================
+       3. UI HELPERS & NAVIGATION
+    ============================================================ */
+    function showToast(message, type = 'info') {
+      const box = document.getElementById('toastBox');
+      const div = document.createElement('div');
+      const colors = type === 'gold'
+        ? 'bg-gradient-to-r from-amber-50 to-yellow-100 border-amber-300 text-amber-900'
+        : 'bg-white/95 border-sky-300 text-sky-900';
+      div.className = `px-4 py-2.5 rounded-2xl border-2 shadow-lg text-xs sm:text-sm font-black animate-pop ${colors}`;
+      div.textContent = message;
+      box.appendChild(div);
+      setTimeout(() => {
+        div.style.opacity = '0';
+        div.style.transition = 'opacity 0.35s ease';
+        setTimeout(() => div.remove(), 360);
+      }, 2400);
+    }
+
+    function updateProgressStepper(stageNum) {
+      for (let i = 1; i <= 4; i++) {
+        const el = document.getElementById(`step-${i}`);
+        el.className = 'step-pill rounded-xl py-1.5 px-1 text-[11px] sm:text-xs font-bold border transition-all ';
+        if (i < stageNum) {
+          el.className += 'bg-sky-100 text-sky-700 border-sky-300';
+        } else if (i === stageNum) {
+          el.className += 'bg-gradient-to-r from-sky-400 to-blue-500 text-white border-sky-300 shadow-md scale-[1.03]';
+        } else {
+          el.className += 'bg-sky-50/70 text-sky-400 border-sky-100';
+        }
+      }
+    }
+
+    function goToStage(num) {
+      // Cleanup timers & camera from previous stages
+      clearInterval(state.bubbleInterval);
+      clearInterval(state.lyricTimer);
+      stopCamera();
+
+      state.currentStage = num;
+      document.querySelectorAll('.stage-section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(`stage-${num}`).classList.add('active');
+      updateProgressStepper(num);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (num === 1) initStage1();
+      if (num === 2) initStage2();
+      if (num === 3) initStage3();
+      if (num === 4) initStage4();
+    }
+
+    /* ============================================================
+       4. STAGE 0: HOME & NAME INPUT
+    ============================================================ */
+    function fillRandomName() {
+      ensureAudio();
+      playSparkleSound();
+      const pick = RANDOM_NAMES[Math.floor(Math.random() * RANDOM_NAMES.length)];
+      document.getElementById('playerNameInput').value = pick;
+      document.getElementById('nameErrorMsg').classList.add('hidden');
+    }
+
+    function startJourney() {
+      ensureAudio();
+      const input = document.getElementById('playerNameInput');
+      const name = input.value.trim();
+      if (!name) {
+        document.getElementById('nameErrorMsg').classList.remove('hidden');
+        input.focus();
+        return;
+      }
+      state.playerName = name;
+      document.getElementById('navPlayerName').textContent = name;
+      playSparkleSound();
+      showToast(`歡迎尊榮貴賓「${name}」，頭等艙集資計畫啟動！`, 'gold');
+      goToStage(1);
+    }
+
+    /* ============================================================
+       5. STAGE 1: CROWDFUNDING & GRAND CEREMONIAL ORCHESTRA
+    ============================================================ */
+    function initStage1() {
+      state.funds = 0;
+      state.fundCompleted = false;
+      document.getElementById('s1-fund-view').classList.remove('hidden');
+      document.getElementById('s1-orchestra-view').classList.add('hidden');
+      updateFundUI();
+
+      // Clear old bubbles
+      const arena = document.getElementById('bubbleArena');
+      arena.querySelectorAll('.sponsor-bubble').forEach(b => b.remove());
+
+      // Spawn initial VIP bubbles & start spawner
+      spawnSponsorBubble();
+      setTimeout(spawnSponsorBubble, 450);
+      state.bubbleInterval = setInterval(() => {
+        if (!state.fundCompleted && arena.querySelectorAll('.sponsor-bubble').length < 4) {
+          spawnSponsorBubble();
+        }
+      }, 1050);
+    }
+
+    function updateFundUI() {
+      const pct = Math.min(100, Math.round((state.funds / state.fundTarget) * 100));
+      document.getElementById('fundAmountDisplay').textContent = `US$ ${state.funds.toLocaleString()}`;
+      document.getElementById('fundProgressBar').style.width = `${pct}%`;
+      document.getElementById('fundPercentText').textContent =
+        state.funds > state.fundTarget
+          ? `${Math.round((state.funds / state.fundTarget) * 100)}% 超標達成！`
+          : `${pct}%`;
+    }
+
+    function spawnCoinFX(container, x, y, text) {
+      const el = document.createElement('div');
+      el.className = 'coin-float text-sm sm:text-base';
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      el.textContent = text;
+      container.appendChild(el);
+      setTimeout(() => el.remove(), 860);
+    }
+
+    function addFunds(amount, x, y) {
+      if (state.fundCompleted) return;
+      state.funds += amount;
+      playCoinSound();
+      updateFundUI();
+
+      const arena = document.getElementById('bubbleArena');
+      spawnCoinFX(arena, x, y, `+$${amount.toLocaleString()} ✨`);
+
+      // Trigger orchestra once funds EXCEED US$ 100,000
+      if (state.funds > state.fundTarget) {
+        state.fundCompleted = true;
+        clearInterval(state.bubbleInterval);
+        setTimeout(triggerOrchestraCelebration, 350);
+      }
+    }
+
+    function clickRally(e) {
+      const arena = document.getElementById('bubbleArena');
+      const rect = arena.getBoundingClientRect();
+      const randX = rect.width * (0.3 + Math.random() * 0.4);
+      const randY = rect.height * (0.45 + Math.random() * 0.25);
+      addFunds(3500, randX, randY);
+    }
+
+    function spawnSponsorBubble() {
+      const arena = document.getElementById('bubbleArena');
+      const data = SPONSOR_TYPES[Math.floor(Math.random() * SPONSOR_TYPES.length)];
+      const bubble = document.createElement('button');
+      bubble.type = 'button';
+      bubble.className = `sponsor-bubble px-3.5 py-2 rounded-2xl bg-gradient-to-br ${data.color} border-2 shadow-lg flex items-center gap-2 text-left max-w-[215px]`;
+
+      const maxLeft = Math.max(10, arena.clientWidth - 210);
+      const maxTop = Math.max(10, arena.clientHeight - 72);
+      const left = 8 + Math.random() * maxLeft;
+      const top = 12 + Math.random() * maxTop;
+      bubble.style.left = `${left}px`;
+      bubble.style.top = `${top}px`;
+
+      bubble.innerHTML = `
+        <span class="text-xl shrink-0">${data.icon}</span>
+        <div class="leading-tight">
+          <div class="text-xs font-black">${data.label}</div>
+          <div class="text-xs font-black text-amber-600">+$${data.amount.toLocaleString()}</div>
+        </div>
+      `;
+
+      bubble.onclick = (ev) => {
+        ev.stopPropagation();
+        bubble.remove();
+        addFunds(data.amount, left + 70, top + 16);
+      };
+
+      arena.appendChild(bubble);
+      // Auto disappear if untouched after 4.2s
+      setTimeout(() => {
+        if (bubble.parentNode) bubble.remove();
+      }, 4200);
+    }
+
+    function triggerOrchestraCelebration() {
+      document.getElementById('s1-fund-view').classList.add('hidden');
+      document.getElementById('s1-orchestra-view').classList.remove('hidden');
+      document.getElementById('finalFundBadge').textContent = `US$ ${state.funds.toLocaleString()}`;
+      document.getElementById('orchPlayerName').textContent = state.playerName;
+
+      playOrchestraCelebration();
+      launchOrchestraConfetti();
+
+      const lyrics = [
+        `♪ 恭喜 ${state.playerName} 集資大爆棚～ ♪`,
+        `♪ 豪華專機迎著你～ ♪`,
+        `♪ 飛往美國閃耀全場～ ♪`,
+        `♪ 高級禮儀樂團致敬！BRAVO！ ♪`
+      ];
+      let idx = 0;
+      const lyricEl = document.getElementById('orchestraLyricText');
+      lyricEl.textContent = lyrics[0];
+      state.lyricTimer = setInterval(() => {
+        idx = (idx + 1) % lyrics.length;
+        lyricEl.textContent = lyrics[idx];
+      }, 1500);
+    }
+
+    function launchOrchestraConfetti() {
+      const layer = document.getElementById('orchestraConfetti');
+      layer.innerHTML = '';
+      const colors = ['#FACC15', '#38BDF8', '#FEF08A', '#F59E0B', '#FFFFFF'];
+      for (let i = 0; i < 36; i++) {
+        const piece = document.createElement('div');
+        piece.style.position = 'absolute';
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.top = `${-10 - Math.random() * 80}px`;
+        piece.style.width = `${7 + Math.random() * 7}px`;
+        piece.style.height = `${10 + Math.random() * 10}px`;
+        piece.style.backgroundColor = colors[i % colors.length];
+        piece.style.borderRadius = '2px';
+        piece.style.animation = `confettiFall ${2.2 + Math.random() * 2.2}s linear ${Math.random() * 1.5}s infinite`;
+        layer.appendChild(piece);
+      }
+    }
+
+    /* ============================================================
+       6. STAGE 2: CALIFORNIA WEIGHTLIFTING VS. JESSICA
+    ============================================================ */
+    const JESSICA_WEIGHT = 150;
+    const JESSICA_TARGET_HEIGHT = 195;
+    const JESSICA_SCORE = JESSICA_WEIGHT * JESSICA_TARGET_HEIGHT; // 29,250
+
+    function initStage2() {
+      document.getElementById('liftPlayerLabel').textContent = `${state.playerName} 的成績`;
+      document.getElementById('arenaPlayerTag').textContent = state.playerName;
+      resetWeightlifting();
+    }
+
+    function selectWeight(kg) {
+      state.selectedWeight = kg;
+      playSparkleSound();
+      document.querySelectorAll('.weight-opt').forEach(btn => {
+        btn.classList.remove('border-sky-400', 'bg-sky-100', 'ring-2', 'ring-sky-300');
+        btn.classList.add('border-sky-200', 'bg-sky-50/70');
+      });
+      const active = document.getElementById(`wbtn-${kg}`);
+      active.classList.remove('border-sky-200', 'bg-sky-50/70');
+      active.classList.add('border-sky-400', 'bg-sky-100', 'ring-2', 'ring-sky-300');
+      document.getElementById('pWeightDisp').textContent = kg;
+    }
+
+    function resetWeightlifting() {
+      cancelAnimationFrame(state.liftRaf);
+      state.isLifting = false;
+      state.liftTimeLeft = 8.0;
+      state.playerHeight = 0;
+      state.playerPeakHeight = 0;
+      state.jessicaHeight = 0;
+
+      document.getElementById('weightSelectPanel').classList.remove('hidden');
+      document.getElementById('liftActionPanel').classList.add('hidden');
+      document.getElementById('liftResultPanel').classList.add('hidden');
+      document.getElementById('liftTimerDisp').textContent = '8.0s';
+      document.getElementById('pWeightDisp').textContent = state.selectedWeight;
+      document.getElementById('pHeightDisp').textContent = '0';
+      document.getElementById('pScoreDisp').textContent = '0';
+      document.getElementById('jHeightDisp').textContent = '0';
+
+      updateLifterVisuals(0, 0);
+    }
+
+    function startWeightlifting() {
+      ensureAudio();
+      playSparkleSound();
+      state.isLifting = true;
+      state.liftTimeLeft = 8.0;
+      state.playerHeight = 0;
+      state.playerPeakHeight = 0;
+      state.jessicaHeight = 0;
+      state.liftLastTs = performance.now();
+
+      document.getElementById('weightSelectPanel').classList.add('hidden');
+      document.getElementById('liftActionPanel').classList.remove('hidden');
+      document.getElementById('liftResultPanel').classList.add('hidden');
+
+      state.liftRaf = requestAnimationFrame(weightliftingLoop);
+    }
+
+    function tapLift() {
+      if (!state.isLifting) return;
+      // Heavier weights have higher resistance per tap, balanced for fun tapping
+      const gainMap = { 100: 19, 150: 15.5, 220: 13.5, 280: 11.8 };
+      const boost = gainMap[state.selectedWeight] || 15;
+      state.playerHeight = Math.min(240, state.playerHeight + boost);
+      if (state.playerHeight > state.playerPeakHeight) {
+        state.playerPeakHeight = state.playerHeight;
+      }
+      playLiftTick(state.playerHeight / 240);
+    }
+
+    // Spacebar support during Stage 2
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && state.currentStage === 2 && state.isLifting) {
+        e.preventDefault();
+        if (!e.repeat) tapLift();
+      }
+    });
+
+    function weightliftingLoop(ts) {
+      if (!state.isLifting) return;
+      const dt = Math.min(0.1, (ts - state.liftLastTs) / 1000);
+      state.liftLastTs = ts;
+
+      state.liftTimeLeft = Math.max(0, state.liftTimeLeft - dt);
+
+      // Gravity pulls barbell down slightly depending on weight
+      const gravityMap = { 100: 26, 150: 36, 220: 44, 280: 52 };
+      const grav = gravityMap[state.selectedWeight] || 36;
+      state.playerHeight = Math.max(0, state.playerHeight - grav * dt);
+
+      // Jessica smoothly rises to 195cm over 8 seconds with athletic oscillation
+      const elapsed = 8.0 - state.liftTimeLeft;
+      const progress = Math.min(1, elapsed / 7.2);
+      state.jessicaHeight = Math.round(
+        JESSICA_TARGET_HEIGHT * (1 - Math.pow(1 - progress, 2.2)) + Math.sin(elapsed * 5) * 2
+      );
+      state.jessicaHeight = Math.max(0, Math.min(JESSICA_TARGET_HEIGHT, state.jessicaHeight));
+
+      const pPeak = Math.round(state.playerPeakHeight);
+      const pScore = state.selectedWeight * pPeak;
+
+      document.getElementById('liftTimerDisp').textContent = `${state.liftTimeLeft.toFixed(1)}s`;
+      document.getElementById('pHeightDisp').textContent = pPeak;
+      document.getElementById('pScoreDisp').textContent = pScore.toLocaleString();
+      document.getElementById('jHeightDisp').textContent = state.jessicaHeight;
+
+      updateLifterVisuals(state.playerHeight, state.jessicaHeight);
+
+      if (state.liftTimeLeft <= 0) {
+        finishWeightlifting();
+      } else {
+        state.liftRaf = requestAnimationFrame(weightliftingLoop);
+      }
+    }
+
+    function updateLifterVisuals(pCm, jCm) {
+      // Map 0..240cm to 0..-108px SVG Y translation
+      const pShift = -(pCm / 240) * 108;
+      const jShift = -(jCm / 240) * 108;
+
+      document.getElementById('playerBarbell').setAttribute('transform', `translate(0, ${pShift.toFixed(1)})`);
+      document.getElementById('pArmL').setAttribute('y2', (145 + pShift).toFixed(1));
+      document.getElementById('pArmR').setAttribute('y2', (145 + pShift).toFixed(1));
+
+      document.getElementById('jessicaBarbell').setAttribute('transform', `translate(0, ${jShift.toFixed(1)})`);
+      document.getElementById('jArmL').setAttribute('y2', (145 + jShift).toFixed(1));
+      document.getElementById('jArmR').setAttribute('y2', (145 + jShift).toFixed(1));
+    }
+
+    function finishWeightlifting() {
+      state.isLifting = false;
+      document.getElementById('liftActionPanel').classList.add('hidden');
+      const panel = document.getElementById('liftResultPanel');
+      panel.classList.remove('hidden');
+
+      const peakCm = Math.round(state.playerPeakHeight);
+      const playerScore = state.selectedWeight * peakCm;
+      const won = playerScore > JESSICA_SCORE;
+
+      const iconEl = document.getElementById('liftResultIcon');
+      const titleEl = document.getElementById('liftResultTitle');
+      const descEl = document.getElementById('liftResultDesc');
+      const nextBtn = document.getElementById('toStage3Btn');
+
+      if (won) {
+        state.stage2Won = true;
+        if (playerScore >= state.bestWeight * state.bestHeight) {
+          state.bestWeight = state.selectedWeight;
+          state.bestHeight = peakCm;
+        }
+        playVictoryFanfare();
+        iconEl.textContent = '🏆';
+        titleEl.textContent = `大獲全勝！擊敗加州舉重女王 Jessica！`;
+        descEl.textContent = `你以 ${state.selectedWeight} kg 舉升至 ${peakCm} cm（綜合戰力 ${playerScore.toLocaleString()}），漂亮超越 Jessica 的 29,250！`;
+        nextBtn.classList.remove('hidden');
+      } else {
+        iconEl.textContent = '💪';
+        titleEl.textContent = `差一點點！Jessica 這次險勝！`;
+        descEl.textContent = `你的成績為 ${state.selectedWeight} kg / ${peakCm} cm（戰力 ${playerScore.toLocaleString()}），建議挑戰 150kg 以上或加快連點手速超越 29,250！`;
+        if (!state.stage2Won) nextBtn.classList.add('hidden');
+      }
+    }
+
+    /* ============================================================
+       7. STAGE 3: 5 COMPANIES FAN MEETINGS & FLOWER COLLECTION
+    ============================================================ */
+    function getFlowerSVG(key) {
+      if (key === 'rose') {
+        return `<svg viewBox="0 0 80 80" class="w-full h-full">
+          <path d="M40 46 L40 74" stroke="#16A34A" stroke-width="4" stroke-linecap="round"/>
+          <path d="M40 62 Q26 56 24 64 Q32 68 40 64 Z" fill="#22C55E"/>
+          <circle cx="40" cy="30" r="19" fill="#38BDF8"/>
+          <circle cx="33" cy="27" r="11" fill="#0EA5E9"/>
+          <circle cx="47" cy="27" r="11" fill="#7DD3FC"/>
+          <circle cx="40" cy="34" r="11" fill="#0284C7"/>
+          <circle cx="40" cy="28" r="7" fill="#E0F2FE"/>
+          <circle cx="40" cy="28" r="3" fill="#FDE047"/>
+        </svg>`;
+      }
+      if (key === 'tulip') {
+        return `<svg viewBox="0 0 80 80" class="w-full h-full">
+          <path d="M40 48 L40 74" stroke="#16A34A" stroke-width="4" stroke-linecap="round"/>
+          <path d="M40 66 Q56 54 56 66 Q48 70 40 68 Z" fill="#22C55E"/>
+          <path d="M22 24 Q22 50 40 50 Q58 50 58 24 L48 32 L40 16 L32 32 Z" fill="#FBBF24" stroke="#FEF08A" stroke-width="2"/>
+          <path d="M28 28 Q40 46 52 28 L40 18 Z" fill="#FDE68A"/>
+        </svg>`;
+      }
+      if (key === 'sunflower') {
+        return `<svg viewBox="0 0 80 80" class="w-full h-full">
+          <path d="M40 48 L40 74" stroke="#16A34A" stroke-width="4" stroke-linecap="round"/>
+          <g fill="#FACC15" stroke="#F59E0B" stroke-width="1">
+            <ellipse cx="40" cy="14" rx="5" ry="10"/><ellipse cx="40" cy="48" rx="5" ry="10"/>
+            <ellipse cx="23" cy="31" rx="10" ry="5"/><ellipse cx="57" cy="31" rx="10" ry="5"/>
+            <ellipse cx="28" cy="19" rx="6" ry="9" transform="rotate(-45 28 19)"/>
+            <ellipse cx="52" cy="19" rx="6" ry="9" transform="rotate(45 52 19)"/>
+            <ellipse cx="28" cy="43" rx="6" ry="9" transform="rotate(45 28 43)"/>
+            <ellipse cx="52" cy="43" rx="6" ry="9" transform="rotate(-45 52 43)"/>
+          </g>
+          <circle cx="40" cy="31" r="11" fill="#92400E" stroke="#FDE047" stroke-width="2"/>
+        </svg>`;
+      }
+      if (key === 'hydrangea') {
+        return `<svg viewBox="0 0 80 80" class="w-full h-full">
+          <path d="M40 48 L40 74" stroke="#16A34A" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="30" cy="28" r="11" fill="#7DD3FC" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="50" cy="28" r="11" fill="#38BDF8" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="40" cy="20" r="11" fill="#BAE6FD" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="33" cy="39" r="10" fill="#93C5FD" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="47" cy="39" r="10" fill="#60A5FA" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="40" cy="31" r="9" fill="#E0F2FE"/>
+          <circle cx="40" cy="31" r="3" fill="#FDE047"/>
+        </svg>`;
+      }
+      // lily
+      return `<svg viewBox="0 0 80 80" class="w-full h-full">
+        <path d="M40 48 L40 74" stroke="#16A34A" stroke-width="4" stroke-linecap="round"/>
+        <ellipse cx="40" cy="20" rx="7" ry="15" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
+        <ellipse cx="24" cy="30" rx="14" ry="7" transform="rotate(-20 24 30)" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1.5"/>
+        <ellipse cx="56" cy="30" rx="14" ry="7" transform="rotate(20 56 30)" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1.5"/>
+        <ellipse cx="29" cy="43" rx="12" ry="6" transform="rotate(35 29 43)" fill="#E0F2FE" stroke="#BAE6FD" stroke-width="1.5"/>
+        <ellipse cx="51" cy="43" rx="12" ry="6" transform="rotate(-35 51 43)" fill="#E0F2FE" stroke="#BAE6FD" stroke-width="1.5"/>
+        <circle cx="40" cy="32" r="5" fill="#FACC15"/>
+      </svg>`;
+    }
+
+    function initStage3() {
+      renderCompanyGrid();
+      renderBouquetSlots();
+    }
+
+    function renderCompanyGrid() {
+      const grid = document.getElementById('companyGrid');
+      grid.innerHTML = '';
+      COMPANIES.forEach((c) => {
+        const visited = state.visitedCompanies.has(c.id);
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = `text-left rounded-2xl p-4 border-2 transition relative overflow-hidden ${
+          visited
+            ? 'bg-gradient-to-br from-sky-50 to-amber-50 border-amber-300 shadow-sm cursor-default'
+            : 'bg-white/85 hover:bg-white border-sky-200 hover:border-sky-400 shadow-md hover:-translate-y-0.5 cursor-pointer'
+        }`;
+        card.onclick = () => {
+          if (!visited) openFanModal(c.id);
+        };
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <div>
+              <div class="text-[10px] font-black uppercase tracking-wider text-sky-500">${c.city}</div>
+              <h3 class="text-sm sm:text-base font-black text-sky-950">${c.name}</h3>
+            </div>
+            <div class="w-10 h-10 shrink-0 rounded-xl bg-sky-50 border border-sky-100 p-1 flex items-center justify-center">
+              ${visited ? getFlowerSVG(c.flowerKey) : '<span class="text-lg">🏢</span>'}
+            </div>
+          </div>
+          <p class="text-xs text-sky-700/85 mb-3">${c.desc}</p>
+          <div class="flex items-center justify-between text-xs font-bold">
+            <span class="${visited ? 'text-amber-700' : 'text-sky-600'}">🎁 ${c.flowerName}</span>
+            <span class="px-2.5 py-0.5 rounded-full ${visited ? 'bg-amber-100 text-amber-800' : 'bg-sky-100 text-sky-700'}">
+              ${visited ? '✓ 已獲贈' : '點擊參加 →'}
+            </span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function renderBouquetSlots() {
+      const count = state.visitedCompanies.size;
+      document.getElementById('flowerCountDisp').textContent = count;
+      const slots = document.getElementById('bouquetSlots');
+      slots.innerHTML = '';
+
+      COMPANIES.forEach((c) => {
+        const has = state.visitedCompanies.has(c.id);
+        const div = document.createElement('div');
+        div.className = `rounded-xl p-2 flex flex-col items-center justify-center text-center border ${
+          has ? 'bg-white border-amber-300 shadow-sm' : 'bg-sky-50/60 border-dashed border-sky-200 opacity-60'
+        }`;
+        div.innerHTML = `
+          <div class="w-10 h-10 sm:w-12 sm:h-12 mb-1">
+            ${has ? getFlowerSVG(c.flowerKey) : '<div class="w-full h-full flex items-center justify-center text-sky-300 text-lg">?</div>'}
+          </div>
+          <div class="text-[10px] font-black text-sky-900 leading-tight">${c.flowerName}</div>
+        `;
+        slots.appendChild(div);
+      });
+
+      const statusText = document.getElementById('bouquetStatusText');
+      const nextBtn = document.getElementById('toStage4Btn');
+      if (count >= 5) {
+        statusText.textContent = '🎉 5 朵頂級名流花束已全數集齊！';
+        nextBtn.disabled = false;
+        nextBtn.className = 'btn-gold w-full sm:w-auto px-9 py-4 rounded-2xl font-black text-base sm:text-lg cursor-pointer';
+        nextBtn.textContent = '📸 前往紅毯拍照・領取超級金光證照';
+      } else {
+        statusText.textContent = `尚需收集 ${5 - count} 朵花解鎖紅毯證照`;
+      }
+    }
+
+    function openFanModal(companyId) {
+      ensureAudio();
+      playSparkleSound();
+      const company = COMPANIES.find(c => c.id === companyId);
+      state.activeCompanyId = companyId;
+      state.fanHits = 0;
+
+      document.getElementById('fmBadge').textContent = `${company.city} · VIP 粉絲見面會`;
+      document.getElementById('fmTitle').textContent = company.name;
+      document.getElementById('fmStageCompanyWatermark').textContent = company.name;
+      document.getElementById('fmProgressText').textContent = '0 / 5';
+      document.getElementById('fmProgressBar').style.width = '0%';
+      document.getElementById('fmRewardOverlay').classList.add('hidden');
+      document.getElementById('fanMeetingModal').classList.remove('hidden');
+
+      const stage = document.getElementById('fmStage');
+      stage.querySelectorAll('.fan-target').forEach(el => el.remove());
+
+      spawnFanTarget();
+      setTimeout(spawnFanTarget, 350);
+      clearInterval(state.fanSpawnTimer);
+      state.fanSpawnTimer = setInterval(() => {
+        if (state.fanHits < 5 && stage.querySelectorAll('.fan-target').length < 3) {
+          spawnFanTarget();
+        }
+      }, 750);
+    }
+
+    function spawnFanTarget() {
+      const stage = document.getElementById('fmStage');
+      const items = [
+        { icon: '❤️', label: '粉絲應援' },
+        { icon: '✍️', label: '求簽名！' },
+        { icon: '📸', label: '閃光燈' }
+      ];
+      const pick = items[Math.floor(Math.random() * items.length)];
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'fan-target absolute px-3.5 py-2 rounded-2xl bg-white/95 border-2 border-amber-300 shadow-lg flex items-center gap-1.5 cursor-pointer active:scale-90';
+      btn.style.animation = 'fanPop 0.25s ease-out forwards';
+
+      const maxX = Math.max(20, stage.clientWidth - 125);
+      const maxY = Math.max(20, stage.clientHeight - 75);
+      btn.style.left = `${12 + Math.random() * maxX}px`;
+      btn.style.top = `${16 + Math.random() * maxY}px`;
+      btn.innerHTML = `<span class="text-xl">${pick.icon}</span><span class="text-xs font-black text-sky-900">${pick.label}</span>`;
+
+      btn.onclick = () => {
+        btn.remove();
+        state.fanHits = Math.min(5, state.fanHits + 1);
+        playCoinSound();
+        document.getElementById('fmProgressText').textContent = `${state.fanHits} / 5`;
+        document.getElementById('fmProgressBar').style.width = `${(state.fanHits / 5) * 100}%`;
+
+        if (state.fanHits >= 5) {
+          clearInterval(state.fanSpawnTimer);
+          completeFanMeeting();
+        } else {
+          spawnFanTarget();
+        }
+      };
+
+      stage.appendChild(btn);
+    }
+
+    function completeFanMeeting() {
+      const company = COMPANIES.find(c => c.id === state.activeCompanyId);
+      state.visitedCompanies.add(company.id);
+      playFlowerBloomSound();
+
+      document.getElementById('fmRewardFlowerSvg').innerHTML = getFlowerSVG(company.flowerKey);
+      document.getElementById('fmRewardTitle').textContent = `獲得「${company.flowerName}」`;
+      document.getElementById('fmRewardOverlay').classList.remove('hidden');
+
+      renderCompanyGrid();
+      renderBouquetSlots();
+
+      if (state.visitedCompanies.size === 5) {
+        playVictoryFanfare();
+        showToast('💐 恭喜集滿 5 朵名企花束！超級金光證照已解鎖！', 'gold');
+      }
+    }
+
+    function closeFanModal() {
+      clearInterval(state.fanSpawnTimer);
+      document.getElementById('fanMeetingModal').classList.add('hidden');
+    }
+
+    /* ============================================================
+       8. STAGE 4: PHOTO UPLOAD / CAMERA & SUPER GOLDEN CERTIFICATE
+    ============================================================ */
+    function initStage4() {
+      if (!state.photoImage) {
+        state.photoImage = createLuxuryAvatarCanvas();
+      }
+      renderGoldenCertificate();
+      playVictoryFanfare();
+    }
+
+    // Generate built-in chic celebrity portrait (no external URLs)
+    function createLuxuryAvatarCanvas() {
+      const c = document.createElement('canvas');
+      c.width = 400;
+      c.height = 400;
+      const ctx = c.getContext('2d');
+
+      // Bright Azure & Gold Halo Background
+      const bg = ctx.createRadialGradient(200, 170, 30, 200, 200, 210);
+      bg.addColorStop(0, '#E0F2FE');
+      bg.addColorStop(0.65, '#38BDF8');
+      bg.addColorStop(1, '#0284C7');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, 400, 400);
+
+      // Sparkles
+      ctx.fillStyle = '#FEF08A';
+      [[70, 90, 6], [330, 85, 8], [315, 290, 5], [80, 280, 7]].forEach(([x, y, r]) => {
+        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+      });
+
+      // Tuxedo / Gown Shoulders
+      ctx.fillStyle = '#0F172A';
+      ctx.beginPath();
+      ctx.ellipse(200, 375, 130, 105, 0, Math.PI, 0);
+      ctx.fill();
+      // White Shirt V & Gold Bowtie
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.moveTo(168, 280); ctx.lineTo(232, 280); ctx.lineTo(200, 340); ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#F59E0B';
+      ctx.beginPath();
+      ctx.moveTo(182, 292); ctx.lineTo(200, 302); ctx.lineTo(182, 312); ctx.closePath();
+      ctx.moveTo(218, 292); ctx.lineTo(200, 302); ctx.lineTo(218, 312); ctx.closePath();
+      ctx.fill();
+
+      // Neck & Face
+      ctx.fillStyle = '#FDE68A';
+      ctx.fillRect(182, 245, 36, 40);
+      ctx.beginPath();
+      ctx.arc(200, 195, 68, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Stylish Hair
+      ctx.fillStyle = '#1E293B';
+      ctx.beginPath();
+      ctx.arc(200, 178, 70, Math.PI * 1.05, Math.PI * 1.95);
+      ctx.quadraticCurveTo(235, 132, 132, 175);
+      ctx.fill();
+
+      // Golden Crown
+      ctx.fillStyle = '#FACC15';
+      ctx.strokeStyle = '#B45309';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(154, 126); ctx.lineTo(166, 86); ctx.lineTo(188, 108);
+      ctx.lineTo(200, 76); ctx.lineTo(212, 108); ctx.lineTo(234, 86);
+      ctx.lineTo(246, 126); ctx.closePath();
+      ctx.fill(); ctx.stroke();
+
+      // Luxury Sunglasses
+      ctx.fillStyle = '#0F172A';
+      ctx.strokeStyle = '#FACC15';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.roundRect(148, 180, 44, 26, 8);
+      ctx.roundRect(208, 180, 44, 26, 8);
+      ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(192, 192); ctx.lineTo(208, 192); ctx.stroke();
+
+      // Confident Smile
+      ctx.strokeStyle = '#B45309';
+      ctx.lineWidth = 5;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.arc(200, 212, 22, 0.2 * Math.PI, 0.8 * Math.PI);
+      ctx.stroke();
+
+      return c;
+    }
+
+    function useLuxuryAvatar() {
+      stopCamera();
+      state.photoImage = createLuxuryAvatarCanvas();
+      playSparkleSound();
+      renderGoldenCertificate();
+      showToast('✨ 已套用名流質感頭像並更新金光證照！', 'gold');
+    }
+
+    function handlePhotoUpload(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      stopCamera();
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          state.photoImage = img;
+          playShutterSound();
+          renderGoldenCertificate();
+          showToast('📁 照片上傳成功！超級金光證照已即時更新！', 'gold');
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function openCamera() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showToast('此瀏覽器不支援即時相機，請改用「上傳照片」或「名流質感頭像」！');
+        return;
+      }
+      try {
+        stopCamera();
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 640 } },
+          audio: false
+        });
+        state.mediaStream = stream;
+        const video = document.getElementById('cameraVideo');
+        video.srcObject = stream;
+        document.getElementById('cameraPanel').classList.remove('hidden');
+      } catch (err) {
+        showToast('無法開啟相機（權限未開啟或無鏡頭），請改用「上傳照片」或「名流頭像」！');
+      }
+    }
+
+    function stopCamera() {
+      if (state.mediaStream) {
+        state.mediaStream.getTracks().forEach(t => t.stop());
+        state.mediaStream = null;
+      }
+      const panel = document.getElementById('cameraPanel');
+      if (panel) panel.classList.add('hidden');
+    }
+
+    function takeCameraSnapshot(withCountdown) {
+      const video = document.getElementById('cameraVideo');
+      if (!state.mediaStream || video.readyState < 2) return;
+
+      const capture = () => {
+        const c = document.createElement('canvas');
+        const size = Math.min(video.videoWidth || 480, video.videoHeight || 480);
+        c.width = size;
+        c.height = size;
+        const ctx = c.getContext('2d');
+        // Mirror horizontally to match preview
+        ctx.translate(size, 0);
+        ctx.scale(-1, 1);
+        const sx = ((video.videoWidth || size) - size) / 2;
+        const sy = ((video.videoHeight || size) - size) / 2;
+        ctx.drawImage(video, sx, sy, size, size, 0, 0, size, size);
+
+        state.photoImage = c;
+        playShutterSound();
+        stopCamera();
+        renderGoldenCertificate();
+        showToast('📸 紅毯快門完成！已鑄造專屬超級金光證照！', 'gold');
+      };
+
+      if (!withCountdown) {
+        capture();
+        return;
+      }
+
+      const cdEl = document.getElementById('cameraCountdown');
+      cdEl.classList.remove('hidden');
+      let sec = 3;
+      cdEl.textContent = sec;
+      playTone(880, ensureAudio()?.currentTime || 0, 0.1, 'sine', 0.1);
+      const timer = setInterval(() => {
+        sec--;
+        if (sec > 0) {
+          cdEl.textContent = sec;
+          playTone(880, ensureAudio()?.currentTime || 0, 0.1, 'sine', 0.1);
+        } else {
+          clearInterval(timer);
+          cdEl.classList.add('hidden');
+          capture();
+        }
+      }, 850);
+    }
+
+    /* ============================================================
+       9. HIGH-RES 900x1280 SUPER GOLDEN CERTIFICATE CANVAS ENGINE
+    ============================================================ */
+    function drawFlowerOnCanvas(ctx, key, cx, cy, scale = 1) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.scale(scale, scale);
+
+      // Stem
+      ctx.strokeStyle = '#15803D';
+      ctx.lineWidth = 4;
+      ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(0, 10); ctx.lineTo(0, 32); ctx.stroke();
+
+      if (key === 'rose') {
+        ctx.fillStyle = '#38BDF8';
+        ctx.beginPath(); ctx.arc(0, 0, 18, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#0284C7';
+        ctx.beginPath(); ctx.arc(-6, -2, 10, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#7DD3FC';
+        ctx.beginPath(); ctx.arc(6, -2, 10, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#E0F2FE';
+        ctx.beginPath(); ctx.arc(0, 0, 7, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#FDE047';
+        ctx.beginPath(); ctx.arc(0, 0, 3, 0, Math.PI * 2); ctx.fill();
+      } else if (key === 'tulip') {
+        ctx.fillStyle = '#F59E0B';
+        ctx.beginPath();
+        ctx.moveTo(-16, -6); ctx.quadraticCurveTo(-16, 18, 0, 18);
+        ctx.quadraticCurveTo(16, 18, 16, -6); ctx.lineTo(7, 2);
+        ctx.lineTo(0, -14); ctx.lineTo(-7, 2); ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#FEF08A';
+        ctx.beginPath(); ctx.moveTo(-9, -2); ctx.quadraticCurveTo(0, 14, 9, -2); ctx.lineTo(0, -12); ctx.closePath(); ctx.fill();
+      } else if (key === 'sunflower') {
+        ctx.fillStyle = '#FACC15';
+        for (let i = 0; i < 8; i++) {
+          ctx.save();
+          ctx.rotate((i * Math.PI) / 4);
+          ctx.beginPath(); ctx.ellipse(0, -13, 5, 9, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
+        }
+        ctx.fillStyle = '#78350F';
+        ctx.beginPath(); ctx.arc(0, 0, 9, 0, Math.PI * 2); ctx.fill();
+      } else if (key === 'hydrangea') {
+        [[-9, -3, '#7DD3FC'], [9, -3, '#38BDF8'], [0, -10, '#BAE6FD'], [-6, 7, '#60A5FA'], [6, 7, '#93C5FD'], [0, 0, '#E0F2FE']].forEach(([x, y, col]) => {
+          ctx.fillStyle = col;
+          ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI * 2); ctx.fill();
+        });
+        ctx.fillStyle = '#FDE047';
+        ctx.beginPath(); ctx.arc(0, 0, 2.5, 0, Math.PI * 2); ctx.fill();
+      } else {
+        // lily
+        ctx.fillStyle = '#F8FAFC';
+        ctx.strokeStyle = '#BAE6FD';
+        ctx.lineWidth = 1.5;
+        for (let i = 0; i < 5; i++) {
+          ctx.save();
+          ctx.rotate((i * Math.PI * 2) / 5);
+          ctx.beginPath(); ctx.ellipse(0, -11, 5.5, 11, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+          ctx.restore();
+        }
+        ctx.fillStyle = '#FACC15';
+        ctx.beginPath(); ctx.arc(0, 0, 4.5, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    function renderGoldenCertificate() {
+      const canvas = document.getElementById('certCanvas');
+      const ctx = canvas.getContext('2d');
+      const W = 900, H = 1280;
+
+      // 1. Radiant Super-Golden & Azure Luxury Background
+      const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+      bgGrad.addColorStop(0, '#0C4A6E');
+      bgGrad.addColorStop(0.28, '#0284C7');
+      bgGrad.addColorStop(0.55, '#38BDF8');
+      bgGrad.addColorStop(0.82, '#0369A1');
+      bgGrad.addColorStop(1, '#082F49');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, W, H);
+
+      // 2. Super Golden Starburst Rays from Center-Top
+      ctx.save();
+      ctx.translate(W / 2, 410);
+      for (let i = 0; i < 36; i++) {
+        ctx.rotate((Math.PI * 2) / 36);
+        const rayGrad = ctx.createLinearGradient(0, 0, 0, -680);
+        rayGrad.addColorStop(0, 'rgba(254, 240, 138, 0.32)');
+        rayGrad.addColorStop(0.5, 'rgba(250, 204, 21, 0.10)');
+        rayGrad.addColorStop(1, 'rgba(250, 204, 21, 0)');
+        ctx.fillStyle = rayGrad;
+        ctx.beginPath();
+        ctx.moveTo(0, 0); ctx.lineTo(-16, -680); ctx.lineTo(16, -680); ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // 3. Soft Pearl-Gold Center Parchment Card
+      ctx.save();
+      ctx.fillStyle = 'rgba(255, 253, 245, 0.94)';
+      ctx.shadowColor = 'rgba(245, 158, 11, 0.45)';
+      ctx.shadowBlur = 34;
+      ctx.beginPath();
+      ctx.roundRect(48, 52, W - 96, H - 104, 34);
+      ctx.fill();
+      ctx.restore();
+
+      // 4. Royal Double Filigree Gold & Light-Blue Borders
+      const goldStroke = ctx.createLinearGradient(0, 0, W, H);
+      goldStroke.addColorStop(0, '#B45309');
+      goldStroke.addColorStop(0.25, '#FEF08A');
+      goldStroke.addColorStop(0.5, '#F59E0B');
+      goldStroke.addColorStop(0.75, '#FEF08A');
+      goldStroke.addColorStop(1, '#92400E');
+
+      ctx.strokeStyle = goldStroke;
+      ctx.lineWidth = 10;
+      ctx.beginPath();
+      ctx.roundRect(62, 66, W - 124, H - 132, 26);
+      ctx.stroke();
+
+      ctx.strokeStyle = '#38BDF8';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(78, 82, W - 156, H - 164, 20);
+      ctx.stroke();
+
+      // Corner Gold Ornaments
+      [[86, 90], [W - 86, 90], [86, H - 90], [W - 86, H - 90]].forEach(([x, y]) => {
+        ctx.fillStyle = '#F59E0B';
+        ctx.beginPath(); ctx.arc(x, y, 10, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#FEF08A';
+        ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fill();
+      });
+
+      // 5. Top Crown & Embossed Title
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#0284C7';
+      ctx.font = 'bold 20px "Noto Sans TC", sans-serif';
+      ctx.fillText('★ GRAND AZURE AMERICAN DREAM HONORARY CERTIFICATE ★', W / 2, 138);
+
+      // 3D Gold Embossed Title
+      ctx.font = '900 54px "Noto Sans TC", serif';
+      ctx.fillStyle = 'rgba(180, 83, 9, 0.25)';
+      ctx.fillText('美國夢超級金光榮譽證照', W / 2 + 3, 210 + 3);
+      ctx.fillStyle = goldStroke;
+      ctx.fillText('美國夢超級金光榮譽證照', W / 2, 210);
+
+      // Gold Divider Line
+      ctx.strokeStyle = goldStroke;
+      ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(180, 236); ctx.lineTo(W - 180, 236); ctx.stroke();
+
+      // 6. Player Photo inside Golden Laurel Wreath Frame
+      const photoCx = W / 2, photoCy = 395, photoR = 118;
+
+      // Golden Halo behind photo
+      const halo = ctx.createRadialGradient(photoCx, photoCy, 90, photoCx, photoCy, 165);
+      halo.addColorStop(0, 'rgba(250, 204, 21, 0.55)');
+      halo.addColorStop(1, 'rgba(250, 204, 21, 0)');
+      ctx.fillStyle = halo;
+      ctx.beginPath(); ctx.arc(photoCx, photoCy, 165, 0, Math.PI * 2); ctx.fill();
+
+      // Draw Golden Laurel Wreath Leaves around photo
+      ctx.save();
+      ctx.translate(photoCx, photoCy);
+      for (let side of [-1, 1]) {
+        for (let i = 0; i < 11; i++) {
+          const angle = (Math.PI * 0.68) - i * 0.175;
+          const lx = Math.cos(angle) * 144 * side;
+          const ly = Math.sin(angle) * 144;
+          ctx.save();
+          ctx.translate(lx, ly);
+          ctx.rotate((angle * side) + (side === 1 ? 0.5 : -0.5));
+          ctx.fillStyle = i % 2 === 0 ? '#F59E0B' : '#FDE047';
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 14, 6, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+      ctx.restore();
+
+      // Clipped Circular Photo (Auto Center-Cropped)
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(photoCx, photoCy, photoR, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.clip();
+      if (state.photoImage) {
+        const iw = state.photoImage.width || 400;
+        const ih = state.photoImage.height || 400;
+        const side = Math.min(iw, ih);
+        const sx = (iw - side) / 2;
+        const sy = (ih - side) / 2;
+        ctx.drawImage(state.photoImage, sx, sy, side, side, photoCx - photoR, photoCy - photoR, photoR * 2, photoR * 2);
+      }
+      ctx.restore();
+
+      // Double Gold Ring around Photo
+      ctx.strokeStyle = goldStroke;
+      ctx.lineWidth = 8;
+      ctx.beginPath(); ctx.arc(photoCx, photoCy, photoR + 2, 0, Math.PI * 2); ctx.stroke();
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.arc(photoCx, photoCy, photoR - 4, 0, Math.PI * 2); ctx.stroke();
+
+      // 7. Player Name & Official Title
+      ctx.fillStyle = '#0C4A6E';
+      ctx.font = '900 50px "Noto Sans TC", sans-serif';
+      ctx.fillText(state.playerName || '蔚藍貴賓', W / 2, 586);
+
+      // Title Ribbon Pill
+      ctx.fillStyle = '#E0F2FE';
+      ctx.strokeStyle = '#38BDF8';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(195, 606, W - 390, 44, 22);
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#0369A1';
+      ctx.font = 'bold 22px "Noto Sans TC", sans-serif';
+      ctx.fillText('官方頭銜：蔚藍名流・跨國舉重花束榮譽大使', W / 2, 636);
+
+      // 8. Three-Stage Glorious Achievements Box
+      ctx.fillStyle = 'rgba(224, 242, 254, 0.55)';
+      ctx.strokeStyle = '#F59E0B';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.roundRect(104, 676, W - 208, 355, 22);
+      ctx.fill(); ctx.stroke();
+
+      ctx.fillStyle = '#B45309';
+      ctx.font = '900 24px "Noto Sans TC", sans-serif';
+      ctx.fillText('— 三大美國夢輝煌戰績全紀錄 —', W / 2, 718);
+
+      ctx.textAlign = 'left';
+      // Stat 1
+      ctx.fillStyle = '#0C4A6E';
+      ctx.font = 'bold 23px "Noto Sans TC", sans-serif';
+      ctx.fillText(`🎺 第一關｜頭等艙集資總額：US$ ${Math.max(100000, state.funds).toLocaleString()}`, 140, 768);
+      ctx.fillStyle = '#0369A1';
+      ctx.font = '18px "Noto Sans TC", sans-serif';
+      ctx.fillText('　　獲高級禮儀樂團盛大演奏高歌祝賀', 140, 796);
+
+      // Stat 2
+      ctx.fillStyle = '#0C4A6E';
+      ctx.font = 'bold 23px "Noto Sans TC", sans-serif';
+      ctx.fillText(`🏋️ 第二關｜加州舉重紀錄：${state.bestWeight} kg ／ 舉升 ${state.bestHeight || 205} cm`, 140, 844);
+      ctx.fillStyle = '#0369A1';
+      ctx.font = '18px "Noto Sans TC", sans-serif';
+      ctx.fillText('　　於加州競技場力壓舉重女王 Jessica 奪冠', 140, 872);
+
+      // Stat 3: 5 Flowers Showcase
+      ctx.fillStyle = '#0C4A6E';
+      ctx.font = 'bold 23px "Noto Sans TC", sans-serif';
+      ctx.fillText('💐 第三關｜五大美國名企見面會・頂級花束全收錄：', 140, 918);
+
+      const flowerStartX = 188;
+      const flowerGap = 130;
+      COMPANIES.forEach((c, idx) => {
+        const fx = flowerStartX + idx * flowerGap;
+        drawFlowerOnCanvas(ctx, c.flowerKey, fx, 962, 1.0);
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#0C4A6E';
+        ctx.font = 'bold 14px "Noto Sans TC", sans-serif';
+        ctx.fillText(c.flowerName, fx, 1012);
+      });
+
+      // 9. Footer: Issue Date & Embossed Golden Seal Stamp
+      const today = new Date();
+      const dateStr = `${today.getFullYear()} 年 ${today.getMonth() + 1} 月 ${today.getDate()} 日`;
+
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#0369A1';
+      ctx.font = 'bold 20px "Noto Sans TC", sans-serif';
+      ctx.fillText(`發證日期：${dateStr}`, 115, 1110);
+      ctx.fillText('認證單位：美國夢蔚藍名流榮譽總會', 115, 1146);
+      ctx.fillStyle = '#94A3B8';
+      ctx.font = '16px "Noto Sans TC", sans-serif';
+      ctx.fillText(`證照編號：AZ-USA-${today.getFullYear()}-${String(Math.floor(100000 + Math.random() * 899999))}`, 115, 1180);
+
+      // Golden Embossed Seal Stamp (Bottom Right)
+      const sx = W - 185, sy = 1126;
+      ctx.save();
+      ctx.translate(sx, sy);
+      // Outer scalloped gold seal
+      ctx.fillStyle = '#F59E0B';
+      for (let i = 0; i < 20; i++) {
+        const a = (i * Math.PI * 2) / 20;
+        ctx.beginPath();
+        ctx.arc(Math.cos(a) * 58, Math.sin(a) * 58, 9, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      const sealGrad = ctx.createRadialGradient(-12, -12, 8, 0, 0, 58);
+      sealGrad.addColorStop(0, '#FEF08A');
+      sealGrad.addColorStop(0.6, '#F59E0B');
+      sealGrad.addColorStop(1, '#B45309');
+      ctx.fillStyle = sealGrad;
+      ctx.beginPath(); ctx.arc(0, 0, 56, 0, Math.PI * 2); ctx.fill();
+
+      ctx.strokeStyle = '#FEF9C3';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.arc(0, 0, 46, 0, Math.PI * 2); ctx.stroke();
+
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#451A03';
+      ctx.font = '900 17px "Noto Sans TC", sans-serif';
+      ctx.fillText('超級金光', 0, -6);
+      ctx.font = '900 15px "Noto Sans TC", sans-serif';
+      ctx.fillText('官方認證', 0, 16);
+      ctx.fillText('★★★', 0, 34);
+      ctx.restore();
+
+      // Sync to <img> for crisp display and mobile long-press save
+      const dataUrl = canvas.toDataURL('image/png');
+      document.getElementById('certPreviewImg').src = dataUrl;
+    }
+
+    function downloadCertificate() {
+      const canvas = document.getElementById('certCanvas');
+      const link = document.createElement('a');
+      link.download = `美國夢超級金光證照_${state.playerName || '名流'}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      playSparkleSound();
+      showToast('⬇ 已開始下載高解析度超級金光證照 (PNG)！', 'gold');
+    }
+
+    function restartGame() {
+      stopCamera();
+      state.funds = 0;
+      state.fundCompleted = false;
+      state.stage2Won = false;
+      state.bestWeight = 150;
+      state.bestHeight = 0;
+      state.visitedCompanies.clear();
+      state.photoImage = null;
+
+      document.getElementById('toStage4Btn').disabled = true;
+      document.getElementById('toStage4Btn').className = 'w-full sm:w-auto px-9 py-4 rounded-2xl font-black text-base sm:text-lg transition bg-sky-200 text-sky-500 cursor-not-allowed';
+      document.getElementById('toStage4Btn').textContent = '🔒 集滿 5 朵花解鎖「紅毯拍照・超級金光證照」';
+
+      goToStage(0);
+    }
+
+    /* ============================================================
+       10. AMBIENT LIGHT-BLUE SHIMMER PARTICLES BACKGROUND
+    ============================================================ */
+    function initAmbientParticles() {
+      const canvas = document.getElementById('bgParticles');
+      const ctx = canvas.getContext('2d');
+      let w, h, particles = [];
+
+      function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      for (let i = 0; i < 42; i++) {
+        particles.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          r: 1.5 + Math.random() * 4,
+          vx: (Math.random() - 0.5) * 0.35,
+          vy: -0.2 - Math.random() * 0.45,
+          gold: Math.random() > 0.68,
+          alpha: 0.25 + Math.random() * 0.55
+        });
+      }
+
+      function loop() {
+        ctx.clearRect(0, 0, w, h);
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.y < -10) { p.y = h + 10; p.x = Math.random() * w; }
+          if (p.x < -10) p.x = w + 10;
+          if (p.x > w + 10) p.x = -10;
+
+          ctx.fillStyle = p.gold
+            ? `rgba(254, 240, 138, ${p.alpha})`
+            : `rgba(255, 255, 255, ${p.alpha})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        requestAnimationFrame(loop);
+      }
+      loop();
+    }
+
+    window.onload = function () {
+      initAmbientParticles();
+      updateProgressStepper(0);
+    };
+  </script>
+</body>
+</html>
