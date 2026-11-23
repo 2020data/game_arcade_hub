@@ -1,0 +1,2505 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>幸運小瑪莉：2的次方讚賞機</title>
+  <style>
+    /* =====================================================================
+       一、設計系統：復古台灣小瑪莉機 × 皇家絲絨酒紅 × 香檳金慶典美學
+    ===================================================================== */
+    :root {
+      --bg-obsidian: #120609;
+      --velvet-dark: #250810;
+      --velvet-mid: #3E0D1B;
+      --velvet-light: #5A1527;
+      --wood-frame: #1E0D0B;
+      --gold-bright: #FFF1BD;
+      --gold-main: #F2C96B;
+      --gold-deep: #C58E2E;
+      --amber-led: #FFB830;
+      --red-led: #FF4D5A;
+      --neon-cyan: #5CE1E6;
+      --neon-green: #4ADE80;
+      --neon-pink: #FF77A9;
+      --text-cream: #FFF8EB;
+      --text-muted: #D8B8B0;
+      --font-sans: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, -apple-system, sans-serif;
+      --font-serif: "Noto Serif TC", "Songti TC", Georgia, serif;
+      --font-mono: "SF Mono", "JetBrains Mono", Consolas, "Courier New", monospace;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: var(--font-sans);
+      color: var(--text-cream);
+      background:
+        radial-gradient(circle at 18% 12%, rgba(242, 201, 107, 0.14), transparent 44%),
+        radial-gradient(circle at 82% 18%, rgba(255, 77, 90, 0.14), transparent 45%),
+        radial-gradient(circle at 50% 88%, rgba(197, 142, 46, 0.12), transparent 52%),
+        linear-gradient(170deg, #1B060C 0%, #110408 55%, #1E0A0E 100%);
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    /* 全螢幕慶祝紙花與愛心飄浮畫布 */
+    #confettiCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 300;
+    }
+
+    /* =====================================================================
+       二、頂部機台招牌列（HUD）
+    ===================================================================== */
+    .arcade-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(20, 6, 10, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 2px solid rgba(242, 201, 107, 0.45);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.55);
+    }
+
+    .topbar-inner {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 10px 14px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-coin {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #FFF7D6, #F2C96B 55%, #B57A1A 100%);
+      border: 2px solid #FFF1BD;
+      box-shadow: 0 0 14px rgba(242, 201, 107, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      font-family: var(--font-serif);
+      font-weight: 900;
+      font-size: clamp(16px, 3vw, 20px);
+      letter-spacing: 0.08em;
+      background: linear-gradient(135deg, #FFF5CF 0%, #F2C96B 55%, #D99B34 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .hud-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: rgba(58, 13, 27, 0.85);
+      border: 1px solid rgba(242, 201, 107, 0.4);
+      font-size: 12.5px;
+      color: var(--gold-bright);
+    }
+
+    .sound-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #3D121F, #240810);
+      border: 1.5px solid var(--gold-main);
+      color: var(--gold-bright);
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+    .sound-btn:hover {
+      filter: brightness(1.15);
+    }
+
+    /* =====================================================================
+       三、主機台容器與雙欄響應式佈局
+    ===================================================================== */
+    .cabinet-wrap {
+      max-width: 1040px;
+      margin: 16px auto 48px;
+      padding: 0 12px;
+    }
+
+    .cabinet-shell {
+      background: linear-gradient(165deg, #3B0D1A 0%, #240710 48%, #1A060B 100%);
+      border: 3px solid var(--gold-deep);
+      border-radius: 24px;
+      padding: 16px;
+      box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.72),
+        inset 0 0 0 2px rgba(255, 241, 189, 0.25),
+        0 0 32px rgba(242, 201, 107, 0.16);
+      position: relative;
+    }
+
+    /* 頂部香檳金七段 LED 數位儀表列 */
+    .led-dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .led-box {
+      background: linear-gradient(180deg, #0D0507 0%, #19090D 100%);
+      border: 1.5px solid rgba(242, 201, 107, 0.48);
+      border-radius: 12px;
+      padding: 8px 12px;
+      box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.85);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .led-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .led-digits {
+      font-family: var(--font-mono);
+      font-size: clamp(20px, 4vw, 26px);
+      font-weight: 900;
+      color: var(--amber-led);
+      text-shadow: 0 0 10px rgba(255, 184, 48, 0.65);
+      letter-spacing: 0.05em;
+      line-height: 1.25;
+      margin-top: 2px;
+    }
+
+    .led-digits.red {
+      color: var(--red-led);
+      text-shadow: 0 0 10px rgba(255, 77, 90, 0.65);
+    }
+
+    .led-digits.green {
+      color: var(--neon-green);
+      text-shadow: 0 0 10px rgba(74, 222, 128, 0.55);
+    }
+
+    .led-subtext {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--gold-bright);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 主機台內容：左側 24 格轉盤 + 右側操控與押注面板 */
+    .arcade-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 520px) minmax(280px, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    @media (max-width: 860px) {
+      .arcade-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* =====================================================================
+       四、經典 7×7（24 格外圈）小瑪莉盤面
+    ===================================================================== */
+    .board-frame {
+      background: linear-gradient(145deg, #521425, #290711);
+      border: 2.5px solid var(--gold-main);
+      border-radius: 18px;
+      padding: 8px;
+      box-shadow:
+        inset 0 0 22px rgba(0, 0, 0, 0.65),
+        0 10px 28px rgba(0, 0, 0, 0.5);
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .mary-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      grid-template-rows: repeat(7, minmax(0, 1fr));
+      gap: 4px;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+    }
+
+    .mary-tile {
+      position: relative;
+      background: linear-gradient(180deg, #33101B 0%, #1F070E 100%);
+      border: 1.5px solid rgba(242, 201, 107, 0.4);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2px;
+      user-select: none;
+      overflow: hidden;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, border-color 0.08s ease;
+    }
+
+    .mary-tile.tile-jackpot {
+      background: linear-gradient(180deg, #5A1624 0%, #2D0812 100%);
+      border-color: var(--gold-main);
+    }
+
+    .mary-tile.tile-lucky {
+      background: linear-gradient(180deg, #1E3A4C 0%, #0F1E2B 100%);
+      border-color: var(--neon-cyan);
+    }
+
+    .mary-tile.tile-small {
+      background: linear-gradient(180deg, #2B1018 0%, #18060C 100%);
+    }
+
+    .tile-emoji {
+      font-size: clamp(16px, 3.6vw, 24px);
+      line-height: 1.05;
+      filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55));
+    }
+
+    .tile-mult {
+      font-family: var(--font-mono);
+      font-size: clamp(9px, 1.8vw, 11px);
+      font-weight: 800;
+      color: var(--gold-bright);
+      background: rgba(0, 0, 0, 0.55);
+      padding: 0 4px;
+      border-radius: 4px;
+      margin-top: 1px;
+      line-height: 1.3;
+    }
+
+    .tile-small-tag {
+      position: absolute;
+      top: 1px;
+      left: 2px;
+      font-size: 8px;
+      font-weight: 800;
+      color: #FDE68A;
+      opacity: 0.9;
+    }
+
+    /* 跑馬燈高亮燈效 */
+    .mary-tile.lit {
+      background: radial-gradient(circle at 50% 45%, #FFF6C8 0%, #F5B82E 60%, #D97706 100%);
+      border-color: #FFFFFF;
+      box-shadow:
+        0 0 18px rgba(255, 224, 102, 0.95),
+        inset 0 0 10px rgba(255, 255, 255, 0.85);
+      transform: scale(1.06);
+      z-index: 6;
+    }
+    .mary-tile.lit .tile-mult {
+      background: #4A0D1C;
+      color: #FFF5CF;
+    }
+
+    /* 拖尾殘影 */
+    .mary-tile.trail {
+      border-color: rgba(255, 224, 102, 0.85);
+      box-shadow: 0 0 10px rgba(242, 201, 107, 0.55);
+    }
+
+    /* 中獎閃爍 */
+    .mary-tile.winner {
+      animation: winnerBlink 0.34s ease-in-out infinite alternate;
+      z-index: 8;
+    }
+
+    @keyframes winnerBlink {
+      from {
+        background: radial-gradient(circle, #FFF8D6, #F5B82E);
+        box-shadow: 0 0 24px #FFE066;
+        transform: scale(1.09);
+      }
+      to {
+        background: radial-gradient(circle, #FF99B8, #E11D48);
+        box-shadow: 0 0 28px #FF4D5A;
+        transform: scale(1.03);
+      }
+    }
+
+    /* 中央 5×5 LCD 狀態主控螢幕 */
+    .center-console {
+      grid-column: 2 / 7;
+      grid-row: 2 / 7;
+      background:
+        radial-gradient(circle at 50% 25%, rgba(90, 21, 39, 0.72), rgba(18, 5, 9, 0.96) 72%);
+      border: 2px solid rgba(242, 201, 107, 0.55);
+      border-radius: 14px;
+      padding: clamp(8px, 2vw, 14px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+      box-shadow: inset 0 0 26px rgba(0, 0, 0, 0.82);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .center-kicker {
+      font-family: var(--font-mono);
+      font-size: clamp(9px, 1.8vw, 11px);
+      letter-spacing: 0.16em;
+      color: var(--gold-main);
+      font-weight: 700;
+    }
+
+    .center-title {
+      font-family: var(--font-serif);
+      font-size: clamp(14px, 3vw, 20px);
+      font-weight: 900;
+      color: var(--gold-bright);
+      text-shadow: 0 0 12px rgba(242, 201, 107, 0.45);
+      margin: 2px 0;
+    }
+
+    .center-readout {
+      width: 100%;
+      background: rgba(10, 3, 6, 0.85);
+      border: 1px solid rgba(242, 201, 107, 0.38);
+      border-radius: 10px;
+      padding: clamp(6px, 1.6vw, 10px);
+      margin: 4px 0;
+    }
+
+    .center-win-big {
+      font-family: var(--font-mono);
+      font-size: clamp(15px, 3.2vw, 22px);
+      font-weight: 900;
+      color: var(--amber-led);
+      text-shadow: 0 0 10px rgba(255, 184, 48, 0.55);
+      min-height: 1.3em;
+    }
+
+    .center-msg {
+      font-size: clamp(10.5px, 2vw, 12.5px);
+      color: var(--text-cream);
+      margin-top: 2px;
+      min-height: 2.5em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .center-tier-pills {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .tier-badge-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      background: rgba(242, 201, 107, 0.1);
+      border: 1px solid rgba(242, 201, 107, 0.3);
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-size: clamp(9.5px, 1.9vw, 11.5px);
+    }
+    .tier-badge-row span:first-child {
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .tier-badge-row strong {
+      color: var(--gold-bright);
+      font-weight: 700;
+      text-align: right;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .goal-progress-wrap {
+      width: 100%;
+      margin-top: 4px;
+    }
+    .goal-progress-head {
+      display: flex;
+      justify-content: space-between;
+      font-size: clamp(9px, 1.7vw, 11px);
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+    .goal-track {
+      width: 100%;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+      border: 1px solid rgba(242, 201, 107, 0.3);
+    }
+    .goal-fill {
+      height: 100%;
+      width: 5%;
+      background: linear-gradient(90deg, #F59E0B, #FDE047, #4ADE80);
+      transition: width 0.35s ease;
+    }
+
+    /* =====================================================================
+       五、右側操控台：投注單位、8 大押注鍵與 3D 實體街機按鈕
+    ===================================================================== */
+    .control-deck {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .deck-card {
+      background: linear-gradient(180deg, rgba(46, 12, 23, 0.92), rgba(26, 7, 13, 0.95));
+      border: 1.5px solid rgba(242, 201, 107, 0.42);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: inset 0 1px 0 rgba(255, 241, 189, 0.15);
+    }
+
+    .deck-heading {
+      font-family: var(--font-serif);
+      font-size: 14.5px;
+      font-weight: 800;
+      color: var(--gold-main);
+      margin: 0 0 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    /* 投注單位選擇器 */
+    .unit-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .unit-btn {
+      flex: 1 1 54px;
+      padding: 8px 6px;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #421221, #270912);
+      border: 1.5px solid rgba(242, 201, 107, 0.45);
+      color: var(--gold-bright);
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 3px 0 #140409;
+      transition: all 0.12s ease;
+    }
+    .unit-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #140409;
+    }
+    .unit-btn.active {
+      background: linear-gradient(180deg, #F6D57C, #D4962A);
+      color: #2A0810;
+      border-color: #FFF7D6;
+      box-shadow: 0 3px 0 #8A5B10, 0 0 12px rgba(242, 201, 107, 0.45);
+    }
+
+    .custom-unit-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+    }
+
+    .arcade-input {
+      background: #120509;
+      border: 1.5px solid rgba(242, 201, 107, 0.48);
+      color: var(--amber-led);
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 700;
+      padding: 7px 10px;
+      border-radius: 8px;
+      width: 92px;
+      outline: none;
+    }
+    .arcade-input:focus {
+      border-color: var(--gold-bright);
+      box-shadow: 0 0 0 3px rgba(242, 201, 107, 0.2);
+    }
+
+    /* 8 大經典水果符號押注按鈕 */
+    .bet-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    @media (max-width: 400px) {
+      .bet-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .bet-btn {
+      position: relative;
+      background: linear-gradient(180deg, #4E1526 0%, #2D0A15 100%);
+      border: 1.5px solid rgba(242, 201, 107, 0.48);
+      border-radius: 12px;
+      padding: 8px 4px 7px;
+      color: var(--text-cream);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      box-shadow: 0 4px 0 #160409, inset 0 1px 0 rgba(255, 241, 189, 0.25);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, border-color 0.14s ease;
+      user-select: none;
+    }
+
+    .bet-btn:hover:not(:disabled) {
+      border-color: var(--gold-bright);
+      filter: brightness(1.08);
+    }
+
+    .bet-btn:active:not(:disabled) {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #160409;
+    }
+
+    .bet-btn:disabled {
+      opacity: 0.48;
+      cursor: not-allowed;
+    }
+
+    .bet-btn.has-bet {
+      border-color: var(--amber-led);
+      background: linear-gradient(180deg, #691D31 0%, #3D0D1B 100%);
+      box-shadow: 0 4px 0 #160409, 0 0 12px rgba(255, 184, 48, 0.32);
+    }
+
+    .bet-icon {
+      font-size: 22px;
+      line-height: 1.1;
+    }
+
+    .bet-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-cream);
+    }
+
+    .bet-mult {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--gold-main);
+      font-weight: 700;
+    }
+
+    .bet-amount-led {
+      width: 86%;
+      margin-top: 3px;
+      background: #0D0407;
+      border: 1px solid rgba(242, 201, 107, 0.35);
+      border-radius: 5px;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      font-weight: 900;
+      color: var(--amber-led);
+      text-align: center;
+      padding: 1px 0;
+    }
+
+    /* 主行動街機按鈕列 */
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .arcade-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      border: 1.5px solid transparent;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.16s ease;
+    }
+
+    .arcade-btn:active:not(:disabled) {
+      transform: translateY(3px);
+    }
+
+    .arcade-btn:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: linear-gradient(180deg, #4B1525, #2A0812);
+      color: var(--gold-bright);
+      border-color: rgba(242, 201, 107, 0.5);
+      box-shadow: 0 4px 0 #140409;
+    }
+    .btn-secondary:active:not(:disabled) {
+      box-shadow: 0 1px 0 #140409;
+    }
+
+    .btn-start {
+      width: 100%;
+      padding: 15px 18px;
+      font-size: 18px;
+      letter-spacing: 0.1em;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #FFE68F 0%, #F2B93B 55%, #C98216 100%);
+      color: #2B0710;
+      border: 2px solid #FFF8D6;
+      box-shadow: 0 6px 0 #7C4B09, 0 0 24px rgba(242, 201, 107, 0.48);
+    }
+    .btn-start:hover:not(:disabled) {
+      filter: brightness(1.06);
+    }
+    .btn-start:active:not(:disabled) {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #7C4B09;
+    }
+
+    .btn-early-send {
+      width: 100%;
+      margin-top: 8px;
+      padding: 11px 14px;
+      font-size: 14px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #9F1239, #6D0C27);
+      color: #FFF5F7;
+      border: 1.5px solid #FDA4AF;
+      box-shadow: 0 4px 0 #3E0616;
+    }
+    .btn-early-send:active:not(:disabled) {
+      box-shadow: 0 1px 0 #3E0616;
+    }
+
+    /* 遊戲規則小提示條 */
+    .rules-footer {
+      margin-top: 14px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: rgba(18, 5, 9, 0.65);
+      border: 1px solid rgba(242, 201, 107, 0.25);
+      font-size: 12.5px;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    /* =====================================================================
+       六、彈窗系統（歸零暖心鼓勵 & 破 2000 結算 / 送出讚賞卡）
+    ===================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(10, 3, 6, 0.84);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      overflow-y: auto;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+      animation: modalFadeIn 0.28s ease;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 600px;
+      max-height: 92vh;
+      overflow-y: auto;
+      background: linear-gradient(170deg, #3A0D1A 0%, #21060E 55%, #160409 100%);
+      border: 2.5px solid var(--gold-main);
+      border-radius: 22px;
+      padding: 24px 20px;
+      box-shadow: 0 26px 70px rgba(0, 0, 0, 0.8), 0 0 34px rgba(242, 201, 107, 0.22);
+      position: relative;
+    }
+
+    .modal-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 999px;
+      background: rgba(242, 201, 107, 0.16);
+      border: 1px solid var(--gold-main);
+      color: var(--gold-bright);
+      font-size: 12.5px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      margin-bottom: 10px;
+    }
+
+    .modal-title {
+      font-family: var(--font-serif);
+      font-size: clamp(22px, 5vw, 28px);
+      font-weight: 900;
+      color: var(--gold-bright);
+      margin: 0 0 10px;
+      line-height: 1.3;
+    }
+
+    .warm-box {
+      background: rgba(255, 248, 235, 0.08);
+      border: 1px solid rgba(242, 201, 107, 0.35);
+      border-left: 4px solid var(--gold-main);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 14.5px;
+      color: var(--text-cream);
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .summary-tile {
+      background: rgba(12, 4, 7, 0.78);
+      border: 1px solid rgba(242, 201, 107, 0.35);
+      border-radius: 12px;
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    .summary-tile .s-lbl {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .summary-tile .s-val {
+      font-family: var(--font-mono);
+      font-size: 19px;
+      font-weight: 900;
+      color: var(--amber-led);
+      margin-top: 2px;
+    }
+
+    .dual-tier-box {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .tier-card {
+      background: linear-gradient(145deg, rgba(84, 21, 39, 0.85), rgba(35, 8, 16, 0.92));
+      border: 1.5px solid var(--gold-main);
+      border-radius: 14px;
+      padding: 12px 14px;
+      text-align: left;
+    }
+
+    .tier-card-head {
+      font-size: 11.5px;
+      color: var(--gold-main);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .tier-card-name {
+      font-family: var(--font-serif);
+      font-size: 17px;
+      font-weight: 900;
+      color: var(--gold-bright);
+      margin: 4px 0 3px;
+    }
+
+    .tier-card-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* 送出讚賞互動區 */
+    .praise-panel {
+      background: rgba(15, 5, 9, 0.72);
+      border: 1.5px solid rgba(242, 201, 107, 0.45);
+      border-radius: 16px;
+      padding: 16px;
+      text-align: left;
+      margin-bottom: 14px;
+    }
+
+    .praise-panel h3 {
+      margin: 0 0 10px;
+      font-family: var(--font-serif);
+      font-size: 16px;
+      color: var(--gold-bright);
+    }
+
+    .form-row-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    .text-input, .text-area {
+      width: 100%;
+      background: #14060A;
+      border: 1.5px solid rgba(242, 201, 107, 0.42);
+      border-radius: 10px;
+      padding: 10px 12px;
+      color: var(--text-cream);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      outline: none;
+    }
+    .text-input:focus, .text-area:focus {
+      border-color: var(--gold-bright);
+      box-shadow: 0 0 0 3px rgba(242, 201, 107, 0.18);
+    }
+    .text-area {
+      min-height: 82px;
+      resize: vertical;
+    }
+
+    .preset-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 8px 0 12px;
+    }
+
+    .preset-chip {
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(242, 201, 107, 0.12);
+      border: 1px solid rgba(242, 201, 107, 0.38);
+      color: var(--gold-bright);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .preset-chip:hover {
+      background: rgba(242, 201, 107, 0.28);
+    }
+
+    .sent-banner {
+      display: none;
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(242, 201, 107, 0.2), rgba(225, 29, 72, 0.22));
+      border: 1.5px solid var(--gold-bright);
+      text-align: center;
+      animation: modalFadeIn 0.3s ease;
+    }
+    .sent-banner.show {
+      display: block;
+    }
+
+    .card-preview-img {
+      width: 100%;
+      max-width: 420px;
+      height: auto;
+      border-radius: 12px;
+      border: 2px solid var(--gold-main);
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.65);
+      margin: 12px auto 10px;
+      display: block;
+    }
+
+    .modal-btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    /* 浮動提示 Toast（絕不使用 alert） */
+    .toast-bar {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      z-index: 400;
+      background: rgba(34, 8, 16, 0.96);
+      border: 1.5px solid var(--gold-main);
+      color: var(--gold-bright);
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 700;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.65);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.24s ease;
+      max-width: 92vw;
+      text-align: center;
+    }
+    .toast-bar.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 全螢幕金色紙花與愛心慶祝畫布 -->
+  <canvas id="confettiCanvas"></canvas>
+
+  <!-- ==================== 頂部機台招牌列 ==================== -->
+  <header class="arcade-topbar">
+    <div class="topbar-inner">
+      <div class="brand-group">
+        <div class="brand-coin" aria-hidden="true">🎰</div>
+        <div>
+          <div class="brand-title">幸運小瑪莉：2的次方讚賞機</div>
+          <div class="brand-sub">初始 100 元・每注 1 元以上・破 2,000 元榮耀止盈</div>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <span class="hud-chip">局數：<strong id="hudRounds">0</strong></span>
+        <span class="hud-chip">最高單注獎：<strong id="hudMaxWin">0</strong> 元</span>
+        <button id="soundToggleBtn" class="sound-btn" type="button">
+          <span id="soundIcon">🔊</span>
+          <span id="soundText">音效開</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== 主機台外殼 ==================== -->
+  <main class="cabinet-wrap">
+    <section class="cabinet-shell">
+
+      <!-- 頂部七段 LED 數位儀表列 -->
+      <div class="led-dashboard">
+        <div class="led-box">
+          <div class="led-label"><span>💰 目前餘額</span><span>本金 100</span></div>
+          <div id="ledBalance" class="led-digits">100</div>
+          <div class="led-subtext" id="ledBalanceSub">元（可押注）</div>
+        </div>
+
+        <div class="led-box">
+          <div class="led-label"><span>🎯 本局總押注</span><span>單位 ≥ 1</span></div>
+          <div id="ledTotalBet" class="led-digits red">0</div>
+          <div class="led-subtext" id="ledBetSub">請點下方圖示押注</div>
+        </div>
+
+        <div class="led-box">
+          <div class="led-label"><span>📐 2 的次方分類</span><span id="ledPowerMath">2⁶</span></div>
+          <div id="ledPowerTier" class="led-digits" style="font-size:clamp(15px, 2.6vw, 18px);">2⁶ 穩健蓄能級</div>
+          <div id="ledPowerBracket" class="led-subtext">64–127 元區間</div>
+        </div>
+
+        <div class="led-box">
+          <div class="led-label"><span>📈 賺錢比例分類</span><span id="ledRoiPct">+0%</span></div>
+          <div id="ledProfitTier" class="led-digits green" style="font-size:clamp(15px, 2.6vw, 18px);">穩健守護・理財新星</div>
+          <div id="ledProfitMult" class="led-subtext">本金 1.00 倍</div>
+        </div>
+      </div>
+
+      <!-- 主機台雙欄：左側 24 格轉盤 + 右側押注與操作台 -->
+      <div class="arcade-layout">
+
+        <!-- 左側：24 格外圈小瑪莉盤面 + 中央 5×5 LCD -->
+        <div class="board-frame">
+          <div class="mary-grid" id="maryGrid">
+            <!-- 24 格由 JS 精準依 7×7 外圈座標生成 -->
+            <div class="center-console">
+              <div>
+                <div class="center-kicker">GOLDEN MARY • POWER OF 2</div>
+                <div class="center-title">✨ 幸運讚賞小瑪莉 ✨</div>
+              </div>
+
+              <div class="center-readout">
+                <div id="centerWinBig" class="center-win-big">READY 100 元</div>
+                <div id="centerMsg" class="center-msg">點擊右側水果押注，按下 START 啟動好運！</div>
+              </div>
+
+              <div class="center-tier-pills">
+                <div class="tier-badge-row">
+                  <span>2ⁿ 等級</span>
+                  <strong id="centerPowerTag">2⁶ 穩健蓄能級</strong>
+                </div>
+                <div class="tier-badge-row">
+                  <span>賺錢比例</span>
+                  <strong id="centerRoiTag">穩健守護・理財新星</strong>
+                </div>
+              </div>
+
+              <div class="goal-progress-wrap">
+                <div class="goal-progress-head">
+                  <span>🏆 2,000 元榮耀止盈進度</span>
+                  <span id="goalPctText">5%</span>
+                </div>
+                <div class="goal-track">
+                  <div id="goalFillBar" class="goal-fill"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右側：投注單位、8 大圖示押注鍵與主動作鈕 -->
+        <div class="control-deck">
+
+          <!-- 1. 投注單位選擇 -->
+          <div class="deck-card">
+            <h2 class="deck-heading">
+              <span>🪙 每次投注單位（≥ 1 元）</span>
+              <span style="font-family:var(--font-mono); font-size:13px; color:var(--amber-led);">目前：+<span id="currentUnitDisplay">1</span> 元/次</span>
+            </h2>
+            <div class="unit-row" id="unitPresets">
+              <button type="button" class="unit-btn active" data-unit="1">+1</button>
+              <button type="button" class="unit-btn" data-unit="5">+5</button>
+              <button type="button" class="unit-btn" data-unit="10">+10</button>
+              <button type="button" class="unit-btn" data-unit="50">+50</button>
+            </div>
+            <div class="custom-unit-wrap">
+              <label for="customUnitInput">自訂單位（≥ 1）：</label>
+              <input id="customUnitInput" class="arcade-input" type="number" min="1" step="1" value="1" />
+              <span>元／次</span>
+            </div>
+          </div>
+
+          <!-- 2. 八大經典圖示押注鍵 -->
+          <div class="deck-card">
+            <h2 class="deck-heading">
+              <span>🍒 點擊圖示押注（可多選累加）</span>
+              <span style="font-size:11.5px; color:var(--text-muted);">小獎格亦有 2~3 倍獎金</span>
+            </h2>
+            <div class="bet-grid" id="betGrid">
+              <!-- 由 JS 生成 8 顆實體街機按鈕 -->
+            </div>
+          </div>
+
+          <!-- 3. 實體動作鍵 -->
+          <div class="deck-card">
+            <div class="action-grid">
+              <button id="clearBetBtn" type="button" class="arcade-btn btn-secondary">
+                ↩ 清除押注
+              </button>
+              <button id="repeatBetBtn" type="button" class="arcade-btn btn-secondary">
+                🔁 續押上局
+              </button>
+            </div>
+
+            <button id="startSpinBtn" type="button" class="arcade-btn btn-start">
+              ▶ 開始轉動 (START)
+            </button>
+
+            <button id="earlyCashoutBtn" type="button" class="arcade-btn btn-early-send">
+              💌 提早結算・送出鼓勵讚賞卡
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="rules-footer">
+        <span>✨ <strong>LUCKY 格</strong>：保留押注免費再轉一次！</span>
+        <span>🏆 <strong>止盈終止</strong>：餘額超過 <strong>2,000 元</strong> 自動榮耀結算！</span>
+        <span>💛 <strong>歸零暖心</strong>：輸光免費領取 100 元暖心補給再戰！</span>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== 彈窗 A：歸零暖心鼓勵與重新再來 ==================== -->
+  <div id="bankruptModal" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="modal-card" style="text-align:center;">
+      <div class="modal-tag">💛 暖心補給站・勇氣滿分</div>
+      <h2 class="modal-title">歸零不是終點・你超棒的！</h2>
+
+      <div class="warm-box" id="bankruptPraiseText">
+        敢於投入、果斷押注的你，本身就帶著最迷人的光芒！把盤面上的代幣歸零，正好是把所有壞運氣一次清空的最強起手式。休息一秒、深吸一口氣，這 100 元暖心補給送給你，下一次幸運一定會向你奔來！
+      </div>
+
+      <div class="dual-tier-box">
+        <div class="tier-card">
+          <div class="tier-card-head">📐 2 的次方分類</div>
+          <div class="tier-card-name">歸零種子 (0)</div>
+          <div class="tier-card-desc">一切傳奇都從歸零蓄能開始</div>
+        </div>
+        <div class="tier-card">
+          <div class="tier-card-head">📈 賺錢比例分類</div>
+          <div class="tier-card-name">勇氣歸零・最強起手式</div>
+          <div class="tier-card-desc">淨報酬 -100%｜勇氣值 +1000%</div>
+        </div>
+      </div>
+
+      <div class="modal-btn-row">
+        <button id="refillBtn" type="button" class="arcade-btn btn-start" style="font-size:16px; padding:13px 20px;">
+          ✨ 領取 100 元暖心補給・重新再來
+        </button>
+        <button id="bankruptToPraiseBtn" type="button" class="arcade-btn btn-secondary" style="width:100%;">
+          💌 我也想送出一張暖心鼓勵卡給對方
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 彈窗 B：破 2,000 元止盈結算 / 提早結算與送出讚賞 ==================== -->
+  <div id="settlementModal" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div style="text-align:center;">
+        <div id="settleTag" class="modal-tag">🏆 突破 2,000 元・榮耀止盈</div>
+        <h2 id="settleTitle" class="modal-title">恭喜破界！榮耀止盈結算</h2>
+      </div>
+
+      <!-- 數據摘要 -->
+      <div class="summary-grid">
+        <div class="summary-tile">
+          <div class="s-lbl">最終總金額</div>
+          <div id="settleFinalBal" class="s-val">2,000 元</div>
+        </div>
+        <div class="summary-tile">
+          <div class="s-lbl">淨賺與報酬率（本金 100）</div>
+          <div id="settleProfitInfo" class="s-val" style="color:var(--neon-green); font-size:16px;">+1,900 (+1900%)</div>
+        </div>
+        <div class="summary-tile">
+          <div class="s-lbl">累積遊玩局數</div>
+          <div id="settleRounds" class="s-val" style="font-size:17px;">0 局</div>
+        </div>
+        <div class="summary-tile">
+          <div class="s-lbl">最高單次中獎</div>
+          <div id="settleMaxWin" class="s-val" style="font-size:17px;">0 元</div>
+        </div>
+      </div>
+
+      <!-- 雙重分類徽章 -->
+      <div class="dual-tier-box">
+        <div class="tier-card">
+          <div class="tier-card-head">📐 2 的次方分類（2ⁿ Tier）</div>
+          <div id="settlePowerName" class="tier-card-name">2¹¹ 破界傳奇級</div>
+          <div id="settlePowerDesc" class="tier-card-desc">2,048–4,095 元區間</div>
+        </div>
+        <div class="tier-card">
+          <div class="tier-card-head">📈 賺錢比例分類（ROI Tier）</div>
+          <div id="settleRoiName" class="tier-card-name">黃金節奏・止盈大師</div>
+          <div id="settleRoiDesc" class="tier-card-desc">本金 20.48 倍</div>
+        </div>
+      </div>
+
+      <!-- 送出並鼓勵讚賞對方互動區 -->
+      <div class="praise-panel">
+        <h3>💌 送出成果・鼓勵與讚賞對方</h3>
+        <div class="form-row-2">
+          <div>
+            <label for="recipientNameInput" class="field-label">受贈者／玩家名字</label>
+            <input id="recipientNameInput" class="text-input" type="text" maxlength="18" placeholder="親愛的幸運之星" />
+          </div>
+          <div>
+            <label for="senderNameInput" class="field-label">送出者名字（選填）</label>
+            <input id="senderNameInput" class="text-input" type="text" maxlength="18" placeholder="最欣賞你的夥伴" />
+          </div>
+        </div>
+
+        <label for="praiseTextarea" class="field-label">暖心鼓勵與讚賞金句（可自由編輯或點選下方靈感）</label>
+        <textarea id="praiseTextarea" class="text-area"></textarea>
+
+        <div class="preset-chips" id="presetPraiseChips">
+          <button type="button" class="preset-chip" data-idx="0">✨ 讚美直覺與勇氣</button>
+          <button type="button" class="preset-chip" data-idx="1">🌟 誇獎好運與氣場</button>
+          <button type="button" class="preset-chip" data-idx="2">💛 溫柔打氣祝福</button>
+          <button type="button" class="preset-chip" data-idx="3">🏆 霸氣王者讚頌</button>
+        </div>
+
+        <button id="sendPraiseBtn" type="button" class="arcade-btn btn-start" style="font-size:16px; padding:13px;">
+          🚀 送出暖心讚賞・生成榮譽卡
+        </button>
+
+        <!-- 送出成功慶祝與高畫質讚賞卡預覽 -->
+        <div id="sentBanner" class="sent-banner">
+          <div style="font-family:var(--font-serif); font-size:19px; font-weight:900; color:var(--gold-bright);">
+            💖 讚賞已送出！滿滿好運與肯定已傳遞給對方！
+          </div>
+          <img id="cardPreviewImg" class="card-preview-img" alt="幸運小瑪莉讚賞榮譽卡預覽" />
+          <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">
+            📱 手機亦可直接長按上方卡片儲存至相簿
+          </div>
+          <div class="modal-btn-row">
+            <button id="downloadCardBtn" type="button" class="arcade-btn btn-secondary">
+              ⬇️ 下載讚賞卡 (PNG)
+            </button>
+            <button id="copyPraiseBtn" type="button" class="arcade-btn btn-secondary">
+              📋 複製鼓勵文字傳給對方
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-btn-row">
+        <button id="restartGameBtn" type="button" class="arcade-btn btn-secondary" style="flex:1;">
+          🔄 重新開一局 (100 元)
+        </button>
+        <button id="closeSettleBtn" type="button" class="arcade-btn btn-secondary" style="flex:1;">
+          ← 返回機台檢視
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 浮動 Toast -->
+  <div id="toastBar" class="toast-bar"></div>
+
+  <!-- 隱藏高解析度讚賞卡畫布 (1080×1350) -->
+  <canvas id="cardCanvas" width="1080" height="1350" style="display:none;"></canvas>
+
+  <script>
+    /* =====================================================================
+       《幸運小瑪莉：2的次方讚賞機》純原生核心引擎
+       - 零外部依賴 / Web Audio API 復古街機音效 / 嚴謹狀態機 / Canvas 讚賞卡
+    ===================================================================== */
+    (() => {
+      "use strict";
+
+      const $ = (id) => document.getElementById(id);
+
+      const INITIAL_BALANCE = 100;
+      const TERMINATE_THRESHOLD = 2000;
+
+      /* -------------------------------------------------------------------
+         1. 八大經典符號與 24 格外圈盤面定義
+      ------------------------------------------------------------------- */
+      const SYMBOLS = [
+        { id: "apple",  emoji: "🍎", name: "蘋果", mult: 5 },
+        { id: "orange", emoji: "🍊", name: "橘子", mult: 10 },
+        { id: "mango",  emoji: "🥭", name: "芒果", mult: 15 },
+        { id: "bell",   emoji: "🔔", name: "鈴鐺", mult: 20 },
+        { id: "melon",  emoji: "🍉", name: "西瓜", mult: 20 },
+        { id: "star",   emoji: "⭐", name: "雙星", mult: 30 },
+        { id: "seven",  emoji: "7️⃣", name: "雙七", mult: 40 },
+        { id: "bar",    emoji: "🎰", name: "BAR",  mult: 100 }
+      ];
+
+      const SYMBOL_MAP = Object.fromEntries(SYMBOLS.map((s) => [s.id, s]));
+
+      /* 24 格順時針外圈配置（上7、右5、下7、左5） */
+      const BOARD_TILES = [
+        // Top row: 0..6 (r=1, c=1..7 in 1-based CSS grid)
+        { symbol: "orange", emoji: "🍊", label: "橘子",   mult: 10,  r: 1, c: 1 },
+        { symbol: "bell",   emoji: "🔔", label: "鈴鐺",   mult: 20,  r: 1, c: 2 },
+        { symbol: "bar",    emoji: "🎰", label: "小BAR",  mult: 50,  r: 1, c: 3, small: true },
+        { symbol: "bar",    emoji: "🎰", label: "大BAR",  mult: 100, r: 1, c: 4, jackpot: true },
+        { symbol: "apple",  emoji: "🍎", label: "蘋果",   mult: 5,   r: 1, c: 5 },
+        { symbol: "apple",  emoji: "🍎", label: "小蘋果", mult: 2,   r: 1, c: 6, small: true },
+        { symbol: "mango",  emoji: "🥭", label: "芒果",   mult: 15,  r: 1, c: 7 },
+        // Right col: 7..11 (r=2..6, c=7)
+        { symbol: "melon",  emoji: "🍉", label: "西瓜",   mult: 20,  r: 2, c: 7 },
+        { symbol: "melon",  emoji: "🍉", label: "小西瓜", mult: 3,   r: 3, c: 7, small: true },
+        { symbol: "lucky",  emoji: "✨", label: "LUCKY",  mult: 0,   r: 4, c: 7, lucky: true },
+        { symbol: "apple",  emoji: "🍎", label: "蘋果",   mult: 5,   r: 5, c: 7 },
+        { symbol: "orange", emoji: "🍊", label: "小橘子", mult: 3,   r: 6, c: 7, small: true },
+        // Bottom row: 12..18 (r=7, c=7..1)
+        { symbol: "orange", emoji: "🍊", label: "橘子",   mult: 10,  r: 7, c: 7 },
+        { symbol: "bell",   emoji: "🔔", label: "鈴鐺",   mult: 20,  r: 7, c: 6 },
+        { symbol: "seven",  emoji: "7️⃣", label: "小雙七", mult: 3,   r: 7, c: 5, small: true },
+        { symbol: "seven",  emoji: "7️⃣", label: "雙七",   mult: 40,  r: 7, c: 4, jackpot: true },
+        { symbol: "apple",  emoji: "🍎", label: "蘋果",   mult: 5,   r: 7, c: 3 },
+        { symbol: "mango",  emoji: "🥭", label: "小芒果", mult: 3,   r: 7, c: 2, small: true },
+        { symbol: "mango",  emoji: "🥭", label: "芒果",   mult: 15,  r: 7, c: 1 },
+        // Left col: 19..23 (r=6..2, c=1)
+        { symbol: "star",   emoji: "⭐", label: "雙星",   mult: 30,  r: 6, c: 1, jackpot: true },
+        { symbol: "star",   emoji: "⭐", label: "小雙星", mult: 3,   r: 5, c: 1, small: true },
+        { symbol: "lucky",  emoji: "✨", label: "LUCKY",  mult: 0,   r: 4, c: 1, lucky: true },
+        { symbol: "apple",  emoji: "🍎", label: "蘋果",   mult: 5,   r: 3, c: 1 },
+        { symbol: "bell",   emoji: "🔔", label: "小鈴鐺", mult: 2,   r: 2, c: 1, small: true }
+      ];
+
+      /* 中獎時的溫柔即時鼓勵短句 */
+      const MICRO_PRAISES = [
+        "✨ 太厲害了！你的直覺簡直神準！",
+        "🌟 財神爺都忍不住為你鼓掌！",
+        "💖 好運連連，氣場全開就是你！",
+        "🥂 穩健又果斷，這手氣太迷人了！",
+        "🔥 閃閃發光的節奏，繼續保持！"
+      ];
+
+      const BANKRUPT_MESSAGES = [
+        "敢於投入、果斷押注的你，本身就帶著最迷人的光芒！把盤面上的代幣歸零，正好是把所有壞運氣一次清空的最強起手式。這 100 元暖心補給送給你，下一次幸運一定會向你奔來！",
+        "每一次歸零，都是為了下一次更壯闊的起飛！你的勇氣與好心態已經贏過 99% 的人了，快收下這份 100 元暖心補給，好運正在排隊等你翻盤！"
+      ];
+
+      /* -------------------------------------------------------------------
+         2. 雙重分類演算：2 的次方分類（2^n）與 賺錢比例分類（ROI）
+      ------------------------------------------------------------------- */
+      function getPowerOf2Tier(amount) {
+        const val = Math.max(0, Math.floor(amount));
+        if (val === 0) {
+          return {
+            n: -1,
+            mathLabel: "0",
+            name: "歸零種子 (0)",
+            bracket: "0 元・蓄勢待發",
+            praise: "歸零是最純粹的起點，你的勇氣早已種下幸運的種子！"
+          };
+        }
+        const n = Math.floor(Math.log2(val));
+        const powVal = Math.pow(2, n);
+        const supMap = { "0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹" };
+        const sup = String(n).split("").map((d) => supMap[d] || d).join("");
+        const mathLabel = `2${sup}`;
+
+        if (n <= 3) {
+          return {
+            n, mathLabel,
+            name: `${mathLabel} 微光萌芽級`,
+            bracket: `2^${n} 級（${powVal}–${powVal * 2 - 1} 元區間）`,
+            praise: "微小卻堅定的光芒，正悄悄醞釀屬於你的大好運！"
+          };
+        }
+        if (n === 4) {
+          return { n, mathLabel, name: "2⁴ 暖風啟程級", bracket: "2^4 級（16–31 元區間）", praise: "溫暖和風已起，你正穩步走向更寬廣的幸運舞台！" };
+        }
+        if (n === 5) {
+          return { n, mathLabel, name: "2⁵ 靈感綻放級", bracket: "2^5 級（32–63 元區間）", praise: "靈感與好手氣正一朵朵綻放，你的每一步都充滿魅力！" };
+        }
+        if (n === 6) {
+          return { n, mathLabel, name: "2⁶ 穩健蓄能級", bracket: "2^6 級（64–127 元區間）", praise: "沉穩不躁、進退有度，你擁有讓人無比安心的絕佳氣場！" };
+        }
+        if (n === 7) {
+          return { n, mathLabel, name: "2⁷ 翻倍好運級", bracket: "2^7 級（128–255 元區間）", praise: "翻倍成長的直覺超群，好運顯然對你格外偏愛！" };
+        }
+        if (n === 8) {
+          return { n, mathLabel, name: "2⁸ 閃耀進階級", bracket: "2^8 級（256–511 元區間）", praise: "光芒藏都藏不住，你的敏銳判斷令人由衷佩服！" };
+        }
+        if (n === 9) {
+          return { n, mathLabel, name: "2⁹ 黃金耀眼級", bracket: "2^9 級（512–1,023 元區間）", praise: "如黃金般耀眼的節奏與運氣，你走到哪裡都是全場焦點！" };
+        }
+        if (n === 10) {
+          if (val > TERMINATE_THRESHOLD) {
+            return {
+              n, mathLabel,
+              name: "2¹⁰ 頂峰・突破 2,000 止盈線",
+              bracket: "2^10 級頂峰（1,024 元基準・已破 2,000 止盈）",
+              praise: "精準跨過 2,000 元榮耀止盈門檻，你的節奏掌控堪稱藝術！"
+            };
+          }
+          return { n, mathLabel, name: "2¹⁰ 千元榮耀級", bracket: "2^10 級（1,024–2,000 元區間）", praise: "跨越千元大關的榮耀實力，你就是天生的幸運主角！" };
+        }
+        if (n === 11) {
+          return { n, mathLabel, name: "2¹¹ 破界傳奇級", bracket: "2^11 級（2,048–4,095 元區間）", praise: "強勢突破 2,048 傳奇次方，你的好運與智慧令人驚嘆！" };
+        }
+        return {
+          n, mathLabel,
+          name: `${mathLabel} 宇宙神話級`,
+          bracket: `2^${n} 級（${powVal.toLocaleString("zh-TW")} 元以上區間）`,
+          praise: "超越想像的宇宙級手氣，全宇宙的星光都為你加冕！"
+        };
+      }
+
+      function getProfitRatioTier(amount) {
+        const val = Math.max(0, Math.floor(amount));
+        const profit = val - INITIAL_BALANCE;
+        const roiPercent = Math.round((profit / INITIAL_BALANCE) * 100);
+        const multiple = (val / INITIAL_BALANCE).toFixed(2);
+        const sign = roiPercent >= 0 ? "+" : "";
+        const pctStr = `${sign}${roiPercent.toLocaleString("zh-TW")}%`;
+
+        let name = "";
+        let praise = "";
+        if (val === 0) {
+          name = "勇氣歸零・最強起手式";
+          praise = "敢闖敢試的勇氣無價，清空壞運就是下一波大勝的序章！";
+        } else if (roiPercent < 0) {
+          name = "溫柔蓄力・潛力無窮派";
+          praise = "每一次嘗試都在累積經驗與好運，你的潛力無限大！";
+        } else if (roiPercent < 100) {
+          name = "穩健守護・理財新星";
+          praise = "穩紮穩打、守住本金並創造正向收益，超有智慧！";
+        } else if (roiPercent < 500) {
+          name = "敏銳直覺・倍增達人";
+          praise = "翻倍成長的敏銳眼光，你做決定總是又帥又精準！";
+        } else if (roiPercent < 1901) {
+          name = "氣場全開・幸運之星";
+          praise = "財氣與好運同時爆發，你的正能量感染了整個機台！";
+        } else if (roiPercent < 2500) {
+          name = "黃金節奏・止盈大師";
+          praise = "突破 20 倍報酬並華麗止盈，這份從容與運氣太讓人敬佩！";
+        } else if (roiPercent < 5000) {
+          name = "傳奇手氣・爆擊王者";
+          praise = "超過 25 倍的驚人爆擊戰績，你就是大家羨慕的幸運王者！";
+        } else {
+          name = "天選之子・小瑪莉神話";
+          praise = "突破 50 倍的夢幻神話，所有奇蹟都在你指尖誕生！";
+        }
+
+        return { profit, roiPercent, pctStr, multiple, name, praise };
+      }
+
+      /* -------------------------------------------------------------------
+         3. Web Audio API 復古台灣小瑪莉音效合成器
+      ------------------------------------------------------------------- */
+      const ArcadeAudio = {
+        ctx: null,
+        enabled: true,
+
+        init() {
+          if (!this.enabled) return;
+          try {
+            if (!this.ctx) {
+              const AC = window.AudioContext || window.webkitAudioContext;
+              if (AC) this.ctx = new AC();
+            }
+            if (this.ctx && this.ctx.state === "suspended") this.ctx.resume();
+          } catch (e) {}
+        },
+
+        beep(freq, dur = 0.08, type = "square", vol = 0.07, delay = 0) {
+          if (!this.enabled) return;
+          this.init();
+          if (!this.ctx) return;
+          try {
+            const now = this.ctx.currentTime + delay;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, now);
+            gain.gain.setValueAtTime(0.0001, now);
+            gain.gain.exponentialRampToValueAtTime(vol, now + 0.008);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + dur + 0.02);
+          } catch (e) {}
+        },
+
+        coinBet(multIdx = 0) {
+          const base = 660 + multIdx * 45;
+          this.beep(base, 0.055, "triangle", 0.09, 0);
+          this.beep(base * 1.5, 0.07, "sine", 0.08, 0.035);
+        },
+
+        chaseTick(progress01) {
+          // 速度越快音調越高，減速時音調回落，重現真實麻仔台滴答聲
+          const speedFactor = Math.sin(progress01 * Math.PI);
+          const freq = 520 + speedFactor * 420;
+          this.beep(freq, 0.038, "square", 0.055, 0);
+        },
+
+        winArpeggio(isBig = false) {
+          const notes = isBig
+            ? [523.25, 659.25, 783.99, 1046.5, 1318.5, 1567.98]
+            : [523.25, 659.25, 783.99, 1046.5];
+          notes.forEach((f, i) => {
+            this.beep(f, 0.24, "triangle", 0.1, i * 0.065);
+          });
+        },
+
+        luckyFanfare() {
+          [587.33, 739.99, 880, 1174.66, 1479.98].forEach((f, i) => {
+            this.beep(f, 0.22, "sine", 0.1, i * 0.06);
+          });
+        },
+
+        victoryFanfare() {
+          const melody = [
+            [523.25, 0, 0.14], [659.25, 0.11, 0.14], [783.99, 0.22, 0.14],
+            [1046.5, 0.34, 0.35], [783.99, 0.56, 0.14], [1046.5, 0.70, 0.55]
+          ];
+          melody.forEach(([f, d, dur]) => {
+            this.beep(f, dur, "triangle", 0.12, d);
+            this.beep(f * 1.5, dur * 0.7, "sine", 0.05, d);
+          });
+        },
+
+        warmHarp() {
+          [392.0, 493.88, 587.33, 783.99].forEach((f, i) => {
+            this.beep(f, 0.55, "sine", 0.08, i * 0.1);
+          });
+        },
+
+        sendChime() {
+          [523.25, 659.25, 783.99, 987.77, 1318.5].forEach((f, i) => {
+            this.beep(f, 0.45, "sine", 0.09, i * 0.075);
+          });
+        }
+      };
+
+      /* -------------------------------------------------------------------
+         4. 全螢幕金色紙花與愛心慶祝動畫
+      ------------------------------------------------------------------- */
+      const confettiCanvas = $("confettiCanvas");
+      const confettiCtx = confettiCanvas.getContext("2d");
+      let confettiItems = [];
+      let confettiAnimId = null;
+
+      function resizeConfetti() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        confettiCanvas.width = Math.floor(window.innerWidth * dpr);
+        confettiCanvas.height = Math.floor(window.innerHeight * dpr);
+        confettiCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function launchConfetti(count = 110, includeHearts = false) {
+        resizeConfetti();
+        const W = window.innerWidth;
+        const colors = ["#F2C96B", "#FFF1BD", "#FF4D5A", "#FF77A9", "#4ADE80", "#5CE1E6"];
+        for (let i = 0; i < count; i++) {
+          confettiItems.push({
+            x: Math.random() * W,
+            y: -20 - Math.random() * 240,
+            vx: (Math.random() - 0.5) * 4.2,
+            vy: 2.2 + Math.random() * 4.5,
+            size: 6 + Math.random() * 7,
+            rot: Math.random() * Math.PI * 2,
+            vrot: (Math.random() - 0.5) * 0.2,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            heart: includeHearts && Math.random() < 0.32,
+            life: 1
+          });
+        }
+        if (!confettiAnimId) animateConfetti();
+      }
+
+      function animateConfetti() {
+        const W = window.innerWidth;
+        const H = window.innerHeight;
+        confettiCtx.clearRect(0, 0, W, H);
+
+        confettiItems = confettiItems.filter((p) => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rot += p.vrot;
+          p.vy += 0.03;
+          if (p.y > H + 30) return false;
+
+          confettiCtx.save();
+          confettiCtx.translate(p.x, p.y);
+          confettiCtx.rotate(p.rot);
+          if (p.heart) {
+            confettiCtx.font = `${Math.round(p.size * 2)}px sans-serif`;
+            confettiCtx.textAlign = "center";
+            confettiCtx.fillText("💖", 0, 0);
+          } else {
+            confettiCtx.fillStyle = p.color;
+            confettiCtx.fillRect(-p.size / 2, -p.size / 3, p.size, p.size * 0.65);
+          }
+          confettiCtx.restore();
+          return true;
+        });
+
+        if (confettiItems.length > 0) {
+          confettiAnimId = requestAnimationFrame(animateConfetti);
+        } else {
+          confettiAnimId = null;
+          confettiCtx.clearRect(0, 0, W, H);
+        }
+      }
+
+      /* -------------------------------------------------------------------
+         5. 遊戲狀態管理
+      ------------------------------------------------------------------- */
+      const state = {
+        balance: INITIAL_BALANCE,
+        betUnit: 1,
+        bets: Object.fromEntries(SYMBOLS.map((s) => [s.id, 0])),
+        lastBets: null,
+        isSpinning: false,
+        gameTerminated: false,
+        currentLitIdx: 0,
+        rounds: 0,
+        maxSingleWin: 0,
+        consecutiveLucky: 0,
+        settlementMode: "early", // "over2000" | "early" | "bankrupt"
+        praiseSent: false
+      };
+
+      const tileElements = [];
+      const betAmountElements = {};
+      const betButtonElements = {};
+
+      /* -------------------------------------------------------------------
+         6. Toast 工具（絕不使用 alert）
+      ------------------------------------------------------------------- */
+      let toastTimer = null;
+      function showToast(msg) {
+        const bar = $("toastBar");
+        bar.textContent = msg;
+        bar.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => bar.classList.remove("show"), 2600);
+      }
+
+      function getTotalBet() {
+        return Object.values(state.bets).reduce((sum, v) => sum + v, 0);
+      }
+
+      /* -------------------------------------------------------------------
+         7. 建立 24 格盤面與 8 顆押注實體鍵
+      ------------------------------------------------------------------- */
+      function buildBoard() {
+        const grid = $("maryGrid");
+        BOARD_TILES.forEach((tile, idx) => {
+          const el = document.createElement("div");
+          el.className = "mary-tile";
+          if (tile.jackpot) el.classList.add("tile-jackpot");
+          if (tile.lucky) el.classList.add("tile-lucky");
+          if (tile.small) el.classList.add("tile-small");
+          el.style.gridRow = String(tile.r);
+          el.style.gridColumn = String(tile.c);
+          el.dataset.idx = String(idx);
+
+          el.innerHTML = `
+            ${tile.small ? `<span class="tile-small-tag">小</span>` : ""}
+            <span class="tile-emoji">${tile.emoji}</span>
+            <span class="tile-mult">${tile.lucky ? "LUCKY" : "x" + tile.mult}</span>
+          `;
+          grid.appendChild(el);
+          tileElements.push(el);
+        });
+        setLitTile(0);
+      }
+
+      function buildBetButtons() {
+        const container = $("betGrid");
+        SYMBOLS.forEach((sym, idx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "bet-btn";
+          btn.innerHTML = `
+            <span class="bet-icon">${sym.emoji}</span>
+            <span class="bet-name">${sym.name}</span>
+            <span class="bet-mult">x${sym.mult}</span>
+            <span class="bet-amount-led" id="betLed_${sym.id}">0</span>
+          `;
+          btn.addEventListener("click", () => handlePlaceBet(sym.id, idx));
+          container.appendChild(btn);
+          betButtonElements[sym.id] = btn;
+          betAmountElements[sym.id] = btn.querySelector(".bet-amount-led");
+        });
+      }
+
+      function setLitTile(idx, trailIdx = -1) {
+        tileElements.forEach((el, i) => {
+          el.classList.toggle("lit", i === idx);
+          el.classList.toggle("trail", i === trailIdx && i !== idx);
+        });
+        state.currentLitIdx = idx;
+      }
+
+      function clearWinnerFlash() {
+        tileElements.forEach((el) => el.classList.remove("winner"));
+      }
+
+      /* -------------------------------------------------------------------
+         8. 更新全機台 LED 與狀態顯示
+      ------------------------------------------------------------------- */
+      function updateUI() {
+        const totalBet = getTotalBet();
+        const effectiveWealth = state.balance + totalBet;
+        const p2 = getPowerOf2Tier(effectiveWealth);
+        const roi = getProfitRatioTier(effectiveWealth);
+
+        $("hudRounds").textContent = String(state.rounds);
+        $("hudMaxWin").textContent = state.maxSingleWin.toLocaleString("zh-TW");
+
+        $("ledBalance").textContent = state.balance.toLocaleString("zh-TW");
+        $("ledBalanceSub").textContent = state.gameTerminated
+          ? "🏆 已突破 2,000 元止盈終止"
+          : `元（總資產 ${effectiveWealth.toLocaleString("zh-TW")} 元）`;
+
+        $("ledTotalBet").textContent = totalBet.toLocaleString("zh-TW");
+        $("ledBetSub").textContent = totalBet > 0
+          ? `已押 ${Object.values(state.bets).filter((v) => v > 0).length} 種圖示`
+          : "請點下方圖示押注";
+
+        $("ledPowerMath").textContent = p2.mathLabel;
+        $("ledPowerTier").textContent = p2.name;
+        $("ledPowerBracket").textContent = p2.bracket;
+
+        $("ledRoiPct").textContent = roi.pctStr;
+        $("ledProfitTier").textContent = roi.name;
+        $("ledProfitMult").textContent = `本金 ${roi.multiple} 倍`;
+
+        $("centerPowerTag").textContent = p2.name;
+        $("centerRoiTag").textContent = roi.name;
+
+        const goalPct = Math.min(100, Math.round((effectiveWealth / TERMINATE_THRESHOLD) * 100));
+        $("goalPctText").textContent = effectiveWealth > TERMINATE_THRESHOLD ? "100% 破界！" : `${goalPct}%`;
+        $("goalFillBar").style.width = `${Math.max(2, goalPct)}%`;
+
+        $("currentUnitDisplay").textContent = String(state.betUnit);
+
+        // 更新 8 顆押注鍵
+        SYMBOLS.forEach((sym) => {
+          const amt = state.bets[sym.id];
+          betAmountElements[sym.id].textContent = amt.toLocaleString("zh-TW");
+          betButtonElements[sym.id].classList.toggle("has-bet", amt > 0);
+          betButtonElements[sym.id].disabled = state.isSpinning || state.gameTerminated;
+        });
+
+        // 動作鍵啟用狀態
+        $("clearBetBtn").disabled = state.isSpinning || state.gameTerminated || totalBet === 0;
+        $("repeatBetBtn").disabled = state.isSpinning || state.gameTerminated || !state.lastBets;
+        $("startSpinBtn").disabled = state.isSpinning || state.gameTerminated;
+        $("earlyCashoutBtn").disabled = state.isSpinning || (state.balance <= 0 && totalBet === 0);
+
+        if (state.gameTerminated) {
+          $("startSpinBtn").textContent = "🏆 已破 2,000 元・請檢視結算";
+          $("earlyCashoutBtn").textContent = "🏆 開啟 2,000+ 榮耀結算與讚賞卡";
+        } else {
+          $("startSpinBtn").textContent = state.isSpinning ? "✨ 好運轉動中..." : "▶ 開始轉動 (START)";
+          $("earlyCashoutBtn").textContent = "💌 提早結算・送出鼓勵讚賞卡";
+        }
+      }
+
+      /* -------------------------------------------------------------------
+         9. 押注、清除、續押邏輯
+      ------------------------------------------------------------------- */
+      function setBetUnit(val) {
+        const n = Math.max(1, Math.floor(Number(val) || 1));
+        state.betUnit = n;
+        $("customUnitInput").value = String(n);
+        document.querySelectorAll("#unitPresets .unit-btn").forEach((b) => {
+          b.classList.toggle("active", Number(b.dataset.unit) === n);
+        });
+        updateUI();
+      }
+
+      document.querySelectorAll("#unitPresets .unit-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          ArcadeAudio.init();
+          ArcadeAudio.beep(720, 0.04, "sine", 0.06);
+          setBetUnit(Number(btn.dataset.unit));
+        });
+      });
+
+      $("customUnitInput").addEventListener("input", (e) => {
+        const v = parseInt(e.target.value, 10);
+        if (!isNaN(v) && v >= 1) {
+          state.betUnit = v;
+          document.querySelectorAll("#unitPresets .unit-btn").forEach((b) => {
+            b.classList.toggle("active", Number(b.dataset.unit) === v);
+          });
+          $("currentUnitDisplay").textContent = String(v);
+        }
+      });
+
+      $("customUnitInput").addEventListener("blur", (e) => {
+        setBetUnit(e.target.value);
+      });
+
+      function handlePlaceBet(symId, symIdx) {
+        if (state.isSpinning || state.gameTerminated) return;
+        ArcadeAudio.init();
+        clearWinnerFlash();
+
+        if (state.balance <= 0) {
+          showToast("餘額已全數押上！請按「開始轉動」或「清除押注」調整。");
+          ArcadeAudio.beep(220, 0.1, "sawtooth", 0.05);
+          return;
+        }
+        if (state.balance < state.betUnit) {
+          showToast(`餘額剩餘 ${state.balance} 元，不足目前單位 ${state.betUnit} 元，請調低投注單位！`);
+          ArcadeAudio.beep(240, 0.1, "sawtooth", 0.05);
+          return;
+        }
+
+        state.balance -= state.betUnit;
+        state.bets[symId] += state.betUnit;
+        ArcadeAudio.coinBet(symIdx);
+        $("centerWinBig").textContent = `BET ${getTotalBet().toLocaleString("zh-TW")} 元`;
+        $("centerMsg").textContent = `已押注 ${SYMBOL_MAP[symId].emoji} ${SYMBOL_MAP[symId].name} +${state.betUnit} 元`;
+        updateUI();
+      }
+
+      function refundCurrentBets() {
+        let refunded = 0;
+        SYMBOLS.forEach((s) => {
+          refunded += state.bets[s.id];
+          state.bets[s.id] = 0;
+        });
+        state.balance += refunded;
+        return refunded;
+      }
+
+      $("clearBetBtn").addEventListener("click", () => {
+        if (state.isSpinning || state.gameTerminated) return;
+        const refunded = refundCurrentBets();
+        if (refunded > 0) {
+          ArcadeAudio.beep(420, 0.08, "triangle", 0.07);
+          $("centerWinBig").textContent = `READY ${state.balance.toLocaleString("zh-TW")} 元`;
+          $("centerMsg").textContent = `已退還本局押注 ${refunded.toLocaleString("zh-TW")} 元`;
+          updateUI();
+        }
+      });
+
+      $("repeatBetBtn").addEventListener("click", () => {
+        if (state.isSpinning || state.gameTerminated || !state.lastBets) return;
+        ArcadeAudio.init();
+        clearWinnerFlash();
+        refundCurrentBets();
+
+        const needed = Object.values(state.lastBets).reduce((a, b) => a + b, 0);
+        if (needed <= 0) return;
+
+        if (state.balance < needed) {
+          showToast(`續押需要 ${needed.toLocaleString("zh-TW")} 元，目前餘額為 ${state.balance.toLocaleString("zh-TW")} 元！`);
+          ArcadeAudio.beep(240, 0.1, "sawtooth", 0.05);
+          updateUI();
+          return;
+        }
+
+        SYMBOLS.forEach((s) => {
+          const amt = state.lastBets[s.id] || 0;
+          state.bets[s.id] = amt;
+          state.balance -= amt;
+        });
+        ArcadeAudio.coinBet(4);
+        $("centerWinBig").textContent = `BET ${needed.toLocaleString("zh-TW")} 元`;
+        $("centerMsg").textContent = "已續押上局配置，準備好就按 START！";
+        updateUI();
+      });
+
+      /* -------------------------------------------------------------------
+         10. 小瑪莉跑馬燈旋轉與結算引擎
+      ------------------------------------------------------------------- */
+      function pickTargetTileIndex(isLuckyFreeSpin) {
+        // 若連續 LUCKY 達 2 次，強制排除 LUCKY 確保必會結算
+        const candidates = BOARD_TILES.map((t, i) => ({ t, i })).filter(
+          (item) => !(isLuckyFreeSpin && state.consecutiveLucky >= 2 && item.t.lucky)
+        );
+        const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+        return chosen.i;
+      }
+
+      function runSpin(isLuckyFreeSpin = false) {
+        if (state.isSpinning || state.gameTerminated) return;
+
+        const totalBet = getTotalBet();
+        if (totalBet <= 0) {
+          showToast("請先點擊右側圖示押注（至少 1 元）再開始轉動！");
+          ArcadeAudio.beep(260, 0.09, "sawtooth", 0.05);
+          return;
+        }
+
+        ArcadeAudio.init();
+        clearWinnerFlash();
+        state.isSpinning = true;
+
+        if (!isLuckyFreeSpin) {
+          state.lastBets = { ...state.bets };
+          state.rounds++;
+          state.consecutiveLucky = 0;
+        }
+
+        $("centerWinBig").textContent = isLuckyFreeSpin ? "✨ LUCKY 免費轉 ✨" : "SPINNING...";
+        $("centerMsg").textContent = isLuckyFreeSpin ? "保留原押注，好運加碼再轉一次！" : "香檳金燈圈高速奔馳中...";
+        updateUI();
+
+        const startIdx = state.currentLitIdx;
+        const targetIdx = pickTargetTileIndex(isLuckyFreeSpin);
+        const extraLaps = 2 + Math.floor(Math.random() * 2); // 2~3 圈
+        const delta = (targetIdx - startIdx + 24) % 24;
+        const totalSteps = extraLaps * 24 + delta;
+
+        let step = 0;
+        function nextStep() {
+          step++;
+          const currIdx = (startIdx + step) % 24;
+          const prevIdx = (currIdx + 23) % 24;
+          const progress = step / totalSteps;
+
+          setLitTile(currIdx, prevIdx);
+          ArcadeAudio.chaseTick(progress);
+
+          if (step < totalSteps) {
+            // 起步加速 → 中段高速 → 尾段平滑減速（戲劇張力）
+            let delay = 44;
+            if (step < 6) {
+              delay = 105 - step * 11;
+            } else if (progress > 0.68) {
+              const slowP = (progress - 0.68) / 0.32;
+              delay = 44 + Math.pow(slowP, 2.35) * 320;
+            }
+            setTimeout(nextStep, delay);
+          } else {
+            finishSpin(currIdx);
+          }
+        }
+
+        setTimeout(nextStep, 70);
+      }
+
+      function finishSpin(landIdx) {
+        const tile = BOARD_TILES[landIdx];
+        tileElements[landIdx].classList.add("winner");
+
+        // 1. 落入 LUCKY 再來一次：保留所有押注，免費再轉
+        if (tile.lucky) {
+          state.consecutiveLucky++;
+          ArcadeAudio.luckyFanfare();
+          launchConfetti(35, false);
+          $("centerWinBig").textContent = "✨ LUCKY 再來一次！";
+          $("centerMsg").textContent = "保留全部押注，系統免費為您再轉一圈！";
+          showToast("✨ 命中 LUCKY！免費再轉一次送好運！");
+          state.isSpinning = false;
+          setTimeout(() => {
+            if (!state.gameTerminated) runSpin(true);
+          }, 1250);
+          return;
+        }
+
+        // 2. 一般圖示結算
+        const betOnTile = state.bets[tile.symbol] || 0;
+        const payout = betOnTile * tile.mult;
+
+        // 清除本局押注（本金已在押注時扣除）
+        SYMBOLS.forEach((s) => { state.bets[s.id] = 0; });
+        state.balance += payout;
+        state.isSpinning = false;
+
+        if (payout > 0) {
+          if (payout > state.maxSingleWin) state.maxSingleWin = payout;
+          const isBig = payout >= 200 || tile.mult >= 30;
+          ArcadeAudio.winArpeggio(isBig);
+          launchConfetti(isBig ? 70 : 28, false);
+          $("centerWinBig").textContent = `+${payout.toLocaleString("zh-TW")} 元！`;
+          $("centerMsg").textContent = `${tile.emoji} ${tile.label}：${betOnTile} × ${tile.mult} = ${payout.toLocaleString("zh-TW")} 元`;
+          showToast(MICRO_PRAISES[Math.floor(Math.random() * MICRO_PRAISES.length)]);
+        } else {
+          ArcadeAudio.beep(330, 0.12, "triangle", 0.06);
+          $("centerWinBig").textContent = `${tile.emoji} ${tile.label} (x${tile.mult})`;
+          $("centerMsg").textContent = "這球擦肩而過，下一轉好運就在前面等你！";
+        }
+
+        // 3. 檢查是否超過 2,000 元 → 立即終止遊戲並進入榮耀結算！
+        if (state.balance > TERMINATE_THRESHOLD) {
+          state.gameTerminated = true;
+          updateUI();
+          ArcadeAudio.victoryFanfare();
+          launchConfetti(160, true);
+          setTimeout(() => openSettlementModal("over2000"), 850);
+          return;
+        }
+
+        updateUI();
+
+        // 4. 檢查是否完全歸零（餘額為 0 且無押注）→ 開啟暖心鼓勵彈窗
+        if (state.balance === 0 && getTotalBet() === 0) {
+          setTimeout(() => {
+            ArcadeAudio.warmHarp();
+            $("bankruptPraiseText").textContent =
+              BANKRUPT_MESSAGES[Math.floor(Math.random() * BANKRUPT_MESSAGES.length)];
+            $("bankruptModal").classList.add("open");
+          }, 650);
+        }
+      }
+
+      $("startSpinBtn").addEventListener("click", () => runSpin(false));
+
+      /* -------------------------------------------------------------------
+         11. 歸零暖心彈窗與結算讚賞彈窗控制
+      ------------------------------------------------------------------- */
+      $("refillBtn").addEventListener("click", () => {
+        ArcadeAudio.sendChime();
+        state.balance = INITIAL_BALANCE;
+        SYMBOLS.forEach((s) => { state.bets[s.id] = 0; });
+        state.gameTerminated = false;
+        clearWinnerFlash();
+        $("bankruptModal").classList.remove("open");
+        $("centerWinBig").textContent = "暖心補給 +100 元";
+        $("centerMsg").textContent = "已為你補滿 100 元好運本金，勇敢再出發！";
+        updateUI();
+        showToast("✨ 已領取 100 元暖心補給！祝你這局大吉大利！");
+      });
+
+      $("bankruptToPraiseBtn").addEventListener("click", () => {
+        $("bankruptModal").classList.remove("open");
+        openSettlementModal("bankrupt");
+      });
+
+      $("earlyCashoutBtn").addEventListener("click", () => {
+        if (state.isSpinning) return;
+        if (!state.gameTerminated) {
+          // 退還尚未開獎的押注再結算
+          refundCurrentBets();
+          updateUI();
+        }
+        openSettlementModal(state.gameTerminated ? "over2000" : "early");
+      });
+
+      const PRESET_PRAISE_TEMPLATES = [
+        (r, bal, p2, roi) =>
+          `親愛的 ${r}，你真的太棒了！在幸運小瑪莉寫下 ${bal.toLocaleString("zh-TW")} 元佳績（${p2.name}｜${roi.name}），你的果斷直覺與迷人勇氣總是閃閃發光，願你往後每一天都好運爆棚！`,
+        (r, bal, p2, roi) =>
+          `獻給自帶主角光環的 ${r}！從 100 元出發達成 ${roi.multiple} 倍（${roi.pctStr}）的精彩表現，你是大家眼中最耀眼的幸運之星，所有美好都在奔向你的路上！`,
+        (r, bal, p2, roi) =>
+          `${r} 辛苦了，謝謝你一直這麼真誠又努力！無論數字高低，你認真投入的模樣就已經滿分。送上這張「${p2.name}」暖心讚賞卡，願你每天都被溫柔與好運包圍！`,
+        (r, bal, p2, roi) =>
+          `全場起立鼓掌！${r} 強勢摘下「${roi.name}」與「${p2.name}」雙重榮耀，這份王者級的氣場與手氣無人能敵，繼續大步向前閃耀吧！`
+      ];
+
+      function buildDefaultPraise() {
+        const rec = ($("recipientNameInput").value || "").trim() || "親愛的幸運之星";
+        const bal = state.balance;
+        const p2 = getPowerOf2Tier(bal);
+        const roi = getProfitRatioTier(bal);
+        if (bal === 0) {
+          return `親愛的 ${rec}，敢於全力以赴的你超級迷人！歸零只是把壞運氣全部清空的最強起手式，你的勇氣與好心態早已超越一切數字，願你接下來迎來最燦爛的大好運！`;
+        }
+        return `${rec} 太厲害了！從 100 元出發寫下 ${bal.toLocaleString("zh-TW")} 元（${roi.pctStr}）的亮眼成績，榮獲「${p2.name}」與「${roi.name}」雙重肯定！${p2.praise}`;
+      }
+
+      function openSettlementModal(mode) {
+        state.settlementMode = mode;
+        state.praiseSent = false;
+        $("sentBanner").classList.remove("show");
+
+        const bal = state.balance;
+        const p2 = getPowerOf2Tier(bal);
+        const roi = getProfitRatioTier(bal);
+
+        if (mode === "over2000") {
+          $("settleTag").textContent = "🏆 突破 2,000 元・遊戲榮耀終止";
+          $("settleTitle").textContent = "恭喜破界！榮耀止盈結算";
+          $("closeSettleBtn").textContent = "← 返回檢視機台（已止盈）";
+        } else if (mode === "bankrupt") {
+          $("settleTag").textContent = "💛 勇氣滿分・暖心讚賞卡";
+          $("settleTitle").textContent = "送出一份最真誠的鼓勵";
+          $("closeSettleBtn").textContent = "← 返回機台";
+        } else {
+          $("settleTag").textContent = "💌 暖心結算・即時成果分享";
+          $("settleTitle").textContent = "你的專屬小瑪莉榮譽結算";
+          $("closeSettleBtn").textContent = "← 返回繼續遊玩";
+        }
+
+        $("settleFinalBal").textContent = `${bal.toLocaleString("zh-TW")} 元`;
+        const profitSign = roi.profit >= 0 ? "+" : "";
+        $("settleProfitInfo").textContent = `${profitSign}${roi.profit.toLocaleString("zh-TW")} 元 (${roi.pctStr})`;
+        $("settleProfitInfo").style.color = roi.profit >= 0 ? "var(--neon-green)" : "var(--amber-led)";
+        $("settleRounds").textContent = `${state.rounds} 局`;
+        $("settleMaxWin").textContent = `${state.maxSingleWin.toLocaleString("zh-TW")} 元`;
+
+        $("settlePowerName").textContent = p2.name;
+        $("settlePowerDesc").textContent = p2.bracket;
+        $("settleRoiName").textContent = roi.name;
+        $("settleRoiDesc").textContent = `本金 ${roi.multiple} 倍｜${roi.pctStr}`;
+
+        $("praiseTextarea").value = buildDefaultPraise();
+        $("settlementModal").classList.add("open");
+      }
+
+      document.querySelectorAll("#presetPraiseChips .preset-chip").forEach((chip) => {
+        chip.addEventListener("click", () => {
+          const idx = Number(chip.dataset.idx);
+          const rec = ($("recipientNameInput").value || "").trim() || "親愛的幸運之星";
+          const bal = state.balance;
+          const p2 = getPowerOf2Tier(bal);
+          const roi = getProfitRatioTier(bal);
+          $("praiseTextarea").value = PRESET_PRAISE_TEMPLATES[idx](rec, bal, p2, roi);
+          ArcadeAudio.beep(780, 0.05, "sine", 0.06);
+        });
+      });
+
+      $("closeSettleBtn").addEventListener("click", () => {
+        $("settlementModal").classList.remove("open");
+      });
+
+      $("restartGameBtn").addEventListener("click", () => {
+        ArcadeAudio.sendChime();
+        state.balance = INITIAL_BALANCE;
+        SYMBOLS.forEach((s) => { state.bets[s.id] = 0; });
+        state.lastBets = null;
+        state.isSpinning = false;
+        state.gameTerminated = false;
+        state.rounds = 0;
+        state.maxSingleWin = 0;
+        state.consecutiveLucky = 0;
+        clearWinnerFlash();
+        $("settlementModal").classList.remove("open");
+        $("centerWinBig").textContent = "READY 100 元";
+        $("centerMsg").textContent = "新局已開啟！押注 1 元以上即可啟動好運！";
+        updateUI();
+        showToast("🔄 已重新開局！初始本金 100 元就緒！");
+      });
+
+      /* -------------------------------------------------------------------
+         12. 1080×1350 高畫質讚賞榮譽卡 Canvas 繪製與下載／複製
+      ------------------------------------------------------------------- */
+      function roundRectPath(ctx, x, y, w, h, r) {
+        const rad = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + rad, y);
+        ctx.arcTo(x + w, y, x + w, y + h, rad);
+        ctx.arcTo(x + w, y + h, x, y + h, rad);
+        ctx.arcTo(x, y + h, x, y, rad);
+        ctx.arcTo(x, y, x + w, y, rad);
+        ctx.closePath();
+      }
+
+      function wrapLines(ctx, text, maxW) {
+        const lines = [];
+        let cur = "";
+        for (const ch of text) {
+          if (ch === "\n") {
+            lines.push(cur);
+            cur = "";
+            continue;
+          }
+          if (ctx.measureText(cur + ch).width > maxW) {
+            lines.push(cur);
+            cur = ch;
+          } else {
+            cur += ch;
+          }
+        }
+        if (cur) lines.push(cur);
+        return lines;
+      }
+
+      function renderPraiseCardCanvas() {
+        const canvas = $("cardCanvas");
+        const ctx = canvas.getContext("2d");
+        const W = 1080;
+        const H = 1350;
+
+        const recipient = ($("recipientNameInput").value || "").trim() || "親愛的幸運之星";
+        const sender = ($("senderNameInput").value || "").trim() || "最欣賞你的夥伴";
+        const message = ($("praiseTextarea").value || "").trim() || buildDefaultPraise();
+        const bal = state.balance;
+        const p2 = getPowerOf2Tier(bal);
+        const roi = getProfitRatioTier(bal);
+
+        // 1. 皇家絲絨酒紅漸層背景
+        const bg = ctx.createLinearGradient(0, 0, W, H);
+        bg.addColorStop(0, "#3E0D1B");
+        bg.addColorStop(0.5, "#23060F");
+        bg.addColorStop(1, "#160409");
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, W, H);
+
+        // 柔和香檳金角光
+        const g1 = ctx.createRadialGradient(W * 0.5, 160, 20, W * 0.5, 160, 520);
+        g1.addColorStop(0, "rgba(242, 201, 107, 0.24)");
+        g1.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = g1;
+        ctx.fillRect(0, 0, W, H);
+
+        // 2. 雙層香檳金典雅外框
+        ctx.strokeStyle = "#F2C96B";
+        ctx.lineWidth = 7;
+        roundRectPath(ctx, 40, 40, W - 80, H - 80, 32);
+        ctx.stroke();
+
+        ctx.strokeStyle = "rgba(255, 241, 189, 0.4)";
+        ctx.lineWidth = 2;
+        roundRectPath(ctx, 58, 58, W - 116, H - 116, 24);
+        ctx.stroke();
+
+        // 3. 頂部標題
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#F2C96B";
+        ctx.font = "800 22px monospace";
+        ctx.fillText("LUCKY LITTLE MARY • POWER OF 2 AWARD", W / 2, 122);
+
+        ctx.fillStyle = "#FFF5CF";
+        ctx.font = "900 50px 'Noto Serif TC', 'Songti TC', serif";
+        ctx.fillText("幸運小瑪莉・榮譽讚賞卡", W / 2, 192);
+
+        // 分隔金線
+        const lg = ctx.createLinearGradient(180, 0, W - 180, 0);
+        lg.addColorStop(0, "rgba(242,201,107,0)");
+        lg.addColorStop(0.5, "#F2C96B");
+        lg.addColorStop(1, "rgba(242,201,107,0)");
+        ctx.fillStyle = lg;
+        ctx.fillRect(180, 220, W - 360, 3);
+
+        // 4. 受贈者尊稱
+        ctx.fillStyle = "#D8B8B0";
+        ctx.font = "700 24px sans-serif";
+        ctx.fillText("謹將這份滿載好運與肯定的讚賞，獻給", W / 2, 282);
+
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = "900 60px 'Noto Serif TC', 'Songti TC', serif";
+        ctx.fillText(recipient, W / 2, 358);
+
+        // 5. 最終金額焦點卡
+        ctx.fillStyle = "rgba(14, 4, 8, 0.78)";
+        ctx.strokeStyle = "#F2C96B";
+        ctx.lineWidth = 3;
+        roundRectPath(ctx, 100, 404, W - 200, 164, 24);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#D8B8B0";
+        ctx.font = "700 22px sans-serif";
+        ctx.fillText(bal > TERMINATE_THRESHOLD ? "🏆 突破 2,000 元榮耀止盈最終金額" : "✨ 小瑪莉幸運結算金額", W / 2, 452);
+
+        ctx.fillStyle = "#FFB830";
+        ctx.font = "900 72px monospace";
+        ctx.fillText(`${bal.toLocaleString("zh-TW")} 元`, W / 2, 536);
+
+        // 6. 雙重分類徽章（2 的次方 & 賺錢比例）
+        const boxW = 424;
+        const boxY = 602;
+        const boxH = 176;
+
+        // 左：2 的次方分類
+        ctx.fillStyle = "rgba(74, 16, 33, 0.88)";
+        ctx.strokeStyle = "#F2C96B";
+        ctx.lineWidth = 2.5;
+        roundRectPath(ctx, 100, boxY, boxW, boxH, 20);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#F2C96B";
+        ctx.font = "700 21px sans-serif";
+        ctx.fillText("📐 2 的次方分類（2ⁿ Tier）", 100 + boxW / 2, boxY + 46);
+
+        ctx.fillStyle = "#FFF5CF";
+        ctx.font = "900 32px 'Noto Serif TC', serif";
+        ctx.fillText(p2.name, 100 + boxW / 2, boxY + 100);
+
+        ctx.fillStyle = "#D8B8B0";
+        ctx.font = "600 19px sans-serif";
+        ctx.fillText(p2.bracket, 100 + boxW / 2, boxY + 144);
+
+        // 右：賺錢比例分類
+        const rx = W - 100 - boxW;
+        ctx.fillStyle = "rgba(74, 16, 33, 0.88)";
+        ctx.strokeStyle = "#F2C96B";
+        ctx.lineWidth = 2.5;
+        roundRectPath(ctx, rx, boxY, boxW, boxH, 20);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#F2C96B";
+        ctx.font = "700 21px sans-serif";
+        ctx.fillText("📈 賺錢比例分類（本金 100）", rx + boxW / 2, boxY + 46);
+
+        ctx.fillStyle = "#FFF5CF";
+        ctx.font = "900 31px 'Noto Serif TC', serif";
+        ctx.fillText(roi.name, rx + boxW / 2, boxY + 100);
+
+        ctx.fillStyle = roi.profit >= 0 ? "#4ADE80" : "#FDE68A";
+        ctx.font = "800 22px monospace";
+        ctx.fillText(`${roi.pctStr}  •  ${roi.multiple}x`, rx + boxW / 2, boxY + 144);
+
+        // 7. 暖心鼓勵與讚賞金句區
+        ctx.fillStyle = "rgba(255, 248, 235, 0.08)";
+        ctx.strokeStyle = "rgba(242, 201, 107, 0.65)";
+        ctx.lineWidth = 2.5;
+        roundRectPath(ctx, 100, 814, W - 200, 324, 24);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#F2C96B";
+        ctx.font = "800 24px 'Noto Serif TC', serif";
+        ctx.fillText("💌 專屬暖心讚賞語", W / 2, 864);
+
+        ctx.fillStyle = "#FFF8EB";
+        ctx.font = "700 30px 'Noto Serif TC', 'Songti TC', serif";
+        const lines = wrapLines(ctx, `「${message}」`, W - 280).slice(0, 5);
+        const lineStartY = lines.length <= 3 ? 950 : 922;
+        lines.forEach((ln, idx) => {
+          ctx.fillText(ln, W / 2, lineStartY + idx * 48);
+        });
+
+        // 8. 底部落款與香檳金印章
+        const now = new Date();
+        const dtStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, "0")}/${String(now.getDate()).padStart(2, "0")}`;
+        ctx.textAlign = "left";
+        ctx.fillStyle = "#FFF5CF";
+        ctx.font = "700 26px 'Noto Serif TC', serif";
+        ctx.fillText(`來自：${sender}`, 110, 1216);
+
+        ctx.fillStyle = "#D8B8B0";
+        ctx.font = "600 20px monospace";
+        ctx.fillText(`DATE: ${dtStr}  •  ROUNDS: ${state.rounds}  •  MAX WIN: ${state.maxSingleWin}`, 110, 1258);
+
+        // 右下圓形金印
+        ctx.save();
+        ctx.translate(888, 1226);
+        ctx.rotate(-0.1);
+        ctx.fillStyle = "rgba(242, 201, 107, 0.16)";
+        ctx.strokeStyle = "#F2C96B";
+        ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.arc(0, 0, 56, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#FFF5CF";
+        ctx.font = "900 20px 'Noto Serif TC', serif";
+        ctx.textAlign = "center";
+        ctx.fillText("好運認證", 0, -5);
+        ctx.fillText("超級讚賞", 0, 22);
+        ctx.restore();
+
+        $("cardPreviewImg").src = canvas.toDataURL("image/png");
+      }
+
+      $("sendPraiseBtn").addEventListener("click", () => {
+        ArcadeAudio.sendChime();
+        launchConfetti(90, true);
+        renderPraiseCardCanvas();
+        state.praiseSent = true;
+        $("sentBanner").classList.add("show");
+        showToast("💖 暖心讚賞已送出！高畫質榮譽卡已生成！");
+      });
+
+      $("downloadCardBtn").addEventListener("click", () => {
+        ArcadeAudio.beep(880, 0.1, "sine", 0.08);
+        const canvas = $("cardCanvas");
+        const rec = (($("recipientNameInput").value || "").trim() || "幸運之星").replace(/[\\/:*?"<>|]/g, "_");
+        const link = document.createElement("a");
+        link.download = `幸運小瑪莉_讚賞卡_${rec}.png`;
+        link.href = canvas.toDataURL("image/png");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast("⬇️ 讚賞榮譽卡已開始下載！");
+      });
+
+      $("copyPraiseBtn").addEventListener("click", () => {
+        const rec = ($("recipientNameInput").value || "").trim() || "親愛的幸運之星";
+        const sender = ($("senderNameInput").value || "").trim() || "最欣賞你的夥伴";
+        const msg = ($("praiseTextarea").value || "").trim();
+        const bal = state.balance;
+        const p2 = getPowerOf2Tier(bal);
+        const roi = getProfitRatioTier(bal);
+
+        const shareText =
+          `🎰【幸運小瑪莉：2的次方讚賞機】\n` +
+          `✨ 獻給：${rec}\n` +
+          `💰 最終金額：${bal.toLocaleString("zh-TW")} 元（本金 100 元，${roi.pctStr} / ${roi.multiple}x）\n` +
+          `📐 2 的次方分類：${p2.name}（${p2.bracket}）\n` +
+          `📈 賺錢比例分類：${roi.name}\n` +
+          `💌 讚賞與鼓勵：「${msg}」\n` +
+          `—— 來自 ${sender}`;
+
+        // 使用相容 iframe 的 document.execCommand('copy')
+        const ta = document.createElement("textarea");
+        ta.value = shareText;
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        let copied = false;
+        try {
+          copied = document.execCommand("copy");
+        } catch (e) {}
+        document.body.removeChild(ta);
+
+        if (copied) {
+          ArcadeAudio.sendChime();
+          showToast("📋 已複製滿滿鼓勵文字！快去貼給對方吧！");
+        } else {
+          showToast("請手動選取上方文字框內容複製傳給對方喔！");
+        }
+      });
+
+      /* -------------------------------------------------------------------
+         13. 音效開關與啟動初始化
+      ------------------------------------------------------------------- */
+      $("soundToggleBtn").addEventListener("click", () => {
+        ArcadeAudio.enabled = !ArcadeAudio.enabled;
+        $("soundIcon").textContent = ArcadeAudio.enabled ? "🔊" : "🔇";
+        $("soundText").textContent = ArcadeAudio.enabled ? "音效開" : "靜音";
+        if (ArcadeAudio.enabled) ArcadeAudio.beep(784, 0.08, "sine", 0.08);
+      });
+
+      window.addEventListener("resize", () => {
+        if (confettiItems.length > 0) resizeConfetti();
+      });
+
+      window.onload = function () {
+        buildBoard();
+        buildBetButtons();
+        updateUI();
+      };
+    })();
+  </script>
+</body>
+</html>
