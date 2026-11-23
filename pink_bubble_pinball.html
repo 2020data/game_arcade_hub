@@ -1,0 +1,2661 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>粉紅泡泡沙龍：氣質彈珠台</title>
+  <style>
+    /* =====================================================================
+       一、法式玫瑰香檳金沙龍設計系統（純原生 CSS，零外部依賴）
+    ===================================================================== */
+    :root {
+      --bg-pearl-top: #FFF8FA;
+      --bg-pearl-bot: #FBEBF0;
+      --rose-dusty: #D9899E;
+      --rose-deep: #B7627A;
+      --rose-soft: #F7DDE6;
+      --rose-mist: #FDF2F5;
+      --gold-caramel: #C99A6B;
+      --gold-champagne: #EBD2B4;
+      --gold-pale: #FAF0E4;
+      --ink-berry: #4A2334;
+      --ink-mauve: #7F5566;
+      --ink-light: #A58090;
+      --font-serif: "Noto Serif TC", "Songti TC", "PMingLiU", Georgia, serif;
+      --font-sans: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, -apple-system, sans-serif;
+      --font-mono: "SF Mono", "JetBrains Mono", Consolas, monospace;
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --shadow-salon: 0 20px 50px rgba(138, 69, 94, 0.12), 0 4px 16px rgba(201, 154, 107, 0.12);
+      --shadow-gold: 0 10px 26px rgba(201, 154, 107, 0.30);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: var(--font-sans);
+      color: var(--ink-berry);
+      background:
+        radial-gradient(circle at 15% 10%, rgba(244, 199, 212, 0.42), transparent 46%),
+        radial-gradient(circle at 86% 18%, rgba(235, 210, 180, 0.36), transparent 45%),
+        radial-gradient(circle at 50% 90%, rgba(217, 137, 158, 0.20), transparent 52%),
+        linear-gradient(168deg, var(--bg-pearl-top) 0%, #FDF1F5 50%, var(--bg-pearl-bot) 100%);
+      overflow-x: hidden;
+      line-height: 1.65;
+    }
+
+    /* 全螢幕飄升粉紅泡泡背景畫布 */
+    #bgBubbleCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* =====================================================================
+       二、頂部常駐沙龍 HUD
+    ===================================================================== */
+    .salon-hud {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(255, 248, 250, 0.86);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1.2px solid rgba(201, 154, 107, 0.42);
+      box-shadow: 0 4px 20px rgba(74, 35, 52, 0.06);
+    }
+
+    .hud-inner {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 9px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .hud-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .hud-emblem {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 32% 28%, #FFFFFF 0%, #F7C9D7 45%, #D9899E 100%);
+      border: 1.5px solid var(--gold-caramel);
+      box-shadow: 0 4px 12px rgba(217, 137, 158, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .hud-title {
+      font-family: var(--font-serif);
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: 0.08em;
+      color: var(--ink-berry);
+    }
+
+    .hud-right {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .hud-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(201, 154, 107, 0.42);
+      color: var(--ink-mauve);
+    }
+
+    .hud-pill strong {
+      color: var(--ink-berry);
+      font-weight: 700;
+    }
+
+    .hud-pill.highlight {
+      background: linear-gradient(135deg, #FFF9FB, #FAF0E4);
+      border-color: var(--gold-caramel);
+    }
+
+    .hud-pill .mono {
+      font-family: var(--font-mono);
+      font-weight: 800;
+      color: var(--rose-deep);
+    }
+
+    .sound-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 13px;
+      border-radius: 999px;
+      background: #FFFFFF;
+      border: 1.2px solid var(--gold-caramel);
+      color: var(--ink-berry);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .sound-btn:hover {
+      background: var(--gold-pale);
+    }
+
+    /* =====================================================================
+       三、主內容與雙層細金邊卡片
+    ===================================================================== */
+    .main-container {
+      position: relative;
+      z-index: 1;
+      max-width: 1020px;
+      margin: 0 auto;
+      padding: 20px 14px 64px;
+    }
+
+    .screen {
+      display: none;
+      animation: fadeRise 0.44s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeRise {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .salon-card {
+      position: relative;
+      background: linear-gradient(180deg, rgba(255, 252, 253, 0.94), rgba(253, 242, 246, 0.93));
+      border: 1.5px solid var(--gold-caramel);
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      box-shadow: var(--shadow-salon);
+      margin-bottom: 18px;
+    }
+
+    .salon-card::after {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      border: 1px solid rgba(201, 154, 107, 0.35);
+      border-radius: 17px;
+      pointer-events: none;
+    }
+
+    /* =====================================================================
+       四、法式高級按鈕與表單
+    ===================================================================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 22px;
+      border-radius: 999px;
+      border: 1.5px solid transparent;
+      font-family: var(--font-sans);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.14s ease, box-shadow 0.2s ease, filter 0.2s ease, background 0.2s ease;
+    }
+    .btn:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-rose-gold {
+      background: linear-gradient(135deg, #E8A6B8 0%, #D9899E 48%, #C99A6B 100%);
+      color: #FFFFFF;
+      border-color: #F6DFC9;
+      box-shadow: 0 10px 26px rgba(217, 137, 158, 0.36);
+    }
+    .btn-rose-gold:hover:not(:disabled) {
+      filter: brightness(1.04);
+      box-shadow: 0 12px 30px rgba(217, 137, 158, 0.46);
+    }
+
+    .btn-champagne {
+      background: linear-gradient(135deg, #F5E2CC 0%, #DFBC92 55%, #C99A6B 100%);
+      color: var(--ink-berry);
+      border-color: #FAF0E4;
+      box-shadow: var(--shadow-gold);
+    }
+    .btn-champagne:hover:not(:disabled) {
+      filter: brightness(1.04);
+    }
+
+    .btn-outline {
+      background: rgba(255, 255, 255, 0.88);
+      color: var(--ink-berry);
+      border-color: var(--gold-caramel);
+    }
+    .btn-outline:hover:not(:disabled) {
+      background: var(--rose-mist);
+    }
+
+    .salon-input {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1.4px solid rgba(201, 154, 107, 0.55);
+      background: #FFFFFF;
+      color: var(--ink-berry);
+      font-size: 15.5px;
+      font-family: var(--font-sans);
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .salon-input:focus {
+      border-color: var(--rose-dusty);
+      box-shadow: 0 0 0 3px rgba(217, 137, 158, 0.2);
+    }
+
+    /* =====================================================================
+       五、開場畫面：法式沙龍邀請卡
+    ===================================================================== */
+    .invite-card {
+      max-width: 680px;
+      margin: 8px auto 0;
+      text-align: center;
+      padding: 36px 24px 32px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(247, 221, 230, 0.55), transparent 58%),
+        linear-gradient(180deg, rgba(255, 252, 253, 0.96), rgba(252, 238, 243, 0.95));
+    }
+
+    .invite-kicker {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.28em;
+      color: var(--gold-caramel);
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .invite-title {
+      font-family: var(--font-serif);
+      font-size: clamp(28px, 6vw, 42px);
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      color: var(--ink-berry);
+      margin: 0 0 8px;
+    }
+
+    .invite-sub {
+      font-family: var(--font-serif);
+      font-size: clamp(14.5px, 2.5vw, 17.5px);
+      color: var(--rose-deep);
+      margin-bottom: 24px;
+    }
+
+    .avatar-upload-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .avatar-ring {
+      width: 118px;
+      height: 118px;
+      border-radius: 50%;
+      padding: 5px;
+      background: linear-gradient(135deg, #F5E2CC, #C99A6B, #E8A6B8);
+      box-shadow: 0 10px 26px rgba(201, 154, 107, 0.3);
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .avatar-ring:hover {
+      transform: scale(1.03);
+    }
+
+    .avatar-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      overflow: hidden;
+      background: radial-gradient(circle at 35% 30%, #FFFFFF, #F7DDE6 70%, #E7B9C9 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink-mauve);
+      font-size: 12px;
+      font-weight: 600;
+      position: relative;
+    }
+
+    .avatar-inner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .invite-form {
+      max-width: 420px;
+      margin: 0 auto;
+      text-align: left;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(201, 154, 107, 0.4);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .salon-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+      margin-top: 22px;
+      text-align: left;
+    }
+
+    .feature-chip {
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(217, 137, 158, 0.3);
+      border-radius: 14px;
+      padding: 12px 13px;
+      font-size: 12.5px;
+      color: var(--ink-mauve);
+    }
+    .feature-chip strong {
+      display: block;
+      font-family: var(--font-serif);
+      font-size: 14px;
+      color: var(--ink-berry);
+      margin-bottom: 3px;
+    }
+
+    /* =====================================================================
+       六、主遊戲舞台：高訂 15 排彈珠台
+    ===================================================================== */
+    .game-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 540px) minmax(240px, 1fr);
+      gap: 18px;
+      align-items: start;
+      justify-content: center;
+    }
+
+    @media (max-width: 880px) {
+      .game-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .board-shell {
+      position: relative;
+      width: 100%;
+      max-width: 540px;
+      margin: 0 auto;
+      padding: 10px;
+      border-radius: 26px;
+      background: linear-gradient(145deg, #F5E2CC 0%, #D9A77B 45%, #EBD2B4 100%);
+      box-shadow: 0 22px 54px rgba(74, 35, 52, 0.18), inset 0 2px 6px rgba(255, 255, 255, 0.7);
+      border: 1.5px solid #B88454;
+    }
+
+    .board-canvas-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 540 / 780;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #FFF9FB;
+      touch-action: none;
+    }
+
+    #pinballCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    /* 浮動粉紅泡泡即時讚美小卡 */
+    .praise-float {
+      position: absolute;
+      top: 23%;
+      left: 50%;
+      transform: translate(-50%, 10px) scale(0.92);
+      z-index: 15;
+      pointer-events: none;
+      opacity: 0;
+      padding: 10px 20px;
+      border-radius: 999px;
+      background: rgba(255, 248, 251, 0.94);
+      border: 1.5px solid var(--gold-caramel);
+      box-shadow: 0 12px 30px rgba(217, 137, 158, 0.35);
+      font-family: var(--font-serif);
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--ink-berry);
+      white-space: nowrap;
+      max-width: 90%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: all 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .praise-float.show {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1);
+    }
+
+    /* 右側控制面板 */
+    .control-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .panel-title {
+      font-family: var(--font-serif);
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--ink-berry);
+      margin: 0 0 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .power-meter-box {
+      background: #FFFFFF;
+      border: 1px solid rgba(201, 154, 107, 0.45);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+    }
+
+    .power-meter-head {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--ink-mauve);
+      margin-bottom: 7px;
+    }
+
+    .power-track {
+      height: 14px;
+      border-radius: 999px;
+      background: #F9EDF1;
+      border: 1px solid rgba(201, 154, 107, 0.45);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .power-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #F4C7D4 0%, #D9899E 52%, #C99A6B 100%);
+      transition: width 0.04s linear;
+    }
+
+    .launch-actions {
+      display: grid;
+      gap: 10px;
+    }
+
+    .launch-hold-btn {
+      width: 100%;
+      padding: 15px 20px;
+      font-size: 16px;
+      letter-spacing: 0.08em;
+    }
+
+    .mini-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .mini-stat {
+      background: #FFFFFF;
+      border: 1px solid rgba(201, 154, 107, 0.38);
+      border-radius: 12px;
+      padding: 10px 12px;
+      text-align: center;
+    }
+    .mini-stat .lbl {
+      font-size: 11.5px;
+      color: var(--ink-light);
+    }
+    .mini-stat .val {
+      font-family: var(--font-mono);
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--ink-berry);
+    }
+
+    .lane-dots-wrap {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+    }
+
+    .lane-dot-chip {
+      background: #FFFFFF;
+      border: 1px solid rgba(201, 154, 107, 0.35);
+      border-radius: 10px;
+      padding: 6px 4px;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--ink-light);
+      transition: all 0.22s ease;
+    }
+    .lane-dot-chip.lit {
+      background: linear-gradient(135deg, #FBE4EC, #FAF0E4);
+      border-color: var(--rose-dusty);
+      color: var(--ink-berry);
+      font-weight: 800;
+      box-shadow: 0 3px 10px rgba(217, 137, 158, 0.25);
+    }
+    .lane-dot-chip.bonus {
+      border-style: dashed;
+    }
+
+    .tip-note {
+      font-size: 12.5px;
+      color: var(--ink-mauve);
+      line-height: 1.55;
+      background: rgba(255, 255, 255, 0.72);
+      border-radius: 12px;
+      padding: 10px 12px;
+      border: 1px solid rgba(217, 137, 158, 0.25);
+    }
+
+    /* =====================================================================
+       七、最終專屬氣質認證證書頁
+    ===================================================================== */
+    .cert-header-summary {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .cert-rank-badge {
+      display: inline-block;
+      padding: 6px 18px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #F7DDE6, #FAF0E4);
+      border: 1.2px solid var(--gold-caramel);
+      font-family: var(--font-serif);
+      font-weight: 800;
+      font-size: 14px;
+      color: var(--ink-berry);
+      margin-bottom: 10px;
+    }
+
+    .cert-quote-hero {
+      max-width: 680px;
+      margin: 10px auto 0;
+      font-family: var(--font-serif);
+      font-size: 16px;
+      color: var(--ink-berry);
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(201, 154, 107, 0.45);
+      border-left: 4px solid var(--rose-dusty);
+      border-radius: 14px;
+      padding: 14px 18px;
+      text-align: left;
+    }
+
+    .cert-edit-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+      align-items: end;
+    }
+
+    .cert-btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    .cert-preview-stage {
+      background: linear-gradient(145deg, rgba(247, 221, 230, 0.42), rgba(250, 240, 228, 0.55));
+      border: 1.5px solid var(--gold-caramel);
+      border-radius: 20px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .cert-preview-img {
+      width: 100%;
+      max-width: 520px;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 20px 52px rgba(74, 35, 52, 0.22);
+      display: block;
+      margin: 0 auto;
+    }
+
+    .mobile-save-note {
+      font-size: 12.5px;
+      color: var(--ink-mauve);
+      margin-top: 10px;
+    }
+
+    /* 浮動提示 Toast（絕不使用 alert） */
+    .toast-pill {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%) translateY(18px);
+      z-index: 200;
+      background: var(--ink-berry);
+      color: #FFF8FA;
+      border: 1.2px solid var(--gold-champagne);
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+      box-shadow: 0 12px 28px rgba(74, 35, 52, 0.32);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.24s ease;
+      max-width: 92vw;
+      text-align: center;
+    }
+    .toast-pill.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 全螢幕輕柔飄升粉紅泡泡背景 -->
+  <canvas id="bgBubbleCanvas"></canvas>
+
+  <!-- ==================== 頂部常駐沙龍 HUD ==================== -->
+  <header class="salon-hud">
+    <div class="hud-inner">
+      <div class="hud-brand">
+        <div class="hud-emblem" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="8" stroke="#FFFFFF" stroke-width="1.6"/>
+            <circle cx="9.2" cy="9.2" r="2.2" fill="#FFFFFF" fill-opacity="0.88"/>
+          </svg>
+        </div>
+        <span class="hud-title">粉紅泡泡沙龍</span>
+      </div>
+
+      <div class="hud-right">
+        <div class="hud-pill">貴賓：<strong id="hudName">閃耀的你</strong></div>
+        <div class="hud-pill">珍珠：<span id="hudBalls" class="mono">15</span> 顆</div>
+        <div class="hud-pill highlight">已點亮：<span id="hudLanes" class="mono">0 / 15</span> 排</div>
+        <button id="soundToggleBtn" class="sound-btn" type="button">
+          <span id="soundIcon">🔊</span>
+          <span id="soundLabel">音樂開</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== 主畫面容器 ==================== -->
+  <main class="main-container">
+
+    <!-- ==================== 畫面 1：法式沙龍邀請卡（開始前設定） ==================== -->
+    <section id="screen-intro" class="screen active">
+      <div class="salon-card invite-card">
+        <div class="invite-kicker">SALON DES BULLES ROSES • PINBALL</div>
+        <h1 class="invite-title">《粉紅泡泡沙龍》</h1>
+        <div class="invite-sub">氣質彈珠台・每一排都是獻給你的專屬讚美</div>
+
+        <div class="avatar-upload-box">
+          <label class="avatar-ring" title="點擊上傳個人照片">
+            <div class="avatar-inner">
+              <img id="introPhotoPreview" alt="貴賓頭像預覽" />
+              <div id="introPhotoPlaceholder" style="text-align:center; padding:8px;">
+                <div style="font-size:26px; margin-bottom:2px;">🌸</div>
+                <div>上傳個人照片</div>
+              </div>
+            </div>
+            <input id="introPhotoInput" type="file" accept="image/*" style="display:none;" />
+          </label>
+          <span style="font-size:12.5px; color:var(--ink-light);">
+            可先上傳照片鑲嵌於最終證書，或通關後再隨時上傳與更換
+          </span>
+        </div>
+
+        <div class="invite-form">
+          <label for="guestNameInput" style="display:block; font-size:13.5px; font-weight:700; color:var(--ink-berry); margin-bottom:6px;">
+            貴賓芳名（留空將溫柔稱呼為「閃耀的你」）
+          </label>
+          <input
+            id="guestNameInput"
+            class="salon-input"
+            type="text"
+            maxlength="18"
+            placeholder="請輸入你的名字或暱稱..."
+            autocomplete="off"
+          />
+
+          <button id="startSalonBtn" class="btn btn-rose-gold" style="width:100%; margin-top:14px;" type="button">
+            ✨ 優雅開局
+          </button>
+        </div>
+
+        <div class="salon-features">
+          <div class="feature-chip">
+            <strong>🎀 15 排經典重現</strong>
+            拉絲香檳玫瑰金外框、交錯珍珠釘陣，第 1 與第 15 排落入加贈 1 顆珍珠彈珠。
+          </div>
+          <div class="feature-chip">
+            <strong>💖 滿滿情緒價值</strong>
+            每點亮新排數即綻放溫柔短讚美，1～15 排皆有專屬高質感氣質金句。
+          </div>
+          <div class="feature-chip">
+            <strong>🏆 高訂榮譽證書</strong>
+            結算即時合成 1080×1520 法式證書，收錄你的照片、排數點陣圖與暖心金句。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 畫面 2：高訂 15 排彈珠台主舞台 ==================== -->
+    <section id="screen-game" class="screen">
+      <div class="game-layout">
+        <!-- 左側：高解析度彈珠台 Canvas -->
+        <div class="board-shell">
+          <div class="board-canvas-wrap" id="boardWrap">
+            <canvas id="pinballCanvas"></canvas>
+            <div id="praiseFloat" class="praise-float">✨ 好有氣質的一球！</div>
+          </div>
+        </div>
+
+        <!-- 右側：法式操控與即時成果儀表 -->
+        <div class="control-panel">
+          <div class="salon-card" style="padding:18px; margin-bottom:0;">
+            <h2 class="panel-title">
+              <span>🎀 優雅發射台</span>
+              <span id="autoStatusBadge" style="font-size:12px; font-weight:600; color:var(--rose-deep);">待命中</span>
+            </h2>
+
+            <div class="power-meter-box">
+              <div class="power-meter-head">
+                <span>發射力道光條</span>
+                <span id="powerPctText" style="font-family:var(--font-mono); color:var(--rose-deep);">0%</span>
+              </div>
+              <div class="power-track">
+                <div id="powerFillBar" class="power-fill"></div>
+              </div>
+            </div>
+
+            <div class="launch-actions">
+              <button id="holdLaunchBtn" class="btn btn-rose-gold launch-hold-btn" type="button">
+                ✨ 按住蓄力・放開發射
+              </button>
+              <button id="autoBurstBtn" class="btn btn-champagne" type="button">
+                🌸 浪漫連發（依序優雅發射）
+              </button>
+              <button id="finishEarlyBtn" class="btn btn-outline" style="font-size:13.5px; padding:9px 16px; display:none;" type="button">
+                🏆 立即檢視專屬榮譽證書
+              </button>
+            </div>
+          </div>
+
+          <div class="salon-card" style="padding:18px; margin-bottom:0;">
+            <h3 class="panel-title" style="font-size:15.5px;">
+              <span>🥂 15 排點亮進度</span>
+              <span id="sideLanesCount" style="font-family:var(--font-mono); font-size:14px; color:var(--rose-deep);">0 / 15</span>
+            </h3>
+
+            <div class="mini-stats-grid" style="margin-bottom:12px;">
+              <div class="mini-stat">
+                <div class="lbl">剩餘珍珠彈珠</div>
+                <div id="sideBallsLeft" class="val">15</div>
+              </div>
+              <div class="mini-stat">
+                <div class="lbl">幸運加贈彈珠</div>
+                <div id="sideBonusCount" class="val" style="color:var(--gold-caramel);">+0</div>
+              </div>
+            </div>
+
+            <div id="laneDotsGrid" class="lane-dots-wrap"></div>
+          </div>
+
+          <div class="tip-note">
+            💡 <strong>三種優雅手感</strong>：<br/>
+            1. 直接在彈珠台右下角<strong>往下拉動玫瑰金拉桿</strong>放開。<br/>
+            2. 長按上方<strong>「按住蓄力」</strong>或鍵盤<strong>空白鍵（Space）</strong>。<br/>
+            3. 第 <strong>1 排</strong> 與第 <strong>15 排</strong> 落入會加贈 1 顆珍珠（每局最多 +5 顆）。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 畫面 3：專屬氣質認證證書頁 ==================== -->
+    <section id="screen-cert" class="screen">
+      <div class="salon-card">
+        <div class="cert-header-summary">
+          <div id="certRankBadge" class="cert-rank-badge">✨ 達成 0 排</div>
+          <h2 id="certTitleHeading" style="font-family:var(--font-serif); font-size:clamp(22px, 4.5vw, 30px); margin:0 0 6px; color:var(--ink-berry);">
+            專屬氣質讚美已為你盛開
+          </h2>
+          <div id="certQuoteDisplay" class="cert-quote-hero"></div>
+        </div>
+
+        <div class="cert-edit-bar">
+          <div>
+            <label for="certNameInput" style="display:block; font-size:13px; font-weight:700; color:var(--ink-berry); margin-bottom:6px;">
+              修改證書上的貴賓名稱（即時更新）
+            </label>
+            <input id="certNameInput" class="salon-input" type="text" maxlength="18" />
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <label class="btn btn-outline" style="cursor:pointer; flex:1;">
+              📷 上傳／更換照片
+              <input id="certPhotoInput" type="file" accept="image/*" style="display:none;" />
+            </label>
+          </div>
+        </div>
+
+        <div class="cert-btn-row">
+          <button id="downloadCertBtn" class="btn btn-rose-gold" type="button">
+            📥 下載高級證書 (PNG)
+          </button>
+          <button id="replayBtn" class="btn btn-champagne" type="button">
+            🎀 再打一局
+          </button>
+        </div>
+
+        <div class="cert-preview-stage">
+          <img id="certPreviewImg" class="cert-preview-img" alt="粉紅泡泡沙龍氣質榮譽證書預覽" />
+          <div class="mobile-save-note">
+            📱 手機用戶可直接<strong>長按上方證書圖片</strong>儲存至相簿，電腦用戶點擊上方按鈕即可下載 1080×1520 高畫質 PNG。
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 浮動 Toast -->
+  <div id="toastPill" class="toast-pill"></div>
+
+  <!-- 隱藏高解析度證書畫布 (1080×1520) -->
+  <canvas id="certCanvas" width="1080" height="1520" style="display:none;"></canvas>
+
+  <script>
+    /* =====================================================================
+       《粉紅泡泡沙龍：氣質彈珠台》純原生核心引擎
+       - 零外部依賴 / 2x DPR Canvas / 6x 子步進真實物理 / Web Audio 音樂盒音效
+    ===================================================================== */
+    (() => {
+      "use strict";
+
+      const $ = (id) => document.getElementById(id);
+
+      /* 通用圓角矩形路徑（跨瀏覽器相容） */
+      function roundRectPath(ctx, x, y, w, h, r) {
+        const rad = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + rad, y);
+        ctx.arcTo(x + w, y, x + w, y + h, rad);
+        ctx.arcTo(x + w, y + h, x, y + h, rad);
+        ctx.arcTo(x, y + h, x, y, rad);
+        ctx.arcTo(x, y, x + w, y, rad);
+        ctx.closePath();
+      }
+
+      /* -------------------------------------------------------------------
+         1. 讚美金句資料庫（1～15 排皆為頂級暖心讚美，絕無負面字眼）
+      ------------------------------------------------------------------- */
+      const LANE_PRAISE_DATA = [
+        { min: 1, max: 3, title: "極致專注・稀世珍珠", quote: "你從不隨波逐流，把所有的溫柔與光芒，都精準留給了最值得的人事物。你的專注與純粹，本身就是最罕見的氣質。" },
+        { min: 4, max: 4, title: "從容優雅・品味鑑賞家", quote: "不急不徐，自有節奏。你懂得在喧囂的世界裡留白，那份淡定從容的優雅，讓靠近你的人都感到無比安心。" },
+        { min: 5, max: 5, title: "溫柔微光・暖心治癒者", quote: "你或許沒發現，你的一句體貼、一個微笑，早已默默照亮了身邊好多人的日常。請相信，你比自己想像中更有力量。" },
+        { min: 6, max: 6, title: "恰到好處・玫瑰茶韻", quote: "六分溫柔、四分灑脫，你總是把生活的分寸拿捏得剛剛好。跟你相處就像午後的玫瑰茶，清甜回甘、令人念念不忘。" },
+        { min: 7, max: 7, title: "幸運偏愛・閃耀靈魂", quote: "幸運從來不是偶然，而是你長年累積的善良與努力開出的花。所有的美好都在奔向你的路上，你值得一切偏愛。" },
+        { min: 8, max: 8, title: "靜水深流・內在王者", quote: "在最平穩的軌道裡，藏著最深厚的底氣。你不必刻意張揚，你的真誠、細膩與可靠，就是最讓人敬佩的無敵魅力。" },
+        { min: 9, max: 9, title: "自帶暖陽・粉紅奇蹟", quote: "世界偶爾吵雜，但有你在的地方總能長出粉紅泡泡般的善意。謝謝你一直這麼真誠可愛，願你也被世界溫柔以待。" },
+        { min: 10, max: 10, title: "十全十美・心靈富翁", quote: "無論順境或逆境，你總能看見風景裡最亮的那一角。你的樂觀與格局，讓你無論走到哪裡都自帶高級濾鏡。" },
+        { min: 11, max: 11, title: "耀眼氣場・焦點所在", quote: "你一出場，空氣都變得高級起來！你的自信與才華藏都藏不住，請繼續大步向前，把世界走成你的伸展台。" },
+        { min: 12, max: 12, title: "璀璨星芒・圓夢大師", quote: "十二道光芒為你齊亮！你既有仰望星空的浪漫，又有腳踏實地的底氣，所有你渴望的未來，都正為你鋪開紅毯。" },
+        { min: 13, max: 13, title: "稀世珍藏・靈感繆思", quote: "你就像一場絕美的粉紅極光，既夢幻又令人驚艷。你的存在本身就是靈感與奇蹟，請永遠為自己的獨特感到驕傲。" },
+        { min: 14, max: 14, title: "滿分魅力・高訂詩篇", quote: "十四排綻放的奇蹟，見證了你無可挑剔的直覺與魅力！你把每一個平凡的日子，都活成了讓人羨慕的高訂詩篇。" },
+        { min: 15, max: 15, title: "萬中選一・粉紅泡泡大滿貫", quote: "十五排全數點亮！你是人間最極致的璀璨，集優雅、智慧、幸運與愛於一身。今天起，整個宇宙都為你起立鼓掌！" }
+      ];
+
+      function getPraiseForLanes(count) {
+        const safeCount = Math.max(1, Math.min(15, count));
+        return LANE_PRAISE_DATA.find((d) => safeCount >= d.min && safeCount <= d.max) || LANE_PRAISE_DATA[0];
+      }
+
+      /* 每次點亮全新排數時的即時短讚美池（不重複輪播） */
+      const SHORT_PRAISES = [
+        "✨ 好有氣質的一球！",
+        "🌸 優雅滿分，輕盈落位！",
+        "💖 幸運正在向你靠攏！",
+        "🥂 閃耀得讓人移不開眼！",
+        "🎀 你的直覺美得像首詩！",
+        "🌷 這份從容太迷人了！",
+        "💎 像珍珠般溫潤又耀眼！",
+        "✨ 粉紅泡泡為你鼓掌！",
+        "🌟 自帶高級濾鏡的節奏！",
+        "🩰 完美弧線，氣場全開！",
+        "💐 好事正在排隊找你！",
+        "🫧 輕輕一彈就如此動人！",
+        "👑 溫柔又篤定的女王風範！",
+        "💗 世界因你的光芒更甜美！",
+        "✨ 滿屏都是你的優雅奇蹟！"
+      ];
+
+      /* 頂部銘牌 3～15 排簡短優雅稱號 */
+      const PLAQUE_ITEMS = [
+        { n: 3,  tag: "稀世" },
+        { n: 4,  tag: "從容" },
+        { n: 5,  tag: "微光" },
+        { n: 6,  tag: "茶韻" },
+        { n: 7,  tag: "偏愛" },
+        { n: 8,  tag: "深流" },
+        { n: 9,  tag: "暖陽" },
+        { n: 10, tag: "十美" },
+        { n: 11, tag: "焦點" },
+        { n: 12, tag: "星芒" },
+        { n: 13, tag: "繆思" },
+        { n: 14, tag: "詩篇" },
+        { n: 15, tag: "滿貫" }
+      ];
+
+      /* -------------------------------------------------------------------
+         2. Web Audio API 柔和音樂盒／水晶豎琴音效合成器
+      ------------------------------------------------------------------- */
+      const SalonAudio = {
+        ctx: null,
+        enabled: true,
+        // C 大調與五聲柔和音階（豎琴／音樂盒）
+        scale: [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1174.66, 1318.51, 1567.98],
+        lastPegTime: 0,
+
+        init() {
+          if (!this.enabled) return;
+          try {
+            if (!this.ctx) {
+              const AC = window.AudioContext || window.webkitAudioContext;
+              if (AC) this.ctx = new AC();
+            }
+            if (this.ctx && this.ctx.state === "suspended") this.ctx.resume();
+          } catch (e) {}
+        },
+
+        harpNote(freq, dur = 0.45, vol = 0.08, delay = 0) {
+          if (!this.enabled) return;
+          this.init();
+          if (!this.ctx) return;
+          try {
+            const now = this.ctx.currentTime + delay;
+            const osc = this.ctx.createOscillator();
+            const overtone = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const oGain = this.ctx.createGain();
+
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(freq, now);
+            overtone.type = "triangle";
+            overtone.frequency.setValueAtTime(freq * 2, now);
+
+            gain.gain.setValueAtTime(0.0001, now);
+            gain.gain.exponentialRampToValueAtTime(vol, now + 0.012);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+            oGain.gain.setValueAtTime(0.0001, now);
+            oGain.gain.exponentialRampToValueAtTime(vol * 0.25, now + 0.01);
+            oGain.gain.exponentialRampToValueAtTime(0.0001, now + dur * 0.55);
+
+            osc.connect(gain);
+            overtone.connect(oGain);
+            gain.connect(this.ctx.destination);
+            oGain.connect(this.ctx.destination);
+
+            osc.start(now);
+            overtone.start(now);
+            osc.stop(now + dur + 0.03);
+            overtone.stop(now + dur + 0.03);
+          } catch (e) {}
+        },
+
+        pegHit(speed = 5) {
+          if (!this.enabled) return;
+          const nowMs = performance.now();
+          if (nowMs - this.lastPegTime < 34) return;
+          this.lastPegTime = nowMs;
+          const note = this.scale[Math.floor(Math.random() * this.scale.length)];
+          const vol = Math.min(0.085, 0.028 + speed * 0.006);
+          this.harpNote(note, 0.24, vol);
+        },
+
+        launch(power01) {
+          // 柔和彈簧彈出＋泡泡啵啵聲
+          if (!this.enabled) return;
+          this.init();
+          if (!this.ctx) return;
+          try {
+            const now = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = "sine";
+            const startF = 240 + power01 * 180;
+            osc.frequency.setValueAtTime(startF, now);
+            osc.frequency.exponentialRampToValueAtTime(startF * 2.1, now + 0.14);
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.exponentialRampToValueAtTime(0.11, now + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.18);
+          } catch (e) {}
+        },
+
+        bubblePop() {
+          if (!this.enabled) return;
+          this.init();
+          if (!this.ctx) return;
+          try {
+            const now = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(420, now);
+            osc.frequency.exponentialRampToValueAtTime(980, now + 0.075);
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.exponentialRampToValueAtTime(0.08, now + 0.015);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.085);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.095);
+          } catch (e) {}
+        },
+
+        newLaneLit(litCount) {
+          const baseIdx = Math.min(this.scale.length - 3, Math.floor((litCount - 1) / 2));
+          this.harpNote(this.scale[baseIdx], 0.5, 0.09, 0);
+          this.harpNote(this.scale[baseIdx + 1], 0.55, 0.085, 0.07);
+          this.harpNote(this.scale[baseIdx + 2], 0.7, 0.09, 0.14);
+        },
+
+        bonusBall() {
+          [523.25, 659.25, 783.99, 1046.5, 1318.51].forEach((f, i) => {
+            this.harpNote(f, 0.65, 0.09, i * 0.065);
+          });
+        },
+
+        celebrate() {
+          [523.25, 659.25, 783.99, 987.77, 1046.5, 1318.51, 1567.98].forEach((f, i) => {
+            this.harpNote(f, 1.1, 0.095, i * 0.09);
+          });
+        }
+      };
+
+      /* -------------------------------------------------------------------
+         3. 全螢幕飄升粉紅泡泡背景動畫
+      ------------------------------------------------------------------- */
+      const bgCanvas = $("bgBubbleCanvas");
+      const bgCtx = bgCanvas.getContext("2d");
+      let bgBubbles = [];
+      let bgStars = [];
+
+      function initBgAmbience() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const W = window.innerWidth;
+        const H = window.innerHeight;
+        bgCanvas.width = Math.floor(W * dpr);
+        bgCanvas.height = Math.floor(H * dpr);
+        bgCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        if (bgBubbles.length === 0) {
+          for (let i = 0; i < 24; i++) {
+            bgBubbles.push({
+              x: Math.random() * W,
+              y: Math.random() * H,
+              r: 12 + Math.random() * 34,
+              vy: 0.22 + Math.random() * 0.45,
+              vx: (Math.random() - 0.5) * 0.25,
+              phase: Math.random() * Math.PI * 2,
+              hueShift: Math.random() * 26
+            });
+          }
+          for (let i = 0; i < 36; i++) {
+            bgStars.push({
+              x: Math.random() * W,
+              y: Math.random() * H,
+              r: 1 + Math.random() * 2.2,
+              phase: Math.random() * Math.PI * 2,
+              speed: 0.015 + Math.random() * 0.025
+            });
+          }
+        }
+      }
+
+      function animateBgAmbience() {
+        const W = window.innerWidth;
+        const H = window.innerHeight;
+        const ctx = bgCtx;
+        ctx.clearRect(0, 0, W, H);
+
+        // 微細香檳金星塵
+        bgStars.forEach((s) => {
+          s.phase += s.speed;
+          const a = 0.2 + Math.sin(s.phase) * 0.25;
+          ctx.fillStyle = `rgba(201, 154, 107, ${Math.max(0.05, a)})`;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // 飄升虹彩粉紅泡泡
+        bgBubbles.forEach((b) => {
+          b.y -= b.vy;
+          b.phase += 0.015;
+          b.x += Math.sin(b.phase) * 0.28 + b.vx;
+          if (b.y + b.r < -20) {
+            b.y = H + b.r + 15;
+            b.x = Math.random() * W;
+          }
+          if (b.x < -b.r) b.x = W + b.r;
+          if (b.x > W + b.r) b.x = -b.r;
+
+          const grad = ctx.createRadialGradient(
+            b.x - b.r * 0.32, b.y - b.r * 0.32, b.r * 0.1,
+            b.x, b.y, b.r
+          );
+          grad.addColorStop(0, "rgba(255, 255, 255, 0.72)");
+          grad.addColorStop(0.45, "rgba(247, 212, 224, 0.20)");
+          grad.addColorStop(0.82, "rgba(217, 137, 158, 0.22)");
+          grad.addColorStop(1, "rgba(235, 210, 180, 0.34)");
+
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+          ctx.fill();
+
+          // 高光折射光點
+          ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+          ctx.beginPath();
+          ctx.ellipse(b.x - b.r * 0.34, b.y - b.r * 0.34, b.r * 0.2, b.r * 0.11, -0.6, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        requestAnimationFrame(animateBgAmbience);
+      }
+
+      /* -------------------------------------------------------------------
+         4. 遊戲全域狀態與常數
+      ------------------------------------------------------------------- */
+      const BOARD_W = 540;
+      const BOARD_H = 780;
+      const PLAY_LEFT = 24;
+      const PLAY_RIGHT = 472;
+      const PLAY_W = PLAY_RIGHT - PLAY_LEFT; // 448
+      const LAUNCH_LEFT = 476;
+      const LAUNCH_RIGHT = 516;
+      const LAUNCH_CX = (LAUNCH_LEFT + LAUNCH_RIGHT) / 2; // 496
+      const LANE_COUNT = 15;
+      const LANE_W = PLAY_W / LANE_COUNT; // 29.8667
+      const LANE_TOP_Y = 492;
+      const FLOOR_Y = 748;
+      const BALL_R = 10.2;
+      const MAX_BONUS_BALLS = 5;
+
+      const state = {
+        guestName: "閃耀的你",
+        userPhotoImg: null,
+        ballsRemaining: 15,
+        totalLaunched: 0,
+        bonusEarned: 0,
+        laneCounts: new Array(LANE_COUNT).fill(0),
+        laneGlow: new Array(LANE_COUNT).fill(0),
+        balls: [],
+        pegs: [],
+        particles: [],
+        floatingTexts: [],
+        praiseIndex: 0,
+        completedAt: null,
+        roundEnded: false,
+
+        // 發射與拉桿狀態
+        isDraggingPlunger: false,
+        dragStartY: 0,
+        plungerPull: 0, // 0 ~ 1
+        isHoldingButton: false,
+        holdPower: 0,
+        holdDir: 1,
+        autoBurstActive: false,
+        autoBurstTimer: null
+      };
+
+      const screens = {
+        intro: $("screen-intro"),
+        game: $("screen-game"),
+        cert: $("screen-cert")
+      };
+
+      /* -------------------------------------------------------------------
+         5. 共用 UI 工具
+      ------------------------------------------------------------------- */
+      let toastTimer = null;
+      function showToast(msg) {
+        const el = $("toastPill");
+        el.textContent = msg;
+        el.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => el.classList.remove("show"), 2500);
+      }
+
+      let praiseTimer = null;
+      function showFloatingPraise(msg) {
+        const el = $("praiseFloat");
+        el.textContent = msg;
+        el.classList.add("show");
+        clearTimeout(praiseTimer);
+        praiseTimer = setTimeout(() => el.classList.remove("show"), 2000);
+      }
+
+      function showScreen(key) {
+        Object.values(screens).forEach((s) => s.classList.remove("active"));
+        screens[key].classList.add("active");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function getLitLaneCount() {
+        return state.laneCounts.filter((c) => c > 0).length;
+      }
+
+      function updateHUD() {
+        const lit = getLitLaneCount();
+        $("hudName").textContent = state.guestName;
+        $("hudBalls").textContent = state.ballsRemaining;
+        $("hudLanes").textContent = `${lit} / 15`;
+
+        $("sideBallsLeft").textContent = state.ballsRemaining;
+        $("sideBonusCount").textContent = `+${state.bonusEarned}`;
+        $("sideLanesCount").textContent = `${lit} / 15`;
+
+        const dots = $("laneDotsGrid").children;
+        for (let i = 0; i < LANE_COUNT; i++) {
+          if (!dots[i]) continue;
+          const c = state.laneCounts[i];
+          dots[i].classList.toggle("lit", c > 0);
+          dots[i].textContent = c > 0 ? `${i + 1}排(${c})` : `${i + 1}排`;
+        }
+      }
+
+      function buildLaneDotsGrid() {
+        const grid = $("laneDotsGrid");
+        grid.innerHTML = "";
+        for (let i = 0; i < LANE_COUNT; i++) {
+          const d = document.createElement("div");
+          d.className = "lane-dot-chip" + (i === 0 || i === 14 ? " bonus" : "");
+          d.textContent = `${i + 1}排`;
+          grid.appendChild(d);
+        }
+      }
+
+      /* -------------------------------------------------------------------
+         6. 音效開關與照片上傳（邀請卡與證書頁共用邏輯）
+      ------------------------------------------------------------------- */
+      $("soundToggleBtn").addEventListener("click", () => {
+        SalonAudio.enabled = !SalonAudio.enabled;
+        $("soundIcon").textContent = SalonAudio.enabled ? "🔊" : "🔇";
+        $("soundLabel").textContent = SalonAudio.enabled ? "音樂開" : "靜音";
+        if (SalonAudio.enabled) SalonAudio.harpNote(783.99, 0.35, 0.08);
+      });
+
+      function handlePhotoFile(file, onLoaded) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            state.userPhotoImg = img;
+            // 同步更新邀請卡預覽
+            const preview = $("introPhotoPreview");
+            preview.src = ev.target.result;
+            preview.style.display = "block";
+            $("introPhotoPlaceholder").style.display = "none";
+            SalonAudio.bubblePop();
+            if (typeof onLoaded === "function") onLoaded();
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      $("introPhotoInput").addEventListener("change", (e) => {
+        handlePhotoFile(e.target.files && e.target.files[0], () => {
+          showToast("🌸 照片已放入玫瑰金珍珠相框！");
+        });
+      });
+
+      $("certPhotoInput").addEventListener("change", (e) => {
+        handlePhotoFile(e.target.files && e.target.files[0], () => {
+          showToast("📷 證書照片已即時更新！");
+          renderCertificate();
+        });
+      });
+
+      /* -------------------------------------------------------------------
+         7. 彈珠台幾何與釘陣建構
+      ------------------------------------------------------------------- */
+      function buildPegs() {
+        const pegs = [];
+
+        // 1. 左上引導斜釘（防止球卡在左上角）
+        for (let i = 0; i < 4; i++) {
+          pegs.push({
+            x: 38 + i * 16,
+            y: 168 + i * 12,
+            r: 3.3,
+            hitGlow: 0,
+            kind: "guide"
+          });
+        }
+
+        // 2. 右上引導斜釘（致敬經典台灣彈珠台右上斜釘陣）
+        for (let i = 0; i < 6; i++) {
+          pegs.push({
+            x: 454 - i * 13,
+            y: 164 + i * 13,
+            r: 3.3,
+            hitGlow: 0,
+            kind: "guide"
+          });
+        }
+
+        // 3. 主交錯玫瑰金珍珠釘陣（6 排交錯）
+        const rowYs = [250, 288, 326, 364, 402, 440];
+        rowYs.forEach((y, rowIdx) => {
+          const isEven = rowIdx % 2 === 0;
+          const count = isEven ? 13 : 12;
+          const margin = isEven ? 42 : 59;
+          const span = (PLAY_RIGHT - margin) - margin;
+          const step = span / (count - 1);
+          for (let i = 0; i < count; i++) {
+            pegs.push({
+              x: margin + i * step,
+              y: y,
+              r: 3.4,
+              hitGlow: 0,
+              kind: "main"
+            });
+          }
+        });
+
+        // 4. 底部 15 條球道隔板頂端圓潤珍珠釘頭（14 根內隔板）
+        for (let i = 1; i < LANE_COUNT; i++) {
+          pegs.push({
+            x: PLAY_LEFT + i * LANE_W,
+            y: LANE_TOP_Y,
+            r: 2.6,
+            hitGlow: 0,
+            kind: "dividerCap"
+          });
+        }
+
+        state.pegs = pegs;
+      }
+
+      /* -------------------------------------------------------------------
+         8. 彈珠台物理引擎（6x 子步進防穿牆、光滑弧軌、槽內堆疊、防卡球）
+      ------------------------------------------------------------------- */
+      function spawnMarble(power01) {
+        if (state.ballsRemaining <= 0 || state.roundEnded) return false;
+        // 避免發射道內太近重疊
+        const blocked = state.balls.some((b) => b.inLaunch && b.y > 540);
+        if (blocked) return false;
+
+        state.ballsRemaining--;
+        state.totalLaunched++;
+        // 力道轉換為初速度：精準調校讓輕力～全力涵蓋 1～15 排分佈
+        const speed = 15.2 + power01 * 12.2 + (Math.random() - 0.5) * 0.9;
+        state.balls.push({
+          x: LAUNCH_CX,
+          y: 650,
+          vx: 0,
+          vy: -speed,
+          r: BALL_R,
+          inLaunch: true,
+          settled: false,
+          laneIdx: -1,
+          stallFrames: 0,
+          hue: 335 + Math.random() * 24
+        });
+
+        SalonAudio.launch(power01);
+        updateHUD();
+        return true;
+      }
+
+      function addBurstParticles(x, y, count = 10, goldRatio = 0.4) {
+        for (let i = 0; i < count; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const spd = 1 + Math.random() * 3.4;
+          const isGold = Math.random() < goldRatio;
+          state.particles.push({
+            x, y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd - 0.6,
+            r: 2 + Math.random() * 3,
+            life: 1,
+            color: isGold ? "#EBD2B4" : "#F4A9BE"
+          });
+        }
+      }
+
+      function settleBallInLane(ball, laneIdx) {
+        if (ball.settled) return;
+        ball.settled = true;
+        ball.laneIdx = laneIdx;
+        ball.vx = 0;
+        ball.vy = 0;
+
+        const prevCount = state.laneCounts[laneIdx];
+        state.laneCounts[laneIdx]++;
+        state.laneGlow[laneIdx] = 1.0;
+
+        const cx = PLAY_LEFT + (laneIdx + 0.5) * LANE_W;
+        const cy = FLOOR_Y - BALL_R - prevCount * (BALL_R * 2.02);
+        ball.x = cx;
+        ball.y = Math.max(LANE_TOP_Y + BALL_R, cy);
+
+        // 第 1 排或第 15 排：幸運加贈 1 顆珍珠彈珠（單局上限 5 顆）
+        if ((laneIdx === 0 || laneIdx === LANE_COUNT - 1) && state.bonusEarned < MAX_BONUS_BALLS) {
+          state.bonusEarned++;
+          state.ballsRemaining++;
+          SalonAudio.bonusBall();
+          addBurstParticles(cx, ball.y, 22, 0.65);
+          showFloatingPraise(`✨ 落入第 ${laneIdx + 1} 排！幸運加贈 1 顆珍珠彈珠 ✨`);
+        } else if (prevCount === 0) {
+          // 首次點亮新的一排！
+          const lit = getLitLaneCount();
+          SalonAudio.newLaneLit(lit);
+          addBurstParticles(cx, ball.y, 16, 0.5);
+          const msg = SHORT_PRAISES[state.praiseIndex % SHORT_PRAISES.length];
+          state.praiseIndex++;
+          showFloatingPraise(`${msg}（點亮第 ${laneIdx + 1} 排）`);
+        } else {
+          SalonAudio.bubblePop();
+          addBurstParticles(cx, ball.y, 6, 0.3);
+        }
+
+        updateHUD();
+        checkRoundComplete();
+      }
+
+      function checkRoundComplete() {
+        if (state.roundEnded) return;
+        const allSettled = state.balls.length > 0 && state.balls.every((b) => b.settled);
+        if (state.ballsRemaining === 0 && allSettled) {
+          state.roundEnded = true;
+          stopAutoBurst();
+          $("autoStatusBadge").textContent = "本局圓滿完成";
+          $("finishEarlyBtn").style.display = "inline-flex";
+          SalonAudio.celebrate();
+          showFloatingPraise(`🎀 達成 ${getLitLaneCount()} 排！正在為你調製專屬證書...`);
+
+          setTimeout(() => {
+            if (screens.game.classList.contains("active") && state.roundEnded) {
+              openCertificateScreen();
+            }
+          }, 1700);
+        }
+      }
+
+      function stepPhysics() {
+        const SUBSTEPS = 6;
+        const dt = 1 / SUBSTEPS;
+        const GRAVITY = 0.25;
+
+        // 衰減釘子發光與球道光暈
+        for (const p of state.pegs) {
+          if (p.hitGlow > 0) p.hitGlow = Math.max(0, p.hitGlow - 0.045);
+        }
+        for (let i = 0; i < LANE_COUNT; i++) {
+          if (state.laneGlow[i] > 0) state.laneGlow[i] = Math.max(0, state.laneGlow[i] - 0.02);
+        }
+
+        for (let step = 0; step < SUBSTEPS; step++) {
+          for (const b of state.balls) {
+            if (b.settled) continue;
+
+            b.vy += GRAVITY * dt;
+            b.x += b.vx * dt;
+            b.y += b.vy * dt;
+
+            // 微小空氣阻尼
+            b.vx *= Math.pow(0.999, dt);
+            b.vy *= Math.pow(0.9995, dt);
+
+            /* ---- 1. 頂部平滑弧形導軌與外牆碰撞 ---- */
+            // 右上圓弧（圓心 411, 135, 外半徑 105）
+            if (b.x > 411 && b.y < 135) {
+              const dx = b.x - 411;
+              const dy = b.y - 135;
+              const dist = Math.hypot(dx, dy) || 0.001;
+              const maxR = 105 - b.r;
+              if (dist > maxR) {
+                const nx = dx / dist;
+                const ny = dy / dist;
+                b.x = 411 + nx * maxR;
+                b.y = 135 + ny * maxR;
+                const vn = b.vx * nx + b.vy * ny;
+                if (vn > 0) {
+                  // 沿弧面順暢滑動（低法向反彈，保留切線動能）
+                  b.vx -= 1.25 * vn * nx;
+                  b.vy -= 1.25 * vn * ny;
+                }
+              }
+            }
+
+            // 左上圓弧（圓心 110, 128, 外半徑 86）
+            if (b.x < 110 && b.y < 128) {
+              const dx = b.x - 110;
+              const dy = b.y - 128;
+              const dist = Math.hypot(dx, dy) || 0.001;
+              const maxR = 86 - b.r;
+              if (dist > maxR) {
+                const nx = dx / dist;
+                const ny = dy / dist;
+                b.x = 110 + nx * maxR;
+                b.y = 128 + ny * maxR;
+                const vn = b.vx * nx + b.vy * ny;
+                if (vn > 0) {
+                  b.vx -= 1.38 * vn * nx;
+                  b.vy -= 1.38 * vn * ny;
+                }
+              }
+            }
+
+            // 頂部中央微斜天花板（x: 110..411, y 從 42 漸升至 30，避免停滯）
+            if (b.x >= 110 && b.x <= 411) {
+              const topY = 42 - ((b.x - 110) / 301) * 12;
+              if (b.y - b.r < topY) {
+                b.y = topY + b.r;
+                if (b.vy < 0) b.vy = -b.vy * 0.45;
+              }
+            }
+
+            // 右側外牆
+            if (b.x + b.r > LAUNCH_RIGHT) {
+              b.x = LAUNCH_RIGHT - b.r;
+              if (b.vx > 0) b.vx = -b.vx * 0.45;
+            }
+
+            // 左側外牆
+            if (b.x - b.r < PLAY_LEFT) {
+              b.x = PLAY_LEFT + b.r;
+              if (b.vx < 0) b.vx = -b.vx * 0.58;
+            }
+
+            /* ---- 2. 發射軌道分隔牆與單向擋片 ---- */
+            if (b.inLaunch) {
+              // 離開弧頂進入主遊戲區
+              if (b.x < 454 && b.y < 185) {
+                b.inLaunch = false;
+                // 給予一點微幅隨機擾動，增加趣味變化
+                b.vx += (Math.random() - 0.5) * 0.55;
+              } else {
+                // 在發射道內，保持在分隔牆右側
+                if (b.y > 152 && b.x - b.r < LAUNCH_LEFT) {
+                  b.x = LAUNCH_LEFT + b.r;
+                  if (b.vx < 0) b.vx = -b.vx * 0.35;
+                }
+                // 底部發射台底板
+                if (b.y + b.r > 662) {
+                  b.y = 662 - b.r;
+                  if (b.vy > 0) b.vy = -b.vy * 0.25;
+                }
+              }
+            } else {
+              // 已進入主遊戲區：分隔牆與上方單向擋片防止回到發射道
+              if (b.x + b.r > PLAY_RIGHT) {
+                b.x = PLAY_RIGHT - b.r;
+                if (b.vx > 0) b.vx = -b.vx * 0.55;
+              }
+            }
+
+            /* ---- 3. 釘陣彈性碰撞 ---- */
+            if (!b.inLaunch && b.y < LANE_TOP_Y + 14) {
+              for (const p of state.pegs) {
+                const dx = b.x - p.x;
+                const dy = b.y - p.y;
+                const minD = b.r + p.r;
+                const distSq = dx * dx + dy * dy;
+                if (distSq < minD * minD && distSq > 0.0001) {
+                  const dist = Math.sqrt(distSq);
+                  const nx = dx / dist;
+                  const ny = dy / dist;
+                  b.x = p.x + nx * (minD + 0.2);
+                  b.y = p.y + ny * (minD + 0.2);
+
+                  const vn = b.vx * nx + b.vy * ny;
+                  if (vn < 0) {
+                    const restitution = 0.62;
+                    b.vx -= (1 + restitution) * vn * nx;
+                    b.vy -= (1 + restitution) * vn * ny;
+                    // 若幾乎垂直撞擊釘頂，給予輕微隨機偏移防止平衡靜止
+                    if (Math.abs(nx) < 0.12) {
+                      b.vx += (Math.random() < 0.5 ? -1 : 1) * 0.85;
+                    }
+                    p.hitGlow = 1.0;
+                    const spd = Math.hypot(b.vx, b.vy);
+                    SalonAudio.pegHit(spd);
+                    if (spd > 1.8) addBurstParticles(p.x, p.y, 4, 0.5);
+                  }
+                }
+              }
+            }
+
+            /* ---- 4. 底部 15 條垂直球道分隔與落定堆疊 ---- */
+            if (!b.inLaunch && b.y >= LANE_TOP_Y) {
+              const rawLane = Math.floor((b.x - PLAY_LEFT) / LANE_W);
+              const laneIdx = Math.max(0, Math.min(LANE_COUNT - 1, rawLane));
+              const laneLeftWall = PLAY_LEFT + laneIdx * LANE_W + 1.8;
+              const laneRightWall = PLAY_LEFT + (laneIdx + 1) * LANE_W - 1.8;
+
+              if (b.x - b.r < laneLeftWall) {
+                b.x = laneLeftWall + b.r;
+                if (b.vx < 0) b.vx = -b.vx * 0.35;
+              }
+              if (b.x + b.r > laneRightWall) {
+                b.x = laneRightWall - b.r;
+                if (b.vx > 0) b.vx = -b.vx * 0.35;
+              }
+
+              // 計算該球道目前堆疊高度
+              const stackY = FLOOR_Y - b.r - state.laneCounts[laneIdx] * (BALL_R * 2.02);
+              if (b.y >= stackY) {
+                settleBallInLane(b, laneIdx);
+              }
+            }
+          }
+
+          /* ---- 5. 滾動中彈珠彼此碰撞 ---- */
+          for (let i = 0; i < state.balls.length; i++) {
+            const a = state.balls[i];
+            if (a.settled) continue;
+            for (let j = i + 1; j < state.balls.length; j++) {
+              const b = state.balls[j];
+              if (b.settled) continue;
+              const dx = b.x - a.x;
+              const dy = b.y - a.y;
+              const minD = a.r + b.r;
+              const distSq = dx * dx + dy * dy;
+              if (distSq < minD * minD && distSq > 0.0001) {
+                const dist = Math.sqrt(distSq);
+                const nx = dx / dist;
+                const ny = dy / dist;
+                const overlap = (minD - dist) * 0.5;
+                a.x -= nx * overlap;
+                a.y -= ny * overlap;
+                b.x += nx * overlap;
+                b.y += ny * overlap;
+
+                const rvx = b.vx - a.vx;
+                const rvy = b.vy - a.vy;
+                const vn = rvx * nx + rvy * ny;
+                if (vn < 0) {
+                  const imp = -0.82 * vn;
+                  a.vx -= imp * nx;
+                  a.vy -= imp * ny;
+                  b.vx += imp * nx;
+                  b.vy += imp * ny;
+                }
+              }
+            }
+          }
+        }
+
+        // 防卡球保護（在釘陣區或弧頂若速度過慢自動輕柔助推）
+        for (const b of state.balls) {
+          if (b.settled) continue;
+          const spd = Math.hypot(b.vx, b.vy);
+          if (!b.inLaunch && b.y < LANE_TOP_Y && spd < 0.45) {
+            b.stallFrames++;
+            if (b.stallFrames > 28) {
+              b.vx += (Math.random() < 0.5 ? -1 : 1) * 1.4;
+              b.vy -= 1.2;
+              b.stallFrames = 0;
+            }
+          } else if (b.inLaunch && b.y > 580 && spd < 0.35) {
+            // 若玩家拉太輕沒過頂，自動補一點溫柔推力讓球順利上軌
+            b.stallFrames++;
+            if (b.stallFrames > 22) {
+              b.vy = -17.5;
+              b.stallFrames = 0;
+            }
+          } else {
+            b.stallFrames = 0;
+          }
+        }
+
+        // 更新星塵粒子
+        state.particles = state.particles.filter((p) => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.04;
+          p.life -= 0.032;
+          return p.life > 0;
+        });
+      }
+
+      /* -------------------------------------------------------------------
+         9. 高訂彈珠台 Canvas 渲染器（2x DPR）
+      ------------------------------------------------------------------- */
+      const pinCanvas = $("pinballCanvas");
+      const pinCtx = pinCanvas.getContext("2d");
+
+      function resizePinballCanvas() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        pinCanvas.width = Math.floor(BOARD_W * dpr);
+        pinCanvas.height = Math.floor(BOARD_H * dpr);
+        pinCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function drawPinballBoard() {
+        const ctx = pinCtx;
+        ctx.clearRect(0, 0, BOARD_W, BOARD_H);
+
+        // 1. 珍珠粉白絲緞盤面底色
+        const boardGrad = ctx.createLinearGradient(0, 0, BOARD_W, BOARD_H);
+        boardGrad.addColorStop(0, "#FFF9FB");
+        boardGrad.addColorStop(0.55, "#FDF0F4");
+        boardGrad.addColorStop(1, "#FAE4EC");
+        ctx.fillStyle = boardGrad;
+        ctx.fillRect(0, 0, BOARD_W, BOARD_H);
+
+        // 細膩法式菱紋暗紋
+        ctx.strokeStyle = "rgba(217, 137, 158, 0.06)";
+        ctx.lineWidth = 1;
+        for (let i = -BOARD_H; i < BOARD_W + BOARD_H; i += 36) {
+          ctx.beginPath();
+          ctx.moveTo(i, 0);
+          ctx.lineTo(i + BOARD_H, BOARD_H);
+          ctx.stroke();
+        }
+
+        // 2. 頂部平滑香檳金弧形導軌視覺繪製
+        ctx.save();
+        ctx.strokeStyle = "#D9A77B";
+        ctx.lineWidth = 16;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(PLAY_LEFT, 128);
+        ctx.arc(110, 128, 86, Math.PI, Math.PI * 1.5);
+        ctx.lineTo(411, 30);
+        ctx.arc(411, 135, 105, Math.PI * 1.5, 0);
+        ctx.lineTo(LAUNCH_RIGHT, 756);
+        ctx.stroke();
+
+        // 軌道內層柔粉絲緞高光
+        ctx.strokeStyle = "#F5E2CC";
+        ctx.lineWidth = 8;
+        ctx.stroke();
+        ctx.restore();
+
+        // 右側發射軌道底槽
+        const trackGrad = ctx.createLinearGradient(LAUNCH_LEFT, 0, LAUNCH_RIGHT, 0);
+        trackGrad.addColorStop(0, "#F7E6EC");
+        trackGrad.addColorStop(0.5, "#FFF9FB");
+        trackGrad.addColorStop(1, "#F3DCE4");
+        ctx.fillStyle = trackGrad;
+        ctx.fillRect(LAUNCH_LEFT, 155, LAUNCH_RIGHT - LAUNCH_LEFT - 4, 600);
+
+        // 分隔牆（拉絲玫瑰金）
+        const wallGrad = ctx.createLinearGradient(PLAY_RIGHT, 155, LAUNCH_LEFT, 155);
+        wallGrad.addColorStop(0, "#C99A6B");
+        wallGrad.addColorStop(0.5, "#F6E3CE");
+        wallGrad.addColorStop(1, "#B88454");
+        ctx.fillStyle = wallGrad;
+        roundRectPath(ctx, PLAY_RIGHT, 154, LAUNCH_LEFT - PLAY_RIGHT, 600, 3);
+        ctx.fill();
+
+        // 上方單向擋片提示小珍珠
+        ctx.fillStyle = "rgba(217, 137, 158, 0.35)";
+        ctx.beginPath();
+        ctx.moveTo(468, 156);
+        ctx.lineTo(454, 122);
+        ctx.lineTo(463, 118);
+        ctx.closePath();
+        ctx.fill();
+
+        // 3. 頂部「排數禮讚銘牌」（致敬經典彈珠台上方計分表）
+        const px = 44, py = 74, pw = 376, ph = 82;
+        ctx.fillStyle = "rgba(255, 252, 253, 0.94)";
+        roundRectPath(ctx, px, py, pw, ph, 12);
+        ctx.fill();
+        ctx.strokeStyle = "#C99A6B";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = "#8A566B";
+        ctx.font = "700 11px 'Noto Serif TC', serif";
+        ctx.textAlign = "center";
+        ctx.fillText("✦ SALON DE PRAISE・排數氣質禮讚銘牌 ✦", px + pw / 2, py + 17);
+
+        const litCount = getLitLaneCount();
+        const cellW = (pw - 16) / PLAQUE_ITEMS.length;
+        PLAQUE_ITEMS.forEach((item, i) => {
+          const cx = px + 8 + i * cellW;
+          const cy = py + 24;
+          const isReached = litCount >= item.n;
+          const isCurrent = litCount === item.n;
+
+          ctx.fillStyle = isCurrent
+            ? "#D9899E"
+            : isReached
+              ? "#F7DDE6"
+              : (i >= 5 && i <= 7 ? "#FBF3E8" : "#FFF8FA");
+          roundRectPath(ctx, cx + 1, cy, cellW - 2, 50, 5);
+          ctx.fill();
+          ctx.strokeStyle = isCurrent ? "#C99A6B" : "rgba(201, 154, 107, 0.45)";
+          ctx.lineWidth = isCurrent ? 1.6 : 0.8;
+          ctx.stroke();
+
+          ctx.fillStyle = isCurrent ? "#FFFFFF" : "#4A2334";
+          ctx.font = "800 11px monospace";
+          ctx.textAlign = "center";
+          ctx.fillText(String(item.n), cx + cellW / 2, cy + 16);
+
+          ctx.fillStyle = isCurrent ? "#FFF8FA" : "#8A566B";
+          ctx.font = "700 9.5px sans-serif";
+          ctx.fillText(item.tag[0], cx + cellW / 2, cy + 31);
+          ctx.fillText(item.tag[1], cx + cellW / 2, cy + 43);
+        });
+
+        // 4. 底部 15 條垂直球道與發光狀態
+        for (let i = 0; i < LANE_COUNT; i++) {
+          const lx = PLAY_LEFT + i * LANE_W;
+          const isLit = state.laneCounts[i] > 0;
+          const glow = state.laneGlow[i];
+          const isBonus = i === 0 || i === LANE_COUNT - 1;
+
+          if (isLit || glow > 0 || isBonus) {
+            const lg = ctx.createLinearGradient(0, LANE_TOP_Y, 0, FLOOR_Y);
+            if (glow > 0) {
+              lg.addColorStop(0, `rgba(217, 137, 158, ${0.12 + glow * 0.35})`);
+              lg.addColorStop(1, `rgba(235, 210, 180, ${0.18 + glow * 0.4})`);
+            } else if (isLit) {
+              lg.addColorStop(0, "rgba(247, 221, 230, 0.35)");
+              lg.addColorStop(1, "rgba(250, 240, 228, 0.55)");
+            } else {
+              lg.addColorStop(0, "rgba(235, 210, 180, 0.16)");
+              lg.addColorStop(1, "rgba(247, 221, 230, 0.28)");
+            }
+            ctx.fillStyle = lg;
+            ctx.fillRect(lx + 1.8, LANE_TOP_Y, LANE_W - 3.6, FLOOR_Y - LANE_TOP_Y);
+          }
+
+          // 第 1 與第 15 排直式「贈1珠」優雅標記
+          if (isBonus) {
+            ctx.fillStyle = "#B7627A";
+            ctx.font = "700 10.5px 'Noto Serif TC', serif";
+            ctx.textAlign = "center";
+            ["✨", "贈", "1", "珠"].forEach((ch, ci) => {
+              ctx.fillText(ch, lx + LANE_W / 2, LANE_TOP_Y + 34 + ci * 15);
+            });
+          }
+
+          // 底部排數編號 1~15
+          ctx.fillStyle = isLit ? "#B7627A" : "#9E7887";
+          ctx.font = isLit ? "800 11px monospace" : "600 10.5px monospace";
+          ctx.textAlign = "center";
+          ctx.fillText(String(i + 1), lx + LANE_W / 2, FLOOR_Y + 18);
+        }
+
+        // 14 條香檳金隔板
+        for (let i = 1; i < LANE_COUNT; i++) {
+          const dx = PLAY_LEFT + i * LANE_W;
+          const divGrad = ctx.createLinearGradient(dx - 2, 0, dx + 2, 0);
+          divGrad.addColorStop(0, "#C99A6B");
+          divGrad.addColorStop(0.5, "#F9ECDC");
+          divGrad.addColorStop(1, "#B58152");
+          ctx.fillStyle = divGrad;
+          ctx.fillRect(dx - 1.8, LANE_TOP_Y, 3.6, FLOOR_Y - LANE_TOP_Y);
+        }
+
+        // 底板金條
+        ctx.fillStyle = "#C99A6B";
+        ctx.fillRect(PLAY_LEFT - 2, FLOOR_Y, PLAY_W + 4, 5);
+
+        // 5. 交錯玫瑰金珍珠釘子
+        for (const p of state.pegs) {
+          const r = p.r + p.hitGlow * 2.2;
+          if (p.hitGlow > 0.05) {
+            ctx.fillStyle = `rgba(217, 137, 158, ${p.hitGlow * 0.45})`;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, r + 6, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          const pg = ctx.createRadialGradient(p.x - r * 0.35, p.y - r * 0.35, 0.5, p.x, p.y, r);
+          pg.addColorStop(0, "#FFFFFF");
+          pg.addColorStop(0.45, p.hitGlow > 0.1 ? "#F7C8D6" : "#F3DFC8");
+          pg.addColorStop(1, "#B98558");
+          ctx.fillStyle = pg;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // 6. 虹彩粉紅珍珠彈珠
+        for (const b of state.balls) {
+          // 柔和投影
+          ctx.fillStyle = "rgba(74, 35, 52, 0.16)";
+          ctx.beginPath();
+          ctx.ellipse(b.x + 2, b.y + 3, b.r * 0.92, b.r * 0.85, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          const bg = ctx.createRadialGradient(
+            b.x - b.r * 0.35, b.y - b.r * 0.35, b.r * 0.1,
+            b.x, b.y, b.r
+          );
+          bg.addColorStop(0, "#FFFFFF");
+          bg.addColorStop(0.28, "#FCE2EB");
+          bg.addColorStop(0.68, "#E392A9");
+          bg.addColorStop(1, "#A8566F");
+          ctx.fillStyle = bg;
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+          ctx.fill();
+
+          // 珍珠高光點
+          ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+          ctx.beginPath();
+          ctx.arc(b.x - b.r * 0.34, b.y - b.r * 0.34, b.r * 0.24, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // 待發射珍珠預覽（若發射道空著且還有剩餘彈珠）
+        const launchBusy = state.balls.some((b) => b.inLaunch && b.y > 540);
+        const visualPull = state.isDraggingPlunger ? state.plungerPull : (state.isHoldingButton ? state.holdPower : 0);
+        const plungerTopY = 662 + visualPull * 66;
+
+        if (state.ballsRemaining > 0 && !launchBusy) {
+          const pyBall = plungerTopY - BALL_R - 1;
+          const bg = ctx.createRadialGradient(LAUNCH_CX - 3, pyBall - 3, 1, LAUNCH_CX, pyBall, BALL_R);
+          bg.addColorStop(0, "#FFFFFF");
+          bg.addColorStop(0.35, "#FCE2EB");
+          bg.addColorStop(1, "#C9758E");
+          ctx.fillStyle = bg;
+          ctx.beginPath();
+          ctx.arc(LAUNCH_CX, pyBall, BALL_R, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // 7. 右下角玫瑰金拉桿與壓縮彈簧
+        // 彈簧線圈
+        ctx.strokeStyle = "#C99A6B";
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        const springBot = 754;
+        const coils = 8;
+        for (let i = 0; i <= coils; i++) {
+          const sy = plungerTopY + 10 + ((springBot - (plungerTopY + 10)) * i) / coils;
+          const sx = LAUNCH_CX + (i % 2 === 0 ? -9 : 9);
+          if (i === 0) ctx.moveTo(LAUNCH_CX, sy);
+          else ctx.lineTo(sx, sy);
+        }
+        ctx.stroke();
+
+        // 推頭與拉柄
+        const capGrad = ctx.createLinearGradient(LAUNCH_CX - 14, plungerTopY, LAUNCH_CX + 14, plungerTopY);
+        capGrad.addColorStop(0, "#C99A6B");
+        capGrad.addColorStop(0.5, "#FFF3E4");
+        capGrad.addColorStop(1, "#B58152");
+        ctx.fillStyle = capGrad;
+        roundRectPath(ctx, LAUNCH_CX - 14, plungerTopY, 28, 12, 4);
+        ctx.fill();
+        ctx.strokeStyle = "#A06D40";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // 提示箭頭
+        if (state.ballsRemaining > 0 && !launchBusy && visualPull < 0.05) {
+          ctx.fillStyle = "rgba(183, 98, 122, 0.72)";
+          ctx.font = "700 10px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("下拉", LAUNCH_CX, 770);
+        }
+
+        // 8. 星塵粒子
+        for (const pt of state.particles) {
+          ctx.fillStyle = pt.color;
+          ctx.globalAlpha = Math.max(0, pt.life);
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, pt.r * pt.life, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+
+        // 9. 外框與四角珍珠鉚釘
+        ctx.strokeStyle = "#C99A6B";
+        ctx.lineWidth = 6;
+        roundRectPath(ctx, 3, 3, BOARD_W - 6, BOARD_H - 6, 16);
+        ctx.stroke();
+
+        [
+          [14, 14], [BOARD_W - 14, 14],
+          [14, BOARD_H - 14], [BOARD_W - 14, BOARD_H - 14]
+        ].forEach(([rx, ry]) => {
+          const rg = ctx.createRadialGradient(rx - 2, ry - 2, 1, rx, ry, 5);
+          rg.addColorStop(0, "#FFFFFF");
+          rg.addColorStop(1, "#D9A77B");
+          ctx.fillStyle = rg;
+          ctx.beginPath();
+          ctx.arc(rx, ry, 5, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      }
+
+      /* -------------------------------------------------------------------
+         10. 主動畫迴圈與三種發射操控
+      ------------------------------------------------------------------- */
+      let gameLoopId = null;
+
+      function updatePowerUI(p) {
+        const pct = Math.round(p * 100);
+        $("powerFillBar").style.width = pct + "%";
+        $("powerPctText").textContent = pct + "%";
+      }
+
+      function gameLoop() {
+        if (screens.game.classList.contains("active")) {
+          // 處理長按蓄力光條平滑擺動
+          if (state.isHoldingButton && !state.roundEnded) {
+            state.holdPower += state.holdDir * 0.022;
+            if (state.holdPower >= 1) {
+              state.holdPower = 1;
+              state.holdDir = -1;
+            } else if (state.holdPower <= 0.06) {
+              state.holdPower = 0.06;
+              state.holdDir = 1;
+            }
+            updatePowerUI(state.holdPower);
+          }
+
+          stepPhysics();
+          drawPinballBoard();
+        }
+        gameLoopId = requestAnimationFrame(gameLoop);
+      }
+
+      /* 操控方式 1：直接拖曳 Canvas 右下角拉桿 */
+      function getBoardCoords(e) {
+        const rect = pinCanvas.getBoundingClientRect();
+        return {
+          x: ((e.clientX - rect.left) / rect.width) * BOARD_W,
+          y: ((e.clientY - rect.top) / rect.height) * BOARD_H
+        };
+      }
+
+      pinCanvas.addEventListener("pointerdown", (e) => {
+        if (state.roundEnded || state.ballsRemaining <= 0) return;
+        SalonAudio.init();
+        const pos = getBoardCoords(e);
+        if (pos.x >= 455 && pos.y >= 540) {
+          stopAutoBurst();
+          state.isDraggingPlunger = true;
+          state.dragStartY = pos.y;
+          state.plungerPull = 0.12;
+          updatePowerUI(state.plungerPull);
+          pinCanvas.setPointerCapture(e.pointerId);
+        }
+      });
+
+      pinCanvas.addEventListener("pointermove", (e) => {
+        if (!state.isDraggingPlunger) return;
+        const pos = getBoardCoords(e);
+        const delta = Math.max(0, pos.y - state.dragStartY);
+        state.plungerPull = Math.max(0.08, Math.min(1, delta / 110));
+        updatePowerUI(state.plungerPull);
+      });
+
+      function releasePlungerDrag() {
+        if (!state.isDraggingPlunger) return;
+        const p = state.plungerPull;
+        state.isDraggingPlunger = false;
+        state.plungerPull = 0;
+        updatePowerUI(0);
+        spawnMarble(p);
+      }
+
+      pinCanvas.addEventListener("pointerup", releasePlungerDrag);
+      pinCanvas.addEventListener("pointercancel", releasePlungerDrag);
+
+      /* 操控方式 2：長按「蓄力發射」按鈕或鍵盤 Space */
+      function startHoldLaunch() {
+        if (state.roundEnded || state.ballsRemaining <= 0) return;
+        SalonAudio.init();
+        stopAutoBurst();
+        if (state.isHoldingButton) return;
+        state.isHoldingButton = true;
+        state.holdPower = 0.1;
+        state.holdDir = 1;
+        $("autoStatusBadge").textContent = "蓄力中...";
+      }
+
+      function releaseHoldLaunch() {
+        if (!state.isHoldingButton) return;
+        const p = state.holdPower;
+        state.isHoldingButton = false;
+        state.holdPower = 0;
+        updatePowerUI(0);
+        $("autoStatusBadge").textContent = "待命中";
+        spawnMarble(p);
+      }
+
+      const holdBtn = $("holdLaunchBtn");
+      holdBtn.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        startHoldLaunch();
+      });
+      window.addEventListener("pointerup", () => {
+        if (state.isHoldingButton) releaseHoldLaunch();
+      });
+      window.addEventListener("pointercancel", () => {
+        if (state.isHoldingButton) releaseHoldLaunch();
+      });
+
+      window.addEventListener("keydown", (e) => {
+        if (e.code === "Space" && screens.game.classList.contains("active")) {
+          e.preventDefault();
+          if (!e.repeat) startHoldLaunch();
+        }
+      });
+      window.addEventListener("keyup", (e) => {
+        if (e.code === "Space" && screens.game.classList.contains("active")) {
+          e.preventDefault();
+          releaseHoldLaunch();
+        }
+      });
+
+      /* 操控方式 3：浪漫連發 */
+      function stopAutoBurst() {
+        state.autoBurstActive = false;
+        clearInterval(state.autoBurstTimer);
+        state.autoBurstTimer = null;
+        $("autoBurstBtn").textContent = "🌸 浪漫連發（依序優雅發射）";
+        if (!state.roundEnded) $("autoStatusBadge").textContent = "待命中";
+      }
+
+      $("autoBurstBtn").addEventListener("click", () => {
+        if (state.roundEnded || state.ballsRemaining <= 0) return;
+        SalonAudio.init();
+        if (state.autoBurstActive) {
+          stopAutoBurst();
+          return;
+        }
+        state.autoBurstActive = true;
+        $("autoBurstBtn").textContent = "⏸ 暫停浪漫連發";
+        $("autoStatusBadge").textContent = "浪漫連發中 ✨";
+
+        const fireOne = () => {
+          if (!state.autoBurstActive || state.ballsRemaining <= 0 || state.roundEnded) {
+            stopAutoBurst();
+            return;
+          }
+          const p = 0.22 + Math.random() * 0.72;
+          updatePowerUI(p);
+          spawnMarble(p);
+          setTimeout(() => { if (!state.isHoldingButton) updatePowerUI(0); }, 180);
+        };
+
+        fireOne();
+        state.autoBurstTimer = setInterval(fireOne, 520);
+      });
+
+      $("finishEarlyBtn").addEventListener("click", () => {
+        openCertificateScreen();
+      });
+
+      /* -------------------------------------------------------------------
+         11. 開局與重置流程
+      ------------------------------------------------------------------- */
+      function startNewRound() {
+        stopAutoBurst();
+        state.ballsRemaining = 15;
+        state.totalLaunched = 0;
+        state.bonusEarned = 0;
+        state.laneCounts = new Array(LANE_COUNT).fill(0);
+        state.laneGlow = new Array(LANE_COUNT).fill(0);
+        state.balls = [];
+        state.particles = [];
+        state.praiseIndex = 0;
+        state.roundEnded = false;
+        state.completedAt = null;
+        state.isDraggingPlunger = false;
+        state.isHoldingButton = false;
+        updatePowerUI(0);
+        $("autoStatusBadge").textContent = "優雅待命中";
+        $("finishEarlyBtn").style.display = "none";
+
+        buildPegs();
+        buildLaneDotsGrid();
+        showScreen("game");
+        resizePinballCanvas();
+        updateHUD();
+        showFloatingPraise(`✨ 歡迎蒞臨，${state.guestName}！請優雅開球`);
+      }
+
+      $("startSalonBtn").addEventListener("click", () => {
+        const raw = $("guestNameInput").value.trim();
+        state.guestName = raw || "閃耀的你";
+        SalonAudio.init();
+        SalonAudio.newLaneLit(3);
+        startNewRound();
+      });
+
+      $("guestNameInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") $("startSalonBtn").click();
+      });
+
+      /* -------------------------------------------------------------------
+         12. 專屬高訂榮譽證書頁與 1080×1520 PNG 合成
+      ------------------------------------------------------------------- */
+      function openCertificateScreen() {
+        stopAutoBurst();
+        state.completedAt = state.completedAt || new Date();
+        const lit = getLitLaneCount();
+        const praise = getPraiseForLanes(lit);
+
+        $("certRankBadge").textContent = `✨ 達成 ${lit} 排 ｜ ${praise.title}`;
+        $("certTitleHeading").textContent = `獻給最耀眼的 ${state.guestName}`;
+        $("certQuoteDisplay").textContent = `「${praise.quote}」`;
+        $("certNameInput").value = state.guestName;
+
+        showScreen("cert");
+        renderCertificate();
+      }
+
+      function wrapLines(ctx, text, maxW) {
+        const lines = [];
+        let cur = "";
+        for (const ch of text) {
+          if (ctx.measureText(cur + ch).width > maxW) {
+            lines.push(cur);
+            cur = ch;
+          } else {
+            cur += ch;
+          }
+        }
+        if (cur) lines.push(cur);
+        return lines;
+      }
+
+      function renderCertificate() {
+        const canvas = $("certCanvas");
+        const ctx = canvas.getContext("2d");
+        const W = 1080;
+        const H = 1520;
+        const lit = getLitLaneCount();
+        const praise = getPraiseForLanes(lit);
+
+        // 1. 粉紅絲緞漸層底紋
+        const bg = ctx.createLinearGradient(0, 0, W, H);
+        bg.addColorStop(0, "#FFF8FA");
+        bg.addColorStop(0.42, "#FCEAF0");
+        bg.addColorStop(1, "#F6D9E3");
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, W, H);
+
+        // 柔和粉紅泡泡光暈
+        [
+          [160, 210, 140], [920, 260, 165],
+          [140, 1260, 150], [950, 1320, 180],
+          [540, 520, 240]
+        ].forEach(([bx, by, br]) => {
+          const g = ctx.createRadialGradient(bx - br * 0.25, by - br * 0.25, 10, bx, by, br);
+          g.addColorStop(0, "rgba(255, 255, 255, 0.65)");
+          g.addColorStop(0.6, "rgba(244, 199, 212, 0.22)");
+          g.addColorStop(1, "rgba(255, 248, 250, 0)");
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(bx, by, br, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // 珍珠白內頁底板
+        ctx.fillStyle = "rgba(255, 252, 253, 0.90)";
+        roundRectPath(ctx, 48, 48, W - 96, H - 96, 34);
+        ctx.fill();
+
+        // 2. 雙層香檳金雕花邊框
+        ctx.strokeStyle = "#C99A6B";
+        ctx.lineWidth = 6;
+        roundRectPath(ctx, 48, 48, W - 96, H - 96, 34);
+        ctx.stroke();
+
+        ctx.strokeStyle = "rgba(201, 154, 107, 0.5)";
+        ctx.lineWidth = 2;
+        roundRectPath(ctx, 68, 68, W - 136, H - 136, 24);
+        ctx.stroke();
+
+        // 四角玫瑰金珍珠飾點
+        [
+          [92, 92], [W - 92, 92],
+          [92, H - 92], [W - 92, H - 92]
+        ].forEach(([cx, cy]) => {
+          ctx.fillStyle = "#EBD2B4";
+          ctx.beginPath(); ctx.arc(cx, cy, 10, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = "#C99A6B";
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        });
+
+        // 3. 法文副標與證書主標題
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#C99A6B";
+        ctx.font = "700 22px Georgia, serif";
+        ctx.fillText("CERTIFICAT D'ÉLÉGANCE", W / 2, 134);
+
+        ctx.fillStyle = "#4A2334";
+        ctx.font = "900 48px 'Noto Serif TC', 'Songti TC', Georgia, serif";
+        ctx.fillText("粉紅泡泡沙龍・氣質榮譽證書", W / 2, 198);
+
+        // 香檳金細分隔線
+        const lineGrad = ctx.createLinearGradient(200, 0, W - 200, 0);
+        lineGrad.addColorStop(0, "rgba(201,154,107,0)");
+        lineGrad.addColorStop(0.5, "#C99A6B");
+        lineGrad.addColorStop(1, "rgba(201,154,107,0)");
+        ctx.fillStyle = lineGrad;
+        ctx.fillRect(200, 224, W - 400, 3);
+
+        // 4. 中央玫瑰金珍珠圓形相框（玩家照片或預設皇冠珍珠徽章）
+        const px = W / 2, py = 382, pr = 122;
+
+        // 外環柔和光暈
+        const halo = ctx.createRadialGradient(px, py, pr * 0.85, px, py, pr + 26);
+        halo.addColorStop(0, "rgba(217, 137, 158, 0.25)");
+        halo.addColorStop(1, "rgba(217, 137, 158, 0)");
+        ctx.fillStyle = halo;
+        ctx.beginPath(); ctx.arc(px, py, pr + 26, 0, Math.PI * 2); ctx.fill();
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(px, py, pr, 0, Math.PI * 2);
+        ctx.clip();
+
+        if (state.userPhotoImg) {
+          const img = state.userPhotoImg;
+          const sc = Math.max((pr * 2) / img.width, (pr * 2) / img.height);
+          const dw = img.width * sc;
+          const dh = img.height * sc;
+          ctx.drawImage(img, px - dw / 2, py - dh / 2, dw, dh);
+        } else {
+          // 典雅玫瑰金皇冠珍珠徽章
+          const eg = ctx.createRadialGradient(px - 36, py - 36, 16, px, py, pr);
+          eg.addColorStop(0, "#FFF9FB");
+          eg.addColorStop(0.55, "#F6D5E0");
+          eg.addColorStop(1, "#D9899E");
+          ctx.fillStyle = eg;
+          ctx.fillRect(px - pr, py - pr, pr * 2, pr * 2);
+
+          // 皇冠向量
+          ctx.fillStyle = "#C99A6B";
+          ctx.beginPath();
+          ctx.moveTo(px - 56, py + 24);
+          ctx.lineTo(px - 46, py - 34);
+          ctx.lineTo(px - 18, py - 2);
+          ctx.lineTo(px, py - 50);
+          ctx.lineTo(px + 18, py - 2);
+          ctx.lineTo(px + 46, py - 34);
+          ctx.lineTo(px + 56, py + 24);
+          ctx.closePath();
+          ctx.fill();
+
+          // 珍珠飾點
+          ctx.fillStyle = "#FFF8FA";
+          [px - 46, px, px + 46].forEach((tx, idx) => {
+            ctx.beginPath();
+            ctx.arc(tx, idx === 1 ? py - 54 : py - 38, 7, 0, Math.PI * 2);
+            ctx.fill();
+          });
+
+          ctx.fillStyle = "#4A2334";
+          ctx.font = "700 20px 'Noto Serif TC', serif";
+          ctx.fillText("氣質佳人", px, py + 66);
+        }
+        ctx.restore();
+
+        // 雙層玫瑰金珍珠圓框
+        ctx.strokeStyle = "#C99A6B";
+        ctx.lineWidth = 6;
+        ctx.beginPath(); ctx.arc(px, py, pr + 2, 0, Math.PI * 2); ctx.stroke();
+
+        ctx.strokeStyle = "#E8A6B8";
+        ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.arc(px, py, pr + 11, 0, Math.PI * 2); ctx.stroke();
+
+        // 環繞小珍珠點綴
+        for (let k = 0; k < 12; k++) {
+          const ang = (Math.PI * 2 * k) / 12;
+          const dx = px + Math.cos(ang) * (pr + 11);
+          const dy = py + Math.sin(ang) * (pr + 11);
+          ctx.fillStyle = "#FFF9FB";
+          ctx.beginPath(); ctx.arc(dx, dy, 4.5, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = "#C99A6B";
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        }
+
+        // 5. 貴賓姓名
+        ctx.fillStyle = "#8A6271";
+        ctx.font = "600 22px 'Noto Serif TC', serif";
+        ctx.fillText("謹以最誠摯的粉紅泡泡，獻給", W / 2, 558);
+
+        ctx.fillStyle = "#4A2334";
+        ctx.font = "900 56px 'Noto Serif TC', 'Songti TC', serif";
+        ctx.fillText(state.guestName || "閃耀的你", W / 2, 626);
+
+        // 6. 打彈珠成果與 15 排迷你發光點陣圖
+        ctx.fillStyle = "rgba(251, 235, 240, 0.72)";
+        ctx.strokeStyle = "rgba(201, 154, 107, 0.65)";
+        ctx.lineWidth = 2;
+        roundRectPath(ctx, 102, 662, W - 204, 210, 22);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#B7627A";
+        ctx.font = "900 42px 'Noto Serif TC', serif";
+        ctx.fillText(`達成 ${lit} 排`, W / 2, 722);
+
+        ctx.fillStyle = "#7F5566";
+        ctx.font = "600 21px sans-serif";
+        ctx.fillText(
+          `總投珠 ${state.totalLaunched} 顆  •  幸運加贈 ${state.bonusEarned} 顆  •  點亮 ${lit} / 15 排`,
+          W / 2,
+          758
+        );
+
+        // 15 排迷你發光點陣圖
+        const dotStartX = 148;
+        const dotStep = (W - 296) / 14;
+        const dotY = 816;
+        for (let i = 0; i < LANE_COUNT; i++) {
+          const dx = dotStartX + i * dotStep;
+          const cnt = state.laneCounts[i];
+          const isLit = cnt > 0;
+
+          ctx.fillStyle = isLit ? "#D9899E" : "#FFFFFF";
+          ctx.strokeStyle = isLit ? "#C99A6B" : "rgba(201, 154, 107, 0.45)";
+          ctx.lineWidth = isLit ? 2.5 : 1.5;
+          ctx.beginPath();
+          ctx.arc(dx, dotY, 20, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = isLit ? "#FFFFFF" : "#A58090";
+          ctx.font = isLit ? "800 17px monospace" : "600 15px monospace";
+          ctx.fillText(String(i + 1), dx, dotY + 6);
+
+          if (isLit) {
+            ctx.fillStyle = "#B7627A";
+            ctx.font = "700 14px monospace";
+            ctx.fillText(`×${cnt}`, dx, dotY + 40);
+          }
+        }
+
+        // 7. 獲得稱號與鼓勵讚美金句框
+        ctx.fillStyle = "#FFFFFF";
+        ctx.strokeStyle = "#C99A6B";
+        ctx.lineWidth = 2.5;
+        roundRectPath(ctx, 102, 904, W - 204, 344, 24);
+        ctx.fill();
+        ctx.stroke();
+
+        // 稱號膠囊
+        ctx.fillStyle = "#F7DDE6";
+        roundRectPath(ctx, W / 2 - 230, 932, 460, 54, 27);
+        ctx.fill();
+        ctx.strokeStyle = "#C99A6B";
+        ctx.lineWidth = 1.6;
+        ctx.stroke();
+
+        ctx.fillStyle = "#4A2334";
+        ctx.font = "800 28px 'Noto Serif TC', serif";
+        ctx.fillText(`【${praise.title}】`, W / 2, 969);
+
+        // 金句正文自動換行
+        ctx.fillStyle = "#4A2334";
+        ctx.font = "700 30px 'Noto Serif TC', 'Songti TC', serif";
+        const quoteLines = wrapLines(ctx, `「${praise.quote}」`, W - 290);
+        const qStartY = quoteLines.length <= 3 ? 1054 : 1036;
+        quoteLines.forEach((ln, idx) => {
+          ctx.fillText(ln, W / 2, qStartY + idx * 48);
+        });
+
+        // 8. 底部日期與玫瑰金火漆印章
+        const dt = state.completedAt || new Date();
+        const dtStr = `${dt.getFullYear()} 年 ${String(dt.getMonth() + 1).padStart(2, "0")} 月 ${String(dt.getDate()).padStart(2, "0")} 日`;
+        ctx.textAlign = "left";
+        ctx.fillStyle = "#7F5566";
+        ctx.font = "700 23px 'Noto Serif TC', serif";
+        ctx.fillText(`頒發日期：${dtStr}`, 114, 1344);
+        ctx.fillStyle = "#A58090";
+        ctx.font = "600 18px Georgia, serif";
+        ctx.fillText("SALON DES BULLES ROSES • PARIS & TAIPEI", 114, 1380);
+
+        // 右下角玫瑰金火漆印章
+        ctx.save();
+        ctx.translate(868, 1352);
+        ctx.rotate(-0.09);
+
+        // 外圈不規則火漆感圓暈
+        const waxGrad = ctx.createRadialGradient(-16, -18, 10, 0, 0, 72);
+        waxGrad.addColorStop(0, "#E9A4B6");
+        waxGrad.addColorStop(0.55, "#C9758E");
+        waxGrad.addColorStop(1, "#9B4B64");
+        ctx.fillStyle = waxGrad;
+        ctx.beginPath();
+        ctx.arc(0, 0, 68, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = "#F5E2CC";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, 56, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.fillStyle = "#FFF8FA";
+        ctx.font = "900 21px 'Noto Serif TC', serif";
+        ctx.textAlign = "center";
+        ctx.fillText("粉紅泡泡", 0, -6);
+        ctx.fillText("氣質認證", 0, 22);
+        ctx.restore();
+
+        // 輸出預覽圖供手機長按存至相簿
+        $("certPreviewImg").src = canvas.toDataURL("image/png");
+      }
+
+      $("certNameInput").addEventListener("input", (e) => {
+        state.guestName = e.target.value.trim() || "閃耀的你";
+        $("certTitleHeading").textContent = `獻給最耀眼的 ${state.guestName}`;
+        updateHUD();
+        renderCertificate();
+      });
+
+      $("downloadCertBtn").addEventListener("click", () => {
+        SalonAudio.celebrate();
+        const canvas = $("certCanvas");
+        const link = document.createElement("a");
+        const safeName = (state.guestName || "閃耀的你").replace(/[\\/:*?"<>|]/g, "_");
+        link.download = `粉紅泡泡沙龍_氣質證書_${safeName}.png`;
+        link.href = canvas.toDataURL("image/png");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast("📥 高級證書下載已開始！手機端亦可長按圖片儲存。");
+      });
+
+      $("replayBtn").addEventListener("click", () => {
+        SalonAudio.newLaneLit(4);
+        startNewRound();
+      });
+
+      /* -------------------------------------------------------------------
+         13. 初始化啟動
+      ------------------------------------------------------------------- */
+      window.addEventListener("resize", () => {
+        initBgAmbience();
+        if (screens.game.classList.contains("active")) resizePinballCanvas();
+      });
+
+      window.onload = function () {
+        initBgAmbience();
+        animateBgAmbience();
+        buildPegs();
+        buildLaneDotsGrid();
+        resizePinballCanvas();
+        gameLoop();
+      };
+    })();
+  </script>
+</body>
+</html>
