@@ -1,0 +1,3000 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>山景教室：刷新三觀大作戰</title>
+  <style>
+    /* =====================================================================
+       亮麗晴空山景教室 — 核心介面樣式（零外部依賴，桌機／手機全自適應）
+       ===================================================================== */
+    :root {
+      --sky-top: #4fb8ff;
+      --sky-light: #e7f6ff;
+      --warm-ivory: #fffcf5;
+      --wood-light: #d79c5b;
+      --wood-dark: #8c5628;
+      --chalk-green: #1f5c43;
+      --gold: #f5b932;
+      --gold-deep: #c98612;
+      --coral: #ff6b57;
+      --ink: #22303c;
+      --glass: rgba(255, 253, 246, 0.86);
+      --glass-border: rgba(255, 255, 255, 0.85);
+      --shadow-soft: 0 8px 24px rgba(24, 62, 92, 0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", "Heiti TC", sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #74c7ff 0%, #d4f0ff 55%, #f7e6c4 100%);
+      touch-action: manipulation;
+    }
+
+    /* 主版面：上導覽列 + 中間全寬畫布 + 下方技能列 */
+    #app {
+      display: flex;
+      flex-direction: column;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    /* =====================================================================
+       頂部亮麗玻璃導覽列
+       ===================================================================== */
+    #topBar {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 14px;
+      background: linear-gradient(180deg, rgba(255, 253, 247, 0.94), rgba(255, 248, 234, 0.86));
+      border-bottom: 2px solid rgba(215, 156, 91, 0.35);
+      box-shadow: 0 4px 16px rgba(32, 68, 96, 0.1);
+      z-index: 20;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #1f6b4e, #2f8c66);
+      color: #fffef6;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      letter-spacing: 0.04em;
+      box-shadow: 0 3px 10px rgba(31, 107, 78, 0.28);
+      white-space: nowrap;
+    }
+
+    .stage-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff5d9;
+      border: 1.5px solid #f0c259;
+      color: #7c4d08;
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .top-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 7px 13px;
+      border-radius: 999px;
+      border: 1.5px solid rgba(140, 86, 40, 0.25);
+      background: #ffffff;
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 0.84rem;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.07);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .top-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .top-btn:active {
+      transform: scale(0.95);
+    }
+
+    .top-btn.cert-btn {
+      background: linear-gradient(135deg, #ffe285 0%, #f5b932 100%);
+      border-color: #d99114;
+      color: #4f2c00;
+      box-shadow: 0 4px 12px rgba(245, 185, 50, 0.35);
+    }
+
+    /* =====================================================================
+       中央遊戲畫布舞台
+       ===================================================================== */
+    #stageContainer {
+      flex: 1 1 auto;
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      min-height: 260px;
+    }
+
+    #gameCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+    }
+
+    /* 浮動簡短操作提示 */
+    #toastTip {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(24, 42, 58, 0.78);
+      color: #fffdf5;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      white-space: nowrap;
+      max-width: 92%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      z-index: 12;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    }
+
+    #toastTip.show {
+      opacity: 1;
+    }
+
+    /* =====================================================================
+       底部互動技能列（位於畫布外下方，絕不遮擋課桌椅）
+       ===================================================================== */
+    #bottomBar {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 10px 12px 12px;
+      background: linear-gradient(180deg, #f5e5c8 0%, #e7cfa8 100%);
+      border-top: 2px solid #c99a5e;
+      box-shadow: 0 -4px 16px rgba(84, 52, 20, 0.14);
+      z-index: 20;
+      flex-wrap: wrap;
+    }
+
+    .skill-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 46px;
+      padding: 10px 18px;
+      border-radius: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.85);
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 800;
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 0.14s ease, box-shadow 0.2s ease, filter 0.2s ease;
+      box-shadow: 0 5px 14px rgba(45, 32, 16, 0.18), inset 0 2px 0 rgba(255, 255, 255, 0.45);
+    }
+
+    .skill-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(45, 32, 16, 0.24), inset 0 2px 0 rgba(255, 255, 255, 0.6);
+    }
+
+    .skill-btn:active:not(:disabled) {
+      transform: scale(0.95);
+    }
+
+    .skill-btn:disabled {
+      cursor: not-allowed;
+      filter: grayscale(0.35) brightness(0.92);
+      opacity: 0.78;
+    }
+
+    .btn-shuffle {
+      background: linear-gradient(135deg, #3ea8f5 0%, #1d7ed6 100%);
+      color: #ffffff;
+    }
+
+    .btn-banana {
+      background: linear-gradient(135deg, #ffe259 0%, #f5a623 100%);
+      color: #4f2c00;
+    }
+
+    .btn-fever {
+      background: linear-gradient(135deg, #ff7e67 0%, #e63e6d 100%);
+      color: #ffffff;
+      min-width: 190px;
+    }
+
+    .btn-fever.ready {
+      background: linear-gradient(135deg, #ffe259 0%, #ff6b57 50%, #e63e6d 100%);
+      box-shadow: 0 0 22px rgba(255, 118, 87, 0.75), inset 0 2px 0 rgba(255, 255, 255, 0.7);
+      animation: feverPulse 1s infinite ease-in-out;
+    }
+
+    @keyframes feverPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+
+    .skill-progress {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.85);
+      width: 0%;
+      transition: width 0.15s linear;
+    }
+
+    /* =====================================================================
+       通用浮層彈窗（開場、過關、失敗重試、證書產生器）
+       ===================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(16, 36, 54, 0.58);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 50;
+      opacity: 1;
+      transition: opacity 0.28s ease;
+    }
+
+    .modal-backdrop.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 520px;
+      max-height: 92dvh;
+      overflow-y: auto;
+      background: linear-gradient(180deg, #fffdf8 0%, #fff6e5 100%);
+      border: 3px solid #f0c259;
+      border-radius: 26px;
+      padding: 26px 24px;
+      text-align: center;
+      box-shadow: 0 22px 60px rgba(12, 34, 52, 0.38), inset 0 2px 0 rgba(255, 255, 255, 0.9);
+    }
+
+    .modal-badge {
+      display: inline-block;
+      padding: 5px 14px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #257a57, #3ba377);
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      margin-bottom: 10px;
+    }
+
+    .modal-title {
+      font-size: clamp(1.5rem, 4.8vw, 2.05rem);
+      font-weight: 900;
+      color: #1c4e3a;
+      margin-bottom: 10px;
+      letter-spacing: 0.04em;
+    }
+
+    .modal-desc {
+      font-size: 0.94rem;
+      line-height: 1.65;
+      color: #3f4f5c;
+      margin-bottom: 18px;
+    }
+
+    .feature-list {
+      text-align: left;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1.5px solid rgba(215, 156, 91, 0.35);
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin-bottom: 20px;
+      font-size: 0.86rem;
+      line-height: 1.65;
+      color: #2f4250;
+    }
+
+    .feature-list div + div {
+      margin-top: 6px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 13px 30px;
+      border-radius: 999px;
+      border: 2px solid #fff7d6;
+      background: linear-gradient(135deg, #ffce44 0%, #f09b18 100%);
+      color: #462300;
+      font-family: inherit;
+      font-size: 1.05rem;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(240, 155, 24, 0.38);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 26px rgba(240, 155, 24, 0.48);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.96);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 11px 22px;
+      border-radius: 999px;
+      border: 1.5px solid #c99a5e;
+      background: #ffffff;
+      color: #5c3a14;
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+
+    .btn-secondary:hover {
+      background: #fff5df;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 14px 0 20px;
+    }
+
+    .stat-card {
+      background: #ffffff;
+      border: 1.5px solid #eed6a4;
+      border-radius: 14px;
+      padding: 10px 6px;
+    }
+
+    .stat-val {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: #1f6b4e;
+    }
+
+    .stat-lbl {
+      font-size: 0.74rem;
+      color: #6b7b88;
+      margin-top: 2px;
+    }
+
+    /* =====================================================================
+       「刷新三觀」榮譽證書產生器彈窗
+       ===================================================================== */
+    .cert-modal-card {
+      max-width: 980px;
+      text-align: left;
+      padding: 20px 22px;
+    }
+
+    .cert-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      border-bottom: 1.5px solid rgba(215, 156, 91, 0.35);
+      padding-bottom: 10px;
+    }
+
+    .cert-layout {
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    @media (max-width: 780px) {
+      .cert-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .cert-controls {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1.5px solid rgba(215, 156, 91, 0.35);
+      border-radius: 18px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .field-group label {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #543817;
+    }
+
+    .field-input {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 12px;
+      border: 1.5px solid #d9b882;
+      background: #fffdf9;
+      font-family: inherit;
+      font-size: 0.92rem;
+      color: var(--ink);
+      outline: none;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .field-input:focus {
+      border-color: #1f6b4e;
+      box-shadow: 0 0 0 3px rgba(31, 107, 78, 0.14);
+    }
+
+    .upload-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 2px dashed #d69d3f;
+      background: #fff9ea;
+      color: #6e4406;
+      font-weight: 800;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .upload-label:hover {
+      background: #fff0c8;
+    }
+
+    .cert-preview-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #certPreviewImg {
+      width: 100%;
+      height: auto;
+      border-radius: 14px;
+      border: 2px solid #e0ba6c;
+      box-shadow: 0 12px 30px rgba(36, 48, 60, 0.22);
+      display: block;
+      background: #fffcf5;
+      -webkit-touch-callout: default;
+      user-select: auto;
+      -webkit-user-select: auto;
+    }
+
+    .save-hint {
+      font-size: 0.78rem;
+      color: #6b573b;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    /* 手機版緊湊微調 */
+    @media (max-width: 600px) {
+      #topBar { padding: 6px 10px; }
+      .brand-badge { font-size: 0.84rem; padding: 5px 10px; }
+      .stage-pill { display: none; }
+      .top-btn { padding: 6px 10px; font-size: 0.78rem; }
+      #bottomBar { padding: 8px 8px 10px; gap: 7px; }
+      .skill-btn {
+        min-height: 42px;
+        padding: 8px 12px;
+        font-size: 0.82rem;
+        border-radius: 13px;
+      }
+      .btn-fever { min-width: 142px; }
+      .modal-card { padding: 20px 16px; border-radius: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- =================================================================
+         頂部導覽列
+         ================================================================= -->
+    <header id="topBar">
+      <div class="brand-group">
+        <div class="brand-badge">⛰️ 山景教室</div>
+        <div id="topStagePill" class="stage-pill">第 1 關・晨光翠峰</div>
+      </div>
+      <div class="top-actions">
+        <button id="btnAudio" class="top-btn" title="切換配樂與音效">🔊 音樂開</button>
+        <button id="btnOpenCert" class="top-btn cert-btn" title="預覽與製作刷新三觀證書">🏆 預覽證書</button>
+      </div>
+    </header>
+
+    <!-- =================================================================
+         中央遊戲舞台
+         ================================================================= -->
+    <main id="stageContainer">
+      <canvas id="gameCanvas"></canvas>
+      <div id="toastTip">點擊黑板射出考卷，點擊空位自由換座位！</div>
+    </main>
+
+    <!-- =================================================================
+         底部互動技能列
+         ================================================================= -->
+    <footer id="bottomBar">
+      <button id="btnShuffle" class="skill-btn btn-shuffle">🎲 隨機換座位</button>
+      <button id="btnBanana" class="skill-btn btn-banana">
+        <span id="bananaLabel">🍌 丟香蕉誘餌</span>
+        <div id="bananaBar" class="skill-progress"></div>
+      </button>
+      <button id="btnFever" class="skill-btn btn-fever" disabled>
+        <span id="feverLabel">✨ 全班齊射 Fever 0%</span>
+        <div id="feverBar" class="skill-progress"></div>
+      </button>
+    </footer>
+  </div>
+
+  <!-- ===================================================================
+       開場說明彈窗
+       =================================================================== -->
+  <div id="startModal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-badge">SUNLIT MOUNTAIN CLASSROOM</div>
+      <h1 class="modal-title">山景教室：刷新三觀大作戰</h1>
+      <p class="modal-desc">
+        在擁有絕美全景落地窗的高山教室裡，一隻搗蛋猴子佔據了黑板前方！<br />
+        快運用精準射擊、自由換位與全班助攻，在三場山景挑戰中奪得高分吧！
+      </p>
+      <div class="feature-list">
+        <div>🎯 <strong>點擊黑板射考卷</strong>：避開搗蛋猴子，瞄準黑板累積分數；射中發光「金色加分題」或「雙倍靶心」可獲大量連擊！</div>
+        <div>🪑 <strong>12 課桌椅自由換位</strong>：點擊任一空位立刻跳過去改變射擊角度，或點「隨機換座位」全員大風吹！</div>
+        <div>⚡ <strong>NPC 同學助攻</strong>：同學會自動射考卷，冒出「⚡ 應援光球」時快點擊，集滿即可啟動「✨ 全班齊射 Fever」！</div>
+        <div>🍌 <strong>丟香蕉誘餌</strong>：讓搗蛋猴子開心停下來吃香蕉 3.5 秒，趁機瘋狂搶分！</div>
+      </div>
+      <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+        <button id="btnStartGame" class="btn-primary">🚀 開始第 1 關挑戰</button>
+        <button id="btnStartCert" class="btn-secondary">🏆 先看證書樣式</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       關卡結算彈窗（過關／時間到重試）
+       =================================================================== -->
+  <div id="resultModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div id="resultBadge" class="modal-badge">STAGE CLEAR!</div>
+      <h2 id="resultTitle" class="modal-title">第 1 關突破成功！</h2>
+      <p id="resultDesc" class="modal-desc">太神啦！連搗蛋猴子都看呆了！</p>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div id="resScore" class="stat-val">0</div>
+          <div class="stat-lbl">本關得分</div>
+        </div>
+        <div class="stat-card">
+          <div id="resCombo" class="stat-val">0</div>
+          <div class="stat-lbl">最高連擊</div>
+        </div>
+        <div class="stat-card">
+          <div id="resTotal" class="stat-val">0</div>
+          <div class="stat-lbl">累積總分</div>
+        </div>
+      </div>
+      <div id="resultButtons" style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;"></div>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       「刷新三觀」專屬榮譽證書產生器彈窗
+       =================================================================== -->
+  <div id="certModal" class="modal-backdrop hidden">
+    <div class="modal-card cert-modal-card">
+      <div class="cert-header">
+        <div>
+          <div style="font-size:0.75rem; font-weight:800; color:#c98612; letter-spacing:0.12em;">HONOR CERTIFICATE GENERATOR</div>
+          <h2 style="font-size:1.35rem; font-weight:900; color:#1c4e3a;">🏆「刷新三觀」專屬榮譽證書</h2>
+        </div>
+        <button id="btnCloseCert" class="top-btn">✕ 關閉</button>
+      </div>
+
+      <div class="cert-layout">
+        <!-- 左側自訂表單 -->
+        <div class="cert-controls">
+          <div class="field-group">
+            <label for="certNameInput">受獎人姓名／暱稱</label>
+            <input id="certNameInput" class="field-input" type="text" maxlength="16" placeholder="輸入你的大名（例：山景學霸）" value="山景學霸" />
+          </div>
+
+          <div class="field-group">
+            <label for="certDateInput">頒發日期</label>
+            <input id="certDateInput" class="field-input" type="date" />
+          </div>
+
+          <div class="field-group">
+            <label>個人圓形金框頭像（選填）</label>
+            <label class="upload-label" for="certPhotoInput">📷 上傳個人照片</label>
+            <input id="certPhotoInput" type="file" accept="image/*" style="display:none;" />
+            <button id="btnClearPhoto" class="btn-secondary" style="padding:6px 12px; font-size:0.78rem; display:none;">↺ 恢復山景學霸徽章</button>
+          </div>
+
+          <div style="background:#fff9eb; border:1px solid #edd095; border-radius:12px; padding:10px; font-size:0.8rem; line-height:1.6; color:#5e4217;">
+            <div><strong>目前紀錄帶入：</strong></div>
+            <div id="certStatsSummary">總分 0 分｜最高連擊 0｜見習挑戰者</div>
+          </div>
+
+          <button id="btnDownloadCert" class="btn-primary" style="width:100%; padding:12px 18px; font-size:0.96rem;">
+            💾 一鍵下載證書 (PNG)
+          </button>
+        </div>
+
+        <!-- 右側高解析度證書預覽（1200×850 轉圖供電腦檢視與手機長按存相簿） -->
+        <div class="cert-preview-wrap">
+          <img id="certPreviewImg" alt="刷新三觀榮譽證書預覽" />
+          <div class="save-hint">
+            ✨ 支援 1200×850 高解析度 PNG 匯出。<br />
+            📱 若使用 iPhone / LINE 內建瀏覽器，也可直接<strong>長按上方證書圖片</strong>儲存至手機相簿！
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 離屏高解析度證書繪製畫布 -->
+  <canvas id="certCanvas" width="1200" height="850" style="display:none;"></canvas>
+
+  <script>
+    /* =====================================================================
+       《山景教室：刷新三觀大作戰》完整遊戲引擎
+       模組：
+       1. SoundEngine — Web Audio API 明亮校園鋼琴/木琴 BGM 與豐富音效
+       2. Stage Config & State — 三關山景主題、難度參數與全域遊戲紀錄
+       3. Classroom Entities — 12 課桌椅、主角跳躍換位、NPC 助攻與應援光球
+       4. Monkey AI — 走動、鬼臉、跳躍、變速衝刺、吃香蕉、第 3 關分身
+       5. Canvas Renderer — 三關動態山景、精細黑板、紙飛機拋物線與粒子煙火
+       6. Certificate Generator — 1200×850 刷新三觀榮譽證書即時繪製與下載
+       ===================================================================== */
+
+    // ---------------------------
+    // 1. Web Audio API 輕快配樂與音效系統
+    // ---------------------------
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.master = null;
+        this.bgmGain = null;
+        this.sfxGain = null;
+        this.enabled = true;
+        this.bgmTimer = null;
+        this.step = 0;
+        this.isFever = false;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AC();
+          this.master = this.ctx.createGain();
+          this.master.gain.value = this.enabled ? 0.75 : 0;
+          this.master.connect(this.ctx.destination);
+
+          this.bgmGain = this.ctx.createGain();
+          this.bgmGain.gain.value = 0.28;
+          this.bgmGain.connect(this.master);
+
+          this.sfxGain = this.ctx.createGain();
+          this.sfxGain.gain.value = 0.65;
+          this.sfxGain.connect(this.master);
+        }
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+      }
+
+      toggle() {
+        this.enabled = !this.enabled;
+        if (this.master && this.ctx) {
+          this.master.gain.setTargetAtTime(this.enabled ? 0.75 : 0, this.ctx.currentTime, 0.04);
+        }
+        return this.enabled;
+      }
+
+      midi(n) {
+        return 440 * Math.pow(2, (n - 69) / 12);
+      }
+
+      tone(freq, dur, type = 'sine', vol = 0.2, dest = 'sfx', delay = 0) {
+        if (!this.ctx || !this.enabled) return;
+        const now = this.ctx.currentTime + delay;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.linearRampToValueAtTime(vol, now + 0.012);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+        osc.connect(gain);
+        gain.connect(dest === 'bgm' ? this.bgmGain : this.sfxGain);
+        osc.start(now);
+        osc.stop(now + dur + 0.04);
+      }
+
+      startBGM() {
+        if (this.bgmTimer) return;
+        // 輕快明亮的 C 大調校園木琴與鋼琴旋律
+        const melody = [72, 76, 79, 84, 81, 79, 76, 74, 72, 74, 76, 79, 76, 74, 72, 0];
+        const bass =   [48, 55, 52, 55, 53, 60, 55, 59, 48, 55, 52, 55, 53, 55, 48, 55];
+
+        const tick = () => {
+          if (this.ctx && this.enabled) {
+            const i = this.step % melody.length;
+            const shift = this.isFever ? 2 : 0; // Fever 時升全音更亢奮
+            if (melody[i] > 0) {
+              this.tone(this.midi(melody[i] + shift), 0.24, 'triangle', 0.2, 'bgm');
+              this.tone(this.midi(melody[i] + 12 + shift), 0.14, 'sine', 0.07, 'bgm');
+            }
+            this.tone(this.midi(bass[i] + shift), 0.28, 'sine', 0.18, 'bgm');
+            this.step++;
+          }
+          this.bgmTimer = setTimeout(tick, this.isFever ? 175 : 230);
+        };
+        tick();
+      }
+
+      sfxShoot(isGold = false) {
+        if (!this.ctx || !this.enabled) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(isGold ? 660 : 480, now);
+        osc.frequency.exponentialRampToValueAtTime(isGold ? 1180 : 840, now + 0.09);
+        g.gain.setValueAtTime(0.16, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+        osc.connect(g);
+        g.connect(this.sfxGain);
+        osc.start(now);
+        osc.stop(now + 0.11);
+      }
+
+      sfxHitBoard(isBonus = false) {
+        if (!this.ctx || !this.enabled) return;
+        if (isBonus) {
+          this.tone(880, 0.16, 'sine', 0.22, 'sfx', 0);
+          this.tone(1174, 0.18, 'sine', 0.22, 'sfx', 0.06);
+          this.tone(1568, 0.28, 'triangle', 0.22, 'sfx', 0.12);
+        } else {
+          this.tone(620 + Math.random() * 140, 0.1, 'sine', 0.14, 'sfx');
+          this.tone(930, 0.08, 'triangle', 0.09, 'sfx', 0.02);
+        }
+      }
+
+      sfxMonkeyBlock() {
+        if (!this.ctx || !this.enabled) return;
+        // 滑稽猴子攔截「波音！」聲
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(340, now);
+        osc.frequency.linearRampToValueAtTime(520, now + 0.07);
+        osc.frequency.exponentialRampToValueAtTime(190, now + 0.22);
+        g.gain.setValueAtTime(0.16, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+        osc.connect(g);
+        g.connect(this.sfxGain);
+        osc.start(now);
+        osc.stop(now + 0.25);
+      }
+
+      sfxHop() {
+        if (!this.ctx || !this.enabled) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(340, now);
+        osc.frequency.exponentialRampToValueAtTime(720, now + 0.13);
+        g.gain.setValueAtTime(0.18, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        osc.connect(g);
+        g.connect(this.sfxGain);
+        osc.start(now);
+        osc.stop(now + 0.16);
+      }
+
+      sfxBanana() {
+        if (!this.ctx || !this.enabled) return;
+        this.tone(523, 0.12, 'triangle', 0.2, 'sfx', 0);
+        this.tone(659, 0.12, 'triangle', 0.2, 'sfx', 0.07);
+        this.tone(784, 0.18, 'sine', 0.22, 'sfx', 0.14);
+      }
+
+      sfxOrb() {
+        if (!this.ctx || !this.enabled) return;
+        this.tone(987, 0.14, 'sine', 0.18, 'sfx', 0);
+        this.tone(1318, 0.22, 'sine', 0.18, 'sfx', 0.06);
+      }
+
+      sfxFeverStart() {
+        if (!this.ctx || !this.enabled) return;
+        [523, 659, 784, 1046, 1318].forEach((f, idx) => {
+          this.tone(f, 0.3, 'triangle', 0.2, 'sfx', idx * 0.055);
+        });
+      }
+
+      sfxStageClear() {
+        if (!this.ctx || !this.enabled) return;
+        [523, 659, 784, 1046, 987, 1046, 1318].forEach((f, idx) => {
+          this.tone(f, 0.35, 'triangle', 0.22, 'sfx', idx * 0.08);
+        });
+      }
+    }
+
+    const sound = new SoundEngine();
+
+    // ---------------------------
+    // 2. 關卡設定與全域遊戲狀態
+    // ---------------------------
+    const STAGES = [
+      {
+        id: 1,
+        name: '第 1 關・晨光翠峰',
+        subtitle: '初試啼聲',
+        targetScore: 200,
+        duration: 45,
+        monkeySpeed: 145,
+        jumpRate: 0.28,
+        dashChance: 0,
+        allowClones: false,
+        theme: 'morning'
+      },
+      {
+        id: 2,
+        name: '第 2 關・晴空百岳',
+        subtitle: '加速突圍',
+        targetScore: 380,
+        duration: 50,
+        monkeySpeed: 225,
+        jumpRate: 0.55,
+        dashChance: 0.35,
+        allowClones: false,
+        theme: 'noon'
+      },
+      {
+        id: 3,
+        name: '第 3 關・金霞雲海',
+        subtitle: '分身大亂鬥',
+        targetScore: 600,
+        duration: 55,
+        monkeySpeed: 265,
+        jumpRate: 0.72,
+        dashChance: 0.5,
+        allowClones: true,
+        theme: 'sunset'
+      }
+    ];
+
+    const NPC_PROFILES = [
+      { name: '小晴', hair: '#4a3121', shirt: '#ff8da1', accent: '#ffe169' },
+      { name: '阿哲', hair: '#253240', shirt: '#59b5f8', accent: '#ffffff' },
+      { name: '米果', hair: '#7c4424', shirt: '#7ed386', accent: '#fff2a6' },
+      { name: '樂樂', hair: '#3b2848', shirt: '#b689ff', accent: '#ffd6e7' },
+      { name: '柚子', hair: '#5a3a1a', shirt: '#ffb35c', accent: '#fff7d6' }
+    ];
+
+    const game = {
+      status: 'MENU', // MENU | PLAYING | STAGE_RESULT | VICTORY
+      stageIdx: 0,
+      stageScore: 0,
+      totalScore: 0,
+      clearedStages: 0,
+      timeLeft: 45,
+      combo: 0,
+      maxCombo: 0,
+      globalTime: 0,
+      feverEnergy: 0, // 0 ~ 100
+      feverTimer: 0,  // > 0 表示 Fever 啟動中
+      bananaCooldown: 0,
+      bananaMaxCd: 11,
+      bananaActive: null, // { x, y, timer }
+      screenShake: 0,
+
+      // 教室 12 課桌椅（3 排 × 4 列）
+      desks: [],
+      playerSeat: 9,
+      playerHop: null, // { fromX, fromY, toX, toY, t }
+      npcs: [],        // { id, profile, seatIdx, shootTimer, orbTimer, hasOrb, bounce }
+
+      // 搗蛋猴子與分身
+      monkey: {
+        x: 0,
+        y: 0,
+        dir: 1,
+        vy: 0,
+        jumpY: 0,
+        dashTimer: 0,
+        eatTimer: 0,
+        swatTimer: 0,
+        bubbleText: '',
+        bubbleTimer: 0,
+        cloneCooldown: 6.5
+      },
+      clones: [], // { x, dir, life, maxLife, jumpPhase, swatTimer }
+
+      // 場上動態物件
+      papers: [],
+      targets: [],       // 黑板發光加分題 / 靶心
+      targetSpawnTimer: 2.2,
+      chalkMarks: [],
+      particles: [],
+      floats: [],
+      birds: [],
+      leaves: []
+    };
+
+    // ---------------------------
+    // 3. Canvas 佈局與自適應尺寸計算
+    // ---------------------------
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const stageContainer = document.getElementById('stageContainer');
+    let W = 800;
+    let H = 600;
+    let DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+    // 動態計算的黑板與教室幾何區
+    const layout = {
+      board: { x: 0, y: 0, w: 0, h: 0 },
+      monkeyBaseY: 0,
+      deskAreaTop: 0
+    };
+
+    function computeLayout() {
+      const rect = stageContainer.getBoundingClientRect();
+      W = Math.max(300, rect.width);
+      H = Math.max(260, rect.height);
+      DPR = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.floor(W * DPR);
+      canvas.height = Math.floor(H * DPR);
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+      // 黑板置於上半部中央
+      const bw = Math.min(W * 0.88, 760);
+      const bh = Math.min(H * 0.36, 235);
+      const bx = (W - bw) / 2;
+      const by = Math.max(14, H * 0.045);
+      layout.board = { x: bx, y: by, w: bw, h: bh };
+      layout.monkeyBaseY = by + bh + 12;
+      layout.deskAreaTop = by + bh + Math.max(46, H * 0.085);
+
+      // 計算 12 課桌椅位置（3 排 × 4 列，帶輕微透視感）
+      const rows = 3;
+      const cols = 4;
+      const availH = Math.max(130, H - layout.deskAreaTop - 16);
+      const rowStep = availH / rows;
+      game.desks = [];
+      for (let r = 0; r < rows; r++) {
+        const depthScale = 0.88 + r * 0.08;
+        const rowSpanW = Math.min(W * (0.76 + r * 0.07), 660 + r * 55);
+        const colStep = rowSpanW / cols;
+        const startX = (W - rowSpanW) / 2 + colStep / 2;
+        const cy = layout.deskAreaTop + r * rowStep + rowStep * 0.56;
+        const deskW = Math.min(colStep * 0.78, 122 * depthScale);
+        const deskH = Math.min(rowStep * 0.52, 46 * depthScale);
+
+        for (let c = 0; c < cols; c++) {
+          game.desks.push({
+            index: r * cols + c,
+            row: r,
+            col: c,
+            x: startX + c * colStep,
+            y: cy,
+            w: deskW,
+            h: deskH,
+            scale: depthScale
+          });
+        }
+      }
+
+      // 確保猴子保持在黑板水平範圍內
+      if (game.monkey.x < bx + 36 || game.monkey.x > bx + bw - 36) {
+        game.monkey.x = bx + bw * 0.5;
+      }
+    }
+
+    window.addEventListener('resize', computeLayout);
+
+    // ---------------------------
+    // 4. 環境裝飾初始化（飛鳥與陽光飄葉）
+    // ---------------------------
+    function initEnvironmentDecor() {
+      game.birds = Array.from({ length: 5 }, (_, i) => ({
+        x: Math.random() * 900,
+        y: 30 + i * 24 + Math.random() * 20,
+        speed: 28 + Math.random() * 26,
+        wingPhase: Math.random() * Math.PI * 2,
+        scale: 0.7 + Math.random() * 0.5
+      }));
+      game.leaves = Array.from({ length: 14 }, () => ({
+        x: Math.random() * 1200,
+        y: Math.random() * 400,
+        vx: 16 + Math.random() * 22,
+        vy: 12 + Math.random() * 18,
+        rot: Math.random() * Math.PI * 2,
+        vrot: (Math.random() - 0.5) * 2.5,
+        size: 5 + Math.random() * 5,
+        color: Math.random() > 0.45 ? '#9ce37f' : '#ffe680'
+      }));
+    }
+
+    // ---------------------------
+    // 5. 座位配置與 NPC 系統
+    // ---------------------------
+    function shuffleSeats(playAudio = true) {
+      const indices = Array.from({ length: 12 }, (_, i) => i);
+      for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+      }
+
+      const oldDesk = game.desks[game.playerSeat];
+      game.playerSeat = indices[0];
+      const newDesk = game.desks[game.playerSeat];
+      if (oldDesk && newDesk && playAudio) {
+        game.playerHop = { fromX: oldDesk.x, fromY: oldDesk.y, toX: newDesk.x, toY: newDesk.y, t: 0 };
+        sound.sfxHop();
+        spawnParticles(newDesk.x, newDesk.y - 16, 12, ['#ffe259', '#59b5f8', '#ffffff'], 40, 140);
+        showToast('🎲 全班大風吹！換到全新射擊角度！');
+      }
+
+      // 配置 5 位可愛 NPC 同學
+      game.npcs = NPC_PROFILES.map((profile, idx) => ({
+        id: idx,
+        profile,
+        seatIdx: indices[idx + 1],
+        shootTimer: 1.4 + Math.random() * 2.4,
+        orbTimer: 4.5 + Math.random() * 5.5,
+        hasOrb: false,
+        orbLife: 0,
+        bounce: 0
+      }));
+    }
+
+    function getOccupiedSeatSet() {
+      const set = new Set([game.playerSeat]);
+      game.npcs.forEach(n => set.add(n.seatIdx));
+      return set;
+    }
+
+    function movePlayerToSeat(targetIdx) {
+      if (targetIdx === game.playerSeat) return;
+      const occupied = getOccupiedSeatSet();
+      if (occupied.has(targetIdx)) return;
+
+      const fromD = game.desks[game.playerSeat];
+      const toD = game.desks[targetIdx];
+      game.playerSeat = targetIdx;
+      game.playerHop = { fromX: fromD.x, fromY: fromD.y, toX: toD.x, toY: toD.y, t: 0 };
+      sound.sfxHop();
+      spawnParticles(toD.x, toD.y - 12, 10, ['#ffce44', '#ffffff', '#69d2ff'], 35, 120);
+    }
+
+    // ---------------------------
+    // 6. 粒子與浮動文字工具
+    // ---------------------------
+    function spawnParticles(x, y, count, colors, minSpd = 50, maxSpd = 180, life = 0.65) {
+      for (let i = 0; i < count; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const spd = minSpd + Math.random() * (maxSpd - minSpd);
+        game.particles.push({
+          x, y,
+          vx: Math.cos(a) * spd,
+          vy: Math.sin(a) * spd - 30,
+          size: 3 + Math.random() * 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          life,
+          maxLife: life
+        });
+      }
+    }
+
+    function spawnFloat(x, y, text, color = '#fff7c2', size = 20) {
+      game.floats.push({ x, y, text, color, size, life: 0.95, maxLife: 0.95 });
+    }
+
+    let toastTimer = null;
+    function showToast(msg) {
+      const el = document.getElementById('toastTip');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+    }
+
+    // ---------------------------
+    // 7. 開始關卡與射擊邏輯
+    // ---------------------------
+    function startStage(stageIndex) {
+      const cfg = STAGES[stageIndex];
+      game.stageIdx = stageIndex;
+      game.status = 'PLAYING';
+      game.stageScore = 0;
+      game.timeLeft = cfg.duration;
+      game.combo = 0;
+      game.feverTimer = 0;
+      game.bananaCooldown = 0;
+      game.bananaActive = null;
+      game.papers = [];
+      game.targets = [];
+      game.chalkMarks = [];
+      game.clones = [];
+      game.targetSpawnTimer = 1.6;
+      sound.isFever = false;
+
+      // 重設猴子
+      game.monkey.x = layout.board.x + layout.board.w * 0.5;
+      game.monkey.dir = 1;
+      game.monkey.jumpY = 0;
+      game.monkey.vy = 0;
+      game.monkey.dashTimer = 0;
+      game.monkey.eatTimer = 0;
+      game.monkey.swatTimer = 0;
+      game.monkey.bubbleTimer = 0;
+      game.monkey.cloneCooldown = 5.5;
+
+      shuffleSeats(false);
+
+      document.getElementById('topStagePill').textContent = `${cfg.name}・目標 ${cfg.targetScore}分`;
+      document.getElementById('startModal').classList.add('hidden');
+      document.getElementById('resultModal').classList.add('hidden');
+
+      showToast(`${cfg.name} 開始！避開搗蛋猴子，突破 ${cfg.targetScore} 分吧！`);
+      sound.init();
+      sound.startBGM();
+    }
+
+    function shootPaper(fromX, fromY, targetX, targetY, owner = 'player', points = 12, isGold = false) {
+      // 限制目標點落在黑板內部
+      const b = layout.board;
+      const tx = Math.max(b.x + 20, Math.min(b.x + b.w - 20, targetX));
+      const ty = Math.max(b.y + 24, Math.min(b.y + b.h - 18, targetY));
+
+      game.papers.push({
+        startX: fromX,
+        startY: fromY - 22,
+        targetX: tx,
+        targetY: ty,
+        x: fromX,
+        y: fromY - 22,
+        t: 0,
+        duration: owner === 'player' ? 0.44 : 0.58,
+        arcHeight: owner === 'player' ? 68 : 85,
+        owner,
+        points,
+        isGold,
+        rot: Math.atan2(ty - fromY, tx - fromX),
+        blocked: false,
+        vx: 0,
+        vy: 0,
+        trail: []
+      });
+
+      if (owner === 'player') {
+        sound.sfxShoot(isGold);
+      }
+    }
+
+    function activateBanana() {
+      if (game.status !== 'PLAYING' || game.bananaCooldown > 0) return;
+      const b = layout.board;
+      // 丟在黑板下緣隨機一側
+      const side = game.monkey.x > b.x + b.w * 0.5 ? 0.24 : 0.76;
+      const bx = b.x + b.w * side;
+      const by = layout.monkeyBaseY + 10;
+
+      game.bananaActive = { x: bx, y: by, timer: 3.5 };
+      game.bananaCooldown = game.bananaMaxCd;
+      game.monkey.eatTimer = 3.5;
+      game.monkey.x = bx;
+      game.monkey.jumpY = 0;
+      game.monkey.vy = 0;
+      game.monkey.bubbleText = '🍌 哇！真香！';
+      game.monkey.bubbleTimer = 3.2;
+
+      sound.sfxBanana();
+      spawnParticles(bx, by, 16, ['#ffe259', '#ffae00', '#ffffff'], 40, 150);
+      showToast('🍌 猴子被金黃香蕉吸引住了！趁這 3.5 秒瘋狂搶分！');
+    }
+
+    function activateFever() {
+      if (game.status !== 'PLAYING' || game.feverEnergy < 100 || game.feverTimer > 0) return;
+      game.feverEnergy = 0;
+      game.feverTimer = 5.2;
+      sound.isFever = true;
+      sound.sfxFeverStart();
+      game.screenShake = 8;
+      spawnFloat(W * 0.5, layout.board.y + layout.board.h * 0.5, '✨ 全班齊射 FEVER!! ✨', '#ffe259', 30);
+      showToast('✨ 全班進入狂熱齊射模式！大量金色滿分考卷連發！');
+    }
+
+    // ---------------------------
+    // 8. 遊戲主邏輯更新 (Update)
+    // ---------------------------
+    function updateGame(dt) {
+      game.globalTime += dt;
+
+      // 背景飛鳥與樹葉持續飄動
+      game.birds.forEach(b => {
+        b.x += b.speed * dt;
+        b.wingPhase += 6.5 * dt;
+        if (b.x > W + 50) { b.x = -50; b.y = 25 + Math.random() * (H * 0.25); }
+      });
+      game.leaves.forEach(l => {
+        l.x += l.vx * dt;
+        l.y += l.vy * dt;
+        l.rot += l.vrot * dt;
+        if (l.x > W + 20 || l.y > H * 0.58) {
+          l.x = -20 + Math.random() * W * 0.7;
+          l.y = -15;
+        }
+      });
+
+      // 粒子與浮動文字
+      for (let i = game.particles.length - 1; i >= 0; i--) {
+        const p = game.particles[i];
+        p.life -= dt;
+        if (p.life <= 0) { game.particles.splice(i, 1); continue; }
+        p.vy += 240 * dt;
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+      }
+      for (let i = game.floats.length - 1; i >= 0; i--) {
+        const f = game.floats[i];
+        f.life -= dt;
+        if (f.life <= 0) { game.floats.splice(i, 1); continue; }
+        f.y -= 44 * dt;
+      }
+      for (let i = game.chalkMarks.length - 1; i >= 0; i--) {
+        game.chalkMarks[i].life -= dt;
+        if (game.chalkMarks[i].life <= 0) game.chalkMarks.splice(i, 1);
+      }
+
+      if (game.screenShake > 0.2) game.screenShake *= 0.86;
+      else game.screenShake = 0;
+
+      if (game.status !== 'PLAYING') return;
+
+      const cfg = STAGES[game.stageIdx];
+
+      // 倒數計時
+      game.timeLeft = Math.max(0, game.timeLeft - dt);
+      if (game.timeLeft <= 0) {
+        finishStage(game.stageScore >= cfg.targetScore);
+        return;
+      }
+
+      // 技能冷卻與 Fever 狀態
+      if (game.bananaCooldown > 0) game.bananaCooldown = Math.max(0, game.bananaCooldown - dt);
+      if (game.bananaActive) {
+        game.bananaActive.timer -= dt;
+        if (game.bananaActive.timer <= 0) game.bananaActive = null;
+      }
+      if (game.feverTimer > 0) {
+        game.feverTimer -= dt;
+        if (game.feverTimer <= 0) {
+          game.feverTimer = 0;
+          sound.isFever = false;
+        }
+      }
+
+      // 主角換位跳躍動畫
+      if (game.playerHop) {
+        game.playerHop.t += dt * 4.2;
+        if (game.playerHop.t >= 1) game.playerHop = null;
+      }
+
+      // 黑板隨機加分靶心生成
+      game.targetSpawnTimer -= dt;
+      if (game.targetSpawnTimer <= 0 && game.targets.length < 2) {
+        const b = layout.board;
+        const isStar = Math.random() > 0.48;
+        game.targets.push({
+          x: b.x + 56 + Math.random() * Math.max(40, b.w - 112),
+          y: b.y + 52 + Math.random() * Math.max(30, b.h - 90),
+          r: isStar ? 24 : 28,
+          kind: isStar ? 'star' : 'bonus',
+          label: isStar ? '★×2' : '+30',
+          life: 6.5,
+          maxLife: 6.5
+        });
+        game.targetSpawnTimer = 3.2 + Math.random() * 2.0;
+      }
+      for (let i = game.targets.length - 1; i >= 0; i--) {
+        game.targets[i].life -= dt;
+        if (game.targets[i].life <= 0) game.targets.splice(i, 1);
+      }
+
+      // NPC 自動助攻與應援光球
+      const b = layout.board;
+      game.npcs.forEach(npc => {
+        if (npc.bounce > 0) npc.bounce = Math.max(0, npc.bounce - dt * 4);
+
+        // Fever 時全班瘋狂齊射金色考卷！
+        npc.shootTimer -= dt * (game.feverTimer > 0 ? 4.8 : 1);
+        if (npc.shootTimer <= 0) {
+          const d = game.desks[npc.seatIdx];
+          if (d) {
+            const tx = b.x + 36 + Math.random() * (b.w - 72);
+            const ty = b.y + 36 + Math.random() * (b.h - 60);
+            const pts = game.feverTimer > 0 ? 18 : (5 + Math.floor(Math.random() * 11));
+            shootPaper(d.x, d.y, tx, ty, 'npc', pts, game.feverTimer > 0);
+            npc.bounce = 1;
+          }
+          npc.shootTimer = 2.0 + Math.random() * 2.2;
+        }
+
+        // 應援光球生成
+        if (!npc.hasOrb && game.feverTimer <= 0) {
+          npc.orbTimer -= dt;
+          if (npc.orbTimer <= 0) {
+            npc.hasOrb = true;
+            npc.orbLife = 5.5;
+            npc.orbTimer = 7 + Math.random() * 6;
+          }
+        } else if (npc.hasOrb) {
+          npc.orbLife -= dt;
+          if (npc.orbLife <= 0) npc.hasOrb = false;
+        }
+      });
+
+      // 搗蛋猴子 AI 更新
+      updateMonkey(dt, cfg);
+
+      // 更新所有飛行中的考卷
+      updatePapers(dt, cfg);
+
+      // 過關門檻即時檢查（達到目標分數提前歡呼過關？還是讓玩家可繼續衝高分？
+      // 題目說「超過門檻即可晉級下一關」，為了爽感，達標後立即進入下一關或延遲 0.6s 慶祝最流暢！）
+      if (game.stageScore >= cfg.targetScore) {
+        finishStage(true);
+      }
+
+      syncBottomBarUI();
+    }
+
+    function updateMonkey(dt, cfg) {
+      const m = game.monkey;
+      const b = layout.board;
+      const minX = b.x + 36;
+      const maxX = b.x + b.w - 36;
+
+      if (m.swatTimer > 0) m.swatTimer = Math.max(0, m.swatTimer - dt * 3.5);
+      if (m.bubbleTimer > 0) m.bubbleTimer -= dt;
+
+      if (m.eatTimer > 0) {
+        m.eatTimer -= dt;
+      } else {
+        // 衝刺變速（第 2、3 關）
+        if (m.dashTimer > 0) {
+          m.dashTimer -= dt;
+        } else if (cfg.dashChance > 0 && Math.random() < cfg.dashChance * dt * 0.6) {
+          m.dashTimer = 1.1;
+          m.dir = Math.random() > 0.5 ? 1 : -1;
+          m.bubbleText = '⚡ 加速攔截！';
+          m.bubbleTimer = 1.1;
+        }
+
+        const spd = cfg.monkeySpeed * (m.dashTimer > 0 ? 1.65 : 1);
+        m.x += m.dir * spd * dt;
+        if (m.x <= minX) { m.x = minX; m.dir = 1; }
+        if (m.x >= maxX) { m.x = maxX; m.dir = -1; }
+
+        // 跳躍物理
+        if (m.jumpY === 0 && Math.random() < cfg.jumpRate * dt) {
+          m.vy = -(310 + cfg.id * 55);
+        }
+        if (m.jumpY < 0 || m.vy < 0) {
+          m.vy += 860 * dt;
+          m.jumpY += m.vy * dt;
+          if (m.jumpY >= 0) { m.jumpY = 0; m.vy = 0; }
+        }
+      }
+
+      // 第 3 關：分身大亂鬥
+      if (cfg.allowClones) {
+        m.cloneCooldown -= dt;
+        if (m.cloneCooldown <= 0 && game.clones.length < 1 && m.eatTimer <= 0) {
+          game.clones.push({
+            x: m.x > b.x + b.w * 0.5 ? b.x + 60 : b.x + b.w - 60,
+            dir: m.dir * -1,
+            life: 6.5,
+            maxLife: 6.5,
+            jumpPhase: 0,
+            swatTimer: 0
+          });
+          m.bubbleText = '🐒 影分身之術！';
+          m.bubbleTimer = 1.6;
+          m.cloneCooldown = 9.5;
+          spawnParticles(m.x, layout.monkeyBaseY - 24, 16, ['#c8a2ff', '#ffffff', '#ffe259'], 40, 160);
+        }
+      }
+
+      for (let i = game.clones.length - 1; i >= 0; i--) {
+        const c = game.clones[i];
+        c.life -= dt;
+        if (c.swatTimer > 0) c.swatTimer = Math.max(0, c.swatTimer - dt * 3.5);
+        if (c.life <= 0) { game.clones.splice(i, 1); continue; }
+        c.x += c.dir * (cfg.monkeySpeed * 0.78) * dt;
+        if (c.x <= minX) { c.x = minX; c.dir = 1; }
+        if (c.x >= maxX) { c.x = maxX; c.dir = -1; }
+        c.jumpPhase += dt * 4.5;
+      }
+    }
+
+    function updatePapers(dt, cfg) {
+      const m = game.monkey;
+      const monkeyCenterY = layout.monkeyBaseY - 26 + m.jumpY;
+
+      for (let i = game.papers.length - 1; i >= 0; i--) {
+        const p = game.papers[i];
+
+        if (p.blocked) {
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.vy += 520 * dt;
+          p.rot += 12 * dt;
+          if (p.y > H + 40) game.papers.splice(i, 1);
+          continue;
+        }
+
+        p.t += dt / p.duration;
+        const t = Math.min(1, p.t);
+        const lx = p.startX + (p.targetX - p.startX) * t;
+        const ly = p.startY + (p.targetY - p.startY) * t - Math.sin(t * Math.PI) * p.arcHeight;
+        p.x = lx;
+        p.y = ly;
+        p.rot += (p.isGold ? 6 : 10) * dt;
+        p.trail.push({ x: lx, y: ly });
+        if (p.trail.length > 7) p.trail.shift();
+
+        // 考卷飛到黑板前方平面時（t 介於 0.68 ~ 0.96）檢查是否被猴子或分身攔截
+        if (t >= 0.68 && t <= 0.96) {
+          // 檢查本體猴子（吃香蕉時不攔截！）
+          if (m.eatTimer <= 0 && Math.hypot(p.x - m.x, p.y - monkeyCenterY) < 42) {
+            blockPaper(p, m, false);
+            continue;
+          }
+          // 檢查分身猴子
+          let hitClone = false;
+          for (const c of game.clones) {
+            const cy = layout.monkeyBaseY - 24 - Math.abs(Math.sin(c.jumpPhase)) * 55;
+            if (Math.hypot(p.x - c.x, p.y - cy) < 36) {
+              blockPaper(p, c, true);
+              hitClone = true;
+              break;
+            }
+          }
+          if (hitClone) continue;
+        }
+
+        // 抵達黑板得分！
+        if (p.t >= 1) {
+          let earned = p.points;
+          let isBonusHit = false;
+
+          // 檢查是否命中黑板上的發光加分靶心
+          for (let k = game.targets.length - 1; k >= 0; k--) {
+            const tg = game.targets[k];
+            if (Math.hypot(p.targetX - tg.x, p.targetY - tg.y) < tg.r + 22) {
+              isBonusHit = true;
+              if (tg.kind === 'bonus') {
+                earned += 30;
+                spawnFloat(tg.x, tg.y - 12, '✨ 加分題 +30!', '#ffe259', 24);
+              } else {
+                earned = earned * 2 + 15;
+                spawnFloat(tg.x, tg.y - 12, '🌟 雙倍靶心!!', '#ff99c8', 24);
+              }
+              spawnParticles(tg.x, tg.y, 24, ['#ffe259', '#ff6b57', '#69d2ff', '#ffffff'], 70, 230, 0.85);
+              game.targets.splice(k, 1);
+              break;
+            }
+          }
+
+          if (p.owner === 'player') {
+            game.combo++;
+            if (game.combo > game.maxCombo) game.maxCombo = game.combo;
+            const comboBonus = Math.min(18, Math.floor(game.combo / 3) * 3);
+            earned += comboBonus;
+            if (game.feverTimer <= 0) {
+              game.feverEnergy = Math.min(100, game.feverEnergy + (isBonusHit ? 18 : 7));
+            }
+            sound.sfxHitBoard(isBonusHit);
+          } else if (isBonusHit) {
+            sound.sfxHitBoard(true);
+          }
+
+          game.stageScore += earned;
+          game.totalScore += earned;
+
+          game.chalkMarks.push({
+            x: p.targetX,
+            y: p.targetY,
+            text: `+${earned}`,
+            color: p.isGold || isBonusHit ? '#ffe875' : '#ffffff',
+            life: 0.75
+          });
+
+          spawnParticles(p.targetX, p.targetY, p.isGold ? 12 : 6, ['#ffffff', '#ffe875', '#a6f4c5'], 30, 120, 0.5);
+          game.papers.splice(i, 1);
+        }
+      }
+    }
+
+    function blockPaper(p, blocker, isClone) {
+      p.blocked = true;
+      p.vx = (p.x >= blocker.x ? 1 : -1) * (140 + Math.random() * 120);
+      p.vy = -190 - Math.random() * 80;
+      blocker.swatTimer = 1;
+      if (p.owner === 'player') {
+        game.combo = 0;
+        sound.sfxMonkeyBlock();
+        game.screenShake = 4;
+      }
+      if (!isClone) {
+        const lines = ['嘿嘿！攔截！', '想得分？沒門！', '被我拍飛啦！'];
+        blocker.bubbleText = lines[Math.floor(Math.random() * lines.length)];
+        blocker.bubbleTimer = 1.0;
+      }
+      spawnParticles(p.x, p.y, 10, ['#ff8577', '#ffffff', '#ffe259'], 40, 150, 0.45);
+    }
+
+    function finishStage(isClear) {
+      game.status = 'STAGE_RESULT';
+      sound.isFever = false;
+      const cfg = STAGES[game.stageIdx];
+
+      const modal = document.getElementById('resultModal');
+      const badge = document.getElementById('resultBadge');
+      const title = document.getElementById('resultTitle');
+      const desc = document.getElementById('resultDesc');
+      const btns = document.getElementById('resultButtons');
+
+      document.getElementById('resScore').textContent = game.stageScore;
+      document.getElementById('resCombo').textContent = game.maxCombo;
+      document.getElementById('resTotal').textContent = game.totalScore;
+
+      if (isClear) {
+        sound.sfxStageClear();
+        game.clearedStages = Math.max(game.clearedStages, cfg.id);
+        spawnParticles(W * 0.5, H * 0.35, 50, ['#ffe259', '#ff6b57', '#69d2ff', '#7ed386'], 90, 320, 1.2);
+
+        if (game.stageIdx < STAGES.length - 1) {
+          badge.textContent = `STAGE ${cfg.id} CLEAR!`;
+          title.textContent = `${cfg.name} 突破成功！`;
+          desc.textContent = `太厲害了！你成功突破 ${cfg.targetScore} 分門檻，準備前往下一個更美的山景時段吧！`;
+          btns.innerHTML = `<button id="btnNextStage" class="btn-primary">⛰️ 挑戰第 ${cfg.id + 1} 關</button>`;
+          document.getElementById('btnNextStage').onclick = () => startStage(game.stageIdx + 1);
+        } else {
+          badge.textContent = 'ALL 3 STAGES CLEARED!';
+          title.textContent = '🎉 全面通關・刷新三觀！';
+          desc.textContent = '恭喜你突破晨光、晴空與金霞三關考驗，連搗蛋猴子分身都甘拜下風！快來領取你的專屬榮譽證書吧！';
+          btns.innerHTML = `
+            <button id="btnGoCert" class="btn-primary">🏆 製作並下載榮譽證書</button>
+            <button id="btnReplayAll" class="btn-secondary">↺ 從第 1 關重玩</button>
+          `;
+          document.getElementById('btnGoCert').onclick = () => {
+            modal.classList.add('hidden');
+            openCertModal();
+          };
+          document.getElementById('btnReplayAll').onclick = () => {
+            game.totalScore = 0;
+            game.maxCombo = 0;
+            startStage(0);
+          };
+        }
+      } else {
+        badge.textContent = 'TIME UP!';
+        title.textContent = '差一點點就過關囉！';
+        desc.textContent = `本關目標為 ${cfg.targetScore} 分，善用「點擊空位換角度」、「丟香蕉誘餌」與「點擊同學應援光球」就能輕鬆突圍！`;
+        btns.innerHTML = `<button id="btnRetryStage" class="btn-primary">🔥 再挑戰本關一次</button>`;
+        document.getElementById('btnRetryStage').onclick = () => startStage(game.stageIdx);
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function syncBottomBarUI() {
+      const btnBanana = document.getElementById('btnBanana');
+      const bananaLabel = document.getElementById('bananaLabel');
+      const bananaBar = document.getElementById('bananaBar');
+
+      if (game.bananaCooldown > 0) {
+        btnBanana.disabled = true;
+        bananaLabel.textContent = `🍌 冷卻 ${Math.ceil(game.bananaCooldown)}s`;
+        bananaBar.style.width = ((1 - game.bananaCooldown / game.bananaMaxCd) * 100) + '%';
+      } else {
+        btnBanana.disabled = game.status !== 'PLAYING';
+        bananaLabel.textContent = '🍌 丟香蕉誘餌';
+        bananaBar.style.width = '100%';
+      }
+
+      const btnFever = document.getElementById('btnFever');
+      const feverLabel = document.getElementById('feverLabel');
+      const feverBar = document.getElementById('feverBar');
+
+      if (game.feverTimer > 0) {
+        btnFever.disabled = true;
+        btnFever.classList.add('ready');
+        feverLabel.textContent = `🔥 齊射中 ${game.feverTimer.toFixed(1)}s`;
+        feverBar.style.width = ((game.feverTimer / 5.2) * 100) + '%';
+      } else {
+        const pct = Math.floor(game.feverEnergy);
+        const ready = pct >= 100 && game.status === 'PLAYING';
+        btnFever.disabled = !ready;
+        btnFever.classList.toggle('ready', ready);
+        feverLabel.textContent = ready ? '✨ 啟動全班齊射！' : `✨ 全班齊射 ${pct}%`;
+        feverBar.style.width = pct + '%';
+      }
+    }
+
+    // ---------------------------
+    // 9. 高質感 Canvas 繪製系統
+    // ---------------------------
+    function renderGame() {
+      ctx.save();
+      if (game.screenShake > 0.2) {
+        ctx.translate((Math.random() - 0.5) * game.screenShake, (Math.random() - 0.5) * game.screenShake);
+      }
+
+      const cfg = STAGES[game.stageIdx];
+
+      // 1. 亮麗山景玻璃落地窗背景
+      drawMountainWindowBackdrop(cfg.theme);
+
+      // 2. 教室牆面、木地板與光影
+      drawClassroomArchitecture();
+
+      // 3. 精緻綠黑板（含粉筆文字 HUD 與加分靶心）
+      drawBlackboard(cfg);
+
+      // 4. 猴子分身與搗蛋猴子本體 + 香蕉誘餌
+      drawMonkeyAndClones();
+
+      // 5. 12 課桌椅、主角與可愛 NPC 同學
+      drawDesksAndStudents();
+
+      // 6. 飛行考卷與紙飛機
+      drawPapers();
+
+      // 7. 粒子與浮動提示字
+      drawEffects();
+
+      ctx.restore();
+    }
+
+    function drawMountainWindowBackdrop(theme) {
+      const winBottom = layout.deskAreaTop - 10;
+
+      // 天空漸層（依關卡變化：晨光 / 晴空 / 金霞）
+      const sky = ctx.createLinearGradient(0, 0, 0, winBottom);
+      if (theme === 'morning') {
+        sky.addColorStop(0, '#5ec2ff');
+        sky.addColorStop(0.55, '#b6e6ff');
+        sky.addColorStop(1, '#fff3cf');
+      } else if (theme === 'noon') {
+        sky.addColorStop(0, '#1e90ff');
+        sky.addColorStop(0.55, '#7ad0ff');
+        sky.addColorStop(1, '#dcf6ff');
+      } else {
+        sky.addColorStop(0, '#5b67c9');
+        sky.addColorStop(0.45, '#ff8e72');
+        sky.addColorStop(1, '#ffe49e');
+      }
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, W, winBottom);
+
+      // 太陽與柔光暈
+      const sunX = theme === 'morning' ? W * 0.16 : theme === 'noon' ? W * 0.84 : W * 0.5;
+      const sunY = theme === 'sunset' ? winBottom * 0.62 : winBottom * 0.24;
+      const sunR = theme === 'sunset' ? 140 : 100;
+      const sunGrad = ctx.createRadialGradient(sunX, sunY, 12, sunX, sunY, sunR);
+      sunGrad.addColorStop(0, 'rgba(255, 253, 224, 0.98)');
+      sunGrad.addColorStop(0.38, theme === 'sunset' ? 'rgba(255, 198, 92, 0.5)' : 'rgba(255, 245, 180, 0.45)');
+      sunGrad.addColorStop(1, 'rgba(255, 245, 180, 0)');
+      ctx.fillStyle = sunGrad;
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, sunR, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 第 3 關丁達爾金色聖光
+      if (theme === 'sunset') {
+        ctx.save();
+        ctx.fillStyle = 'rgba(255, 242, 188, 0.14)';
+        for (let i = 0; i < 6; i++) {
+          const ang = -Math.PI * 0.85 + i * 0.28 + Math.sin(game.globalTime * 0.5 + i) * 0.03;
+          ctx.beginPath();
+          ctx.moveTo(sunX, sunY);
+          ctx.lineTo(sunX + Math.cos(ang - 0.04) * W, sunY + Math.sin(ang - 0.04) * W);
+          ctx.lineTo(sunX + Math.cos(ang + 0.04) * W, sunY + Math.sin(ang + 0.04) * W);
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      // 飄動白雲／金霞雲海
+      const cloudColor = theme === 'sunset' ? 'rgba(255, 232, 196, 0.78)' : 'rgba(255, 255, 255, 0.82)';
+      for (let i = 0; i < 5; i++) {
+        const cx = ((i * 260 + game.globalTime * (10 + i * 3)) % (W + 220)) - 110;
+        const cy = 28 + (i % 3) * 34;
+        drawFluffyCloud(cx, cy, 0.7 + (i % 2) * 0.35, cloudColor);
+      }
+
+      // 三層壯麗山景（遠山、中嶺、近翠峰）
+      const mColors = theme === 'morning'
+        ? ['#78b7d0', '#4d9b85', '#2f7d5b']
+        : theme === 'noon'
+          ? ['#68a9db', '#3d8f82', '#267355']
+          : ['#8b699e', '#b5676d', '#5c3c54'];
+
+      drawMountainLayer(winBottom, winBottom * 0.44, 0.0042, 0.8, mColors[0]);
+      drawMountainLayer(winBottom, winBottom * 0.32, 0.0065, 2.2, mColors[1]);
+      drawMountainLayer(winBottom, winBottom * 0.20, 0.0092, 4.1, mColors[2]);
+
+      // 第 3 關山腰雲海薄霧
+      if (theme === 'sunset') {
+        const mist = ctx.createLinearGradient(0, winBottom - 55, 0, winBottom);
+        mist.addColorStop(0, 'rgba(255, 240, 210, 0)');
+        mist.addColorStop(1, 'rgba(255, 236, 198, 0.65)');
+        ctx.fillStyle = mist;
+        ctx.fillRect(0, winBottom - 55, W, 55);
+      }
+
+      // 飛鳥
+      ctx.strokeStyle = theme === 'sunset' ? '#4f2c3f' : '#2a587a';
+      ctx.lineWidth = 1.8;
+      game.birds.forEach(b => {
+        if (b.y > winBottom - 30) return;
+        const flap = Math.sin(b.wingPhase) * 4 * b.scale;
+        ctx.beginPath();
+        ctx.moveTo(b.x - 8 * b.scale, b.y + flap);
+        ctx.quadraticCurveTo(b.x - 3 * b.scale, b.y - 4 * b.scale, b.x, b.y);
+        ctx.quadraticCurveTo(b.x + 3 * b.scale, b.y - 4 * b.scale, b.x + 8 * b.scale, b.y + flap);
+        ctx.stroke();
+      });
+
+      // 微風樹葉與陽光微粒
+      game.leaves.forEach(l => {
+        ctx.save();
+        ctx.translate(l.x, l.y);
+        ctx.rotate(l.rot);
+        ctx.fillStyle = l.color;
+        ctx.globalAlpha = 0.78;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, l.size, l.size * 0.48, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      // 落地窗白色／淺木質窗格線（營造明亮山景玻璃教室質感）
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255, 252, 244, 0.62)';
+      ctx.lineWidth = 5;
+      const panes = 6;
+      for (let i = 1; i < panes; i++) {
+        const px = (W / panes) * i;
+        ctx.beginPath();
+        ctx.moveTo(px, 0);
+        ctx.lineTo(px, winBottom);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function drawFluffyCloud(x, y, s, color) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(s, s);
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(0, 0, 22, 0, Math.PI * 2);
+      ctx.arc(24, -4, 26, 0, Math.PI * 2);
+      ctx.arc(50, 2, 20, 0, Math.PI * 2);
+      ctx.arc(-20, 4, 16, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawMountainLayer(baseY, amp, freq, phase, color) {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(0, baseY);
+      for (let x = 0; x <= W + 24; x += 24) {
+        const h = Math.abs(Math.sin(x * freq + phase)) * amp * 0.7 + Math.cos(x * freq * 1.9 + phase) * amp * 0.25 + amp * 0.2;
+        ctx.lineTo(x, baseY - h);
+      }
+      ctx.lineTo(W, baseY);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawClassroomArchitecture() {
+      const floorTop = layout.deskAreaTop - 10;
+
+      // 窗台木質橫樑
+      ctx.fillStyle = '#e8c493';
+      ctx.fillRect(0, floorTop - 10, W, 12);
+      ctx.fillStyle = '#b98245';
+      ctx.fillRect(0, floorTop, W, 4);
+
+      // 溫暖明亮教室木地板
+      const floorGrad = ctx.createLinearGradient(0, floorTop, 0, H);
+      floorGrad.addColorStop(0, '#f5e1bd');
+      floorGrad.addColorStop(1, '#e1be88');
+      ctx.fillStyle = floorGrad;
+      ctx.fillRect(0, floorTop + 4, W, H - floorTop);
+
+      // 地板透視木紋線
+      ctx.strokeStyle = 'rgba(155, 102, 46, 0.14)';
+      ctx.lineWidth = 1.2;
+      for (let i = 1; i <= 7; i++) {
+        const lx = (W / 8) * i;
+        ctx.beginPath();
+        ctx.moveTo(W * 0.5 + (lx - W * 0.5) * 0.75, floorTop + 4);
+        ctx.lineTo(lx, H);
+        ctx.stroke();
+      }
+
+      // 窗外灑入地板的溫暖陽光菱形光斑
+      ctx.fillStyle = 'rgba(255, 250, 224, 0.24)';
+      ctx.beginPath();
+      ctx.moveTo(W * 0.1, floorTop + 4);
+      ctx.lineTo(W * 0.35, floorTop + 4);
+      ctx.lineTo(W * 0.25, H);
+      ctx.lineTo(0, H);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawBlackboard(cfg) {
+      const b = layout.board;
+
+      // 黑板立體投影
+      ctx.save();
+      ctx.shadowColor = 'rgba(20, 42, 56, 0.32)';
+      ctx.shadowBlur = 18;
+      ctx.shadowOffsetY = 8;
+
+      // 實木外框
+      const frameGrad = ctx.createLinearGradient(b.x, b.y, b.x, b.y + b.h);
+      frameGrad.addColorStop(0, '#c88b4b');
+      frameGrad.addColorStop(1, '#8c5523');
+      ctx.fillStyle = frameGrad;
+      ctx.beginPath();
+      ctx.roundRect(b.x - 10, b.y - 10, b.w + 20, b.h + 22, 14);
+      ctx.fill();
+      ctx.restore();
+
+      // 深墨綠霧面黑板本體
+      const boardGrad = ctx.createLinearGradient(b.x, b.y, b.x + b.w, b.y + b.h);
+      boardGrad.addColorStop(0, '#1e5b43');
+      boardGrad.addColorStop(0.5, '#194d39');
+      boardGrad.addColorStop(1, '#14402f');
+      ctx.fillStyle = boardGrad;
+      ctx.beginPath();
+      ctx.roundRect(b.x, b.y, b.w, b.h, 8);
+      ctx.fill();
+
+      // Fever 時黑板金色發光邊框
+      if (game.feverTimer > 0) {
+        ctx.strokeStyle = '#ffe259';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+      }
+
+      // 細緻粉筆灰紋理
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+      ctx.fillRect(b.x + 16, b.y + 42, b.w - 32, 2);
+
+      // 粉筆槽、板擦與彩色粉筆
+      ctx.fillStyle = '#75441b';
+      ctx.fillRect(b.x + 18, b.y + b.h + 4, b.w - 36, 8);
+      // 板擦
+      ctx.fillStyle = '#365f91';
+      ctx.fillRect(b.x + b.w - 72, b.y + b.h - 2, 34, 9);
+      ctx.fillStyle = '#f2c14e';
+      ctx.fillRect(b.x + b.w - 72, b.y + b.h + 4, 34, 3);
+      // 粉筆
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(b.x + 34, b.y + b.h + 1, 18, 4);
+      ctx.fillStyle = '#ffe259';
+      ctx.fillRect(b.x + 58, b.y + b.h + 1, 16, 4);
+      ctx.fillStyle = '#ff9bb3';
+      ctx.fillRect(b.x + 80, b.y + b.h + 1, 14, 4);
+
+      // ---- 黑板粉筆文字 HUD ----
+      const compact = b.w < 430;
+      ctx.fillStyle = '#fffef2';
+      ctx.font = `800 ${compact ? 14 : 17}px "PingFang TC", "Microsoft JhengHei", sans-serif`;
+      ctx.textAlign = 'left';
+      ctx.fillText(`${cfg.name}（${cfg.subtitle}）`, b.x + 14, b.y + 26);
+
+      // 倒數計時器（最後 10 秒轉珊瑚紅）
+      ctx.textAlign = 'right';
+      ctx.fillStyle = game.timeLeft <= 10 ? '#ff8b7b' : '#ffe885';
+      ctx.font = `900 ${compact ? 16 : 20}px "PingFang TC", sans-serif`;
+      ctx.fillText(`⏱ ${Math.ceil(game.timeLeft)}s`, b.x + b.w - 14, b.y + 27);
+
+      // 中央大字總分與目標
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `900 ${compact ? 26 : 34}px "PingFang TC", sans-serif`;
+      ctx.fillText(`${game.stageScore} / ${cfg.targetScore} 分`, b.x + b.w * 0.5, b.y + b.h * 0.48);
+
+      // 粉筆質感進度條
+      const barW = Math.min(b.w * 0.68, 360);
+      const barH = 12;
+      const barX = b.x + (b.w - barW) / 2;
+      const barY = b.y + b.h * 0.57;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.16)';
+      ctx.beginPath();
+      ctx.roundRect(barX, barY, barW, barH, 99);
+      ctx.fill();
+      const ratio = Math.min(1, game.stageScore / cfg.targetScore);
+      const fillGrad = ctx.createLinearGradient(barX, barY, barX + barW, barY);
+      fillGrad.addColorStop(0, '#78e8a2');
+      fillGrad.addColorStop(1, '#ffe259');
+      ctx.fillStyle = fillGrad;
+      ctx.beginPath();
+      ctx.roundRect(barX, barY, Math.max(8, barW * ratio), barH, 99);
+      ctx.fill();
+
+      // Combo 顯示
+      if (game.combo >= 2) {
+        ctx.fillStyle = '#ffe259';
+        ctx.font = `900 ${compact ? 14 : 17}px "PingFang TC", sans-serif`;
+        ctx.fillText(`🔥 ${game.combo} COMBO!`, b.x + b.w * 0.5, b.y + b.h * 0.8);
+      } else {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.62)';
+        ctx.font = `600 ${compact ? 11 : 13}px "PingFang TC", sans-serif`;
+        ctx.fillText('點擊黑板任意位置射出考卷！', b.x + b.w * 0.5, b.y + b.h * 0.8);
+      }
+
+      // 黑板上的發光加分靶心
+      game.targets.forEach(tg => {
+        const pulse = 1 + Math.sin(game.globalTime * 7) * 0.08;
+        ctx.save();
+        ctx.translate(tg.x, tg.y);
+        ctx.scale(pulse, pulse);
+        ctx.shadowColor = tg.kind === 'bonus' ? '#ffe259' : '#ff85b3';
+        ctx.shadowBlur = 16;
+        ctx.fillStyle = tg.kind === 'bonus' ? 'rgba(255, 226, 89, 0.26)' : 'rgba(255, 133, 179, 0.28)';
+        ctx.strokeStyle = tg.kind === 'bonus' ? '#ffe259' : '#ff9bc4';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, tg.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '900 14px "PingFang TC", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(tg.label, 0, 5);
+        ctx.restore();
+      });
+
+      // 黑板粉筆得分殘影
+      game.chalkMarks.forEach(mk => {
+        ctx.save();
+        ctx.globalAlpha = Math.min(1, mk.life * 1.4);
+        ctx.fillStyle = mk.color;
+        ctx.font = '900 18px "PingFang TC", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(mk.text, mk.x, mk.y);
+        ctx.restore();
+      });
+    }
+
+    function drawMonkeyAndClones() {
+      // 若有丟出香蕉誘餌，繪製閃亮金香蕉
+      if (game.bananaActive) {
+        const ba = game.bananaActive;
+        ctx.save();
+        ctx.translate(ba.x + 28, ba.y - 6);
+        ctx.rotate(-0.35 + Math.sin(game.globalTime * 8) * 0.12);
+        ctx.fillStyle = '#ffe247';
+        ctx.strokeStyle = '#a86b00';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, 15, 0.2, Math.PI * 1.15);
+        ctx.quadraticCurveTo(0, 6, 14, 3);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // 第 3 關半透明分身猴子
+      game.clones.forEach(c => {
+        const cy = layout.monkeyBaseY - Math.abs(Math.sin(c.jumpPhase)) * 55;
+        drawSingleMonkey(c.x, cy, c.dir, false, c.swatTimer, true, '', 0);
+      });
+
+      // 本體搗蛋猴子
+      const m = game.monkey;
+      drawSingleMonkey(
+        m.x,
+        layout.monkeyBaseY + m.jumpY,
+        m.dir,
+        m.eatTimer > 0,
+        m.swatTimer,
+        false,
+        m.bubbleText,
+        m.bubbleTimer
+      );
+    }
+
+    function drawSingleMonkey(x, baseY, dir, isEating, swatTimer, isClone, bubbleText, bubbleTimer) {
+      ctx.save();
+      ctx.translate(x, baseY);
+      if (isClone) ctx.globalAlpha = 0.62;
+
+      // 地面陰影
+      ctx.fillStyle = 'rgba(30, 30, 30, 0.2)';
+      ctx.beginPath();
+      ctx.ellipse(0, 4, 24, 7, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      const walkBob = isEating ? Math.sin(game.globalTime * 10) * 2 : Math.abs(Math.sin(game.globalTime * 11)) * -4;
+      ctx.translate(0, walkBob);
+
+      // 尾巴
+      ctx.strokeStyle = isClone ? '#8e62c7' : '#7b431e';
+      ctx.lineWidth = 5;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(-dir * 14, -14);
+      ctx.quadraticCurveTo(-dir * 34, -22 + Math.sin(game.globalTime * 8) * 6, -dir * 28, -40);
+      ctx.stroke();
+
+      // 身體
+      ctx.fillStyle = isClone ? '#9a6fd1' : '#8e4d23';
+      ctx.beginPath();
+      ctx.ellipse(0, -18, 17, 20, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // 淺色肚皮
+      ctx.fillStyle = isClone ? '#e6d7ff' : '#f4cf9f';
+      ctx.beginPath();
+      ctx.ellipse(0, -16, 10, 13, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 雙手（攔截或吃香蕉時高舉／揮動）
+      ctx.strokeStyle = isClone ? '#8e62c7' : '#8e4d23';
+      ctx.lineWidth = 6;
+      const armLift = swatTimer > 0 ? -42 : isEating ? -22 : -28 + Math.sin(game.globalTime * 12) * 5;
+      ctx.beginPath();
+      ctx.moveTo(-12, -24);
+      ctx.lineTo(-24, armLift);
+      ctx.moveTo(12, -24);
+      ctx.lineTo(24, isEating ? -24 : armLift);
+      ctx.stroke();
+
+      // 耳朵
+      ctx.fillStyle = isClone ? '#9a6fd1' : '#8e4d23';
+      ctx.beginPath();
+      ctx.arc(-20, -44, 8, 0, Math.PI * 2);
+      ctx.arc(20, -44, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#f4cf9f';
+      ctx.beginPath();
+      ctx.arc(-20, -44, 4.5, 0, Math.PI * 2);
+      ctx.arc(20, -44, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 頭部與臉
+      ctx.fillStyle = isClone ? '#9a6fd1' : '#8e4d23';
+      ctx.beginPath();
+      ctx.arc(0, -44, 19, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#f8d7ac';
+      ctx.beginPath();
+      ctx.ellipse(0, -40, 14, 11, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(-6, -47, 7, 0, Math.PI * 2);
+      ctx.arc(6, -47, 7, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 眼睛與表情
+      ctx.fillStyle = '#221712';
+      if (isEating) {
+        // 開心笑眼 ^ ^
+        ctx.strokeStyle = '#221712';
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.arc(-6, -47, 4, Math.PI * 1.1, Math.PI * 1.9);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(6, -47, 4, Math.PI * 1.1, Math.PI * 1.9);
+        ctx.stroke();
+      } else {
+        ctx.beginPath();
+        ctx.arc(-6, -47, 3, 0, Math.PI * 2);
+        ctx.arc(6, -47, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-5, -48, 1.1, 0, Math.PI * 2);
+        ctx.arc(7, -48, 1.1, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 調皮咧嘴或吃香蕉嘴
+      ctx.strokeStyle = '#5a2610';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, -39, 6, 0.1 * Math.PI, 0.9 * Math.PI);
+      ctx.stroke();
+      if (!isEating && swatTimer > 0) {
+        // 吐舌做鬼臉
+        ctx.fillStyle = '#ff6b7b';
+        ctx.beginPath();
+        ctx.arc(0, -33, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 對話氣泡
+      if (bubbleTimer > 0 && bubbleText) {
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = '#fffdf5';
+        ctx.strokeStyle = '#d98f2b';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.roundRect(-52, -94, 104, 26, 12);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#4f2c00';
+        ctx.font = '800 12px "PingFang TC", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(bubbleText, 0, -77);
+      }
+
+      ctx.restore();
+    }
+
+    function drawDesksAndStudents() {
+      const npcBySeat = new Map();
+      game.npcs.forEach(n => npcBySeat.set(n.seatIdx, n));
+
+      game.desks.forEach(d => {
+        const isPlayerHere = d.index === game.playerSeat && !game.playerHop;
+        const npc = npcBySeat.get(d.index);
+        const isEmpty = !isPlayerHere && !npc && !(game.playerHop && d.index === game.playerSeat);
+
+        // 先畫椅背與人物（坐於桌後）
+        ctx.save();
+        ctx.translate(d.x, d.y);
+
+        // 椅子靠背
+        ctx.fillStyle = '#a86a34';
+        ctx.strokeStyle = '#6e4119';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.roundRect(-d.w * 0.28, -d.h * 0.95, d.w * 0.56, d.h * 0.5, 6);
+        ctx.fill();
+        ctx.stroke();
+
+        // 若有學生入座則繪製角色
+        if (isPlayerHere) {
+          drawStudentAvatar(0, -d.h * 0.45, d.scale, true, null, 0);
+        } else if (npc) {
+          drawStudentAvatar(0, -d.h * 0.45, d.scale, false, npc.profile, npc.bounce);
+        }
+
+        // 木質課桌陰影
+        ctx.fillStyle = 'rgba(70, 42, 16, 0.16)';
+        ctx.beginPath();
+        ctx.roundRect(-d.w * 0.48, d.h * 0.36, d.w * 0.96, 10, 5);
+        ctx.fill();
+
+        // 課桌桌腳
+        ctx.fillStyle = '#7e5332';
+        ctx.fillRect(-d.w * 0.42, 0, 6, d.h * 0.42);
+        ctx.fillRect(d.w * 0.42 - 6, 0, 6, d.h * 0.42);
+
+        // 課桌桌面（主角座位帶金色柔光外框，空位帶柔和可點擊提示）
+        const deskGrad = ctx.createLinearGradient(0, -d.h * 0.4, 0, d.h * 0.25);
+        deskGrad.addColorStop(0, isPlayerHere ? '#ffe49e' : '#f1c689');
+        deskGrad.addColorStop(1, isPlayerHere ? '#eab24b' : '#cf9552');
+        ctx.fillStyle = deskGrad;
+        ctx.strokeStyle = isPlayerHere ? '#ff9800' : isEmpty ? 'rgba(62, 168, 245, 0.7)' : '#8f5b28';
+        ctx.lineWidth = isPlayerHere ? 2.6 : 1.6;
+        ctx.beginPath();
+        ctx.roundRect(-d.w * 0.5, -d.h * 0.35, d.w, d.h * 0.55, 8);
+        ctx.fill();
+        ctx.stroke();
+
+        // 桌面考卷與姓名牌
+        ctx.fillStyle = '#fffdf7';
+        ctx.fillRect(-d.w * 0.34, -d.h * 0.22, d.w * 0.28, d.h * 0.26);
+
+        ctx.fillStyle = isPlayerHere ? '#1f6b4e' : isEmpty ? 'rgba(42, 102, 148, 0.75)' : '#5e3d1e';
+        ctx.font = `800 ${Math.max(10, Math.round(11 * d.scale))}px "PingFang TC", sans-serif`;
+        ctx.textAlign = 'center';
+        const label = isPlayerHere ? '★ 我' : npc ? npc.profile.name : '空位';
+        ctx.fillText(label, d.w * 0.12, -d.h * 0.02);
+
+        // NPC 應援光球氣泡（點擊替主角充能！）
+        if (npc && npc.hasOrb) {
+          const orbY = -d.h * 1.48 + Math.sin(game.globalTime * 7 + npc.id) * 5;
+          ctx.save();
+          ctx.shadowColor = '#ffe259';
+          ctx.shadowBlur = 14;
+          ctx.fillStyle = '#fff9d6';
+          ctx.strokeStyle = '#f5a623';
+          ctx.lineWidth = 2.2;
+          ctx.beginPath();
+          ctx.arc(0, orbY, 17, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = '#d96b00';
+          ctx.font = '900 15px sans-serif';
+          ctx.fillText('⚡', 0, orbY + 5);
+          ctx.restore();
+        }
+
+        ctx.restore();
+      });
+
+      // 若主角正在跳躍換座位，繪製在最上層
+      if (game.playerHop) {
+        const h = game.playerHop;
+        const x = h.fromX + (h.toX - h.fromX) * h.t;
+        const y = h.fromY + (h.toY - h.fromY) * h.t - Math.sin(h.t * Math.PI) * 58;
+        ctx.save();
+        ctx.translate(x, y - 16);
+        drawStudentAvatar(0, 0, 1.08, true, null, 0.5);
+        ctx.restore();
+      }
+    }
+
+    function drawStudentAvatar(x, y, scale, isPlayer, profile, bounce) {
+      ctx.save();
+      ctx.translate(x, y - bounce * 8);
+      ctx.scale(scale, scale);
+
+      // 上半身制服
+      ctx.fillStyle = isPlayer ? '#257a57' : profile.shirt;
+      ctx.beginPath();
+      ctx.roundRect(-14, -8, 28, 20, [10, 10, 4, 4]);
+      ctx.fill();
+
+      // 領結／領口
+      ctx.fillStyle = isPlayer ? '#ffe259' : profile.accent;
+      ctx.beginPath();
+      ctx.moveTo(-5, -6);
+      ctx.lineTo(5, -6);
+      ctx.lineTo(0, 2);
+      ctx.closePath();
+      ctx.fill();
+
+      // 頭與臉
+      ctx.fillStyle = '#ffdfc4';
+      ctx.beginPath();
+      ctx.arc(0, -19, 13, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 頭髮
+      ctx.fillStyle = isPlayer ? '#2a221d' : profile.hair;
+      ctx.beginPath();
+      ctx.arc(0, -22, 13.5, Math.PI * 0.92, Math.PI * 2.08);
+      ctx.fill();
+
+      // 主角專屬閃亮元氣頭帶
+      if (isPlayer) {
+        ctx.fillStyle = '#ff5757';
+        ctx.fillRect(-13, -27, 26, 4.5);
+        ctx.fillStyle = '#ffe259';
+        ctx.beginPath();
+        ctx.arc(0, -25, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 眼睛與微笑
+      ctx.fillStyle = '#222';
+      ctx.beginPath();
+      ctx.arc(-4.5, -18, 1.8, 0, Math.PI * 2);
+      ctx.arc(4.5, -18, 1.8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#c46a56';
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.arc(0, -15, 3.2, 0.15 * Math.PI, 0.85 * Math.PI);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawPapers() {
+      game.papers.forEach(p => {
+        const s = p.blocked ? 0.85 : (1.15 - p.t * 0.5);
+
+        // 紙張尾跡
+        if (!p.blocked && p.trail.length > 1) {
+          ctx.save();
+          ctx.strokeStyle = p.isGold ? 'rgba(255, 226, 89, 0.65)' : 'rgba(255, 255, 255, 0.55)';
+          ctx.lineWidth = p.isGold ? 4 : 2.5;
+          ctx.beginPath();
+          p.trail.forEach((pt, idx) => {
+            if (idx === 0) ctx.moveTo(pt.x, pt.y);
+            else ctx.lineTo(pt.x, pt.y);
+          });
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.scale(s, s);
+
+        if (p.isGold) {
+          // 金色滿分紙飛機
+          ctx.shadowColor = '#ffe259';
+          ctx.shadowBlur = 12;
+          ctx.fillStyle = '#fff08a';
+          ctx.strokeStyle = '#d98f00';
+          ctx.lineWidth = 1.8;
+          ctx.beginPath();
+          ctx.moveTo(18, 0);
+          ctx.lineTo(-14, -11);
+          ctx.lineTo(-8, 0);
+          ctx.lineTo(-14, 11);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        } else {
+          // 精緻考卷（帶 100 分紅字）
+          ctx.fillStyle = '#ffffff';
+          ctx.strokeStyle = '#9bb0c1';
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.roundRect(-12, -15, 24, 30, 3);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = '#e53935';
+          ctx.font = '900 9px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('100', 0, -3);
+          ctx.fillStyle = '#b0bec5';
+          ctx.fillRect(-8, 2, 16, 2);
+          ctx.fillRect(-8, 7, 12, 2);
+        }
+
+        ctx.restore();
+      });
+    }
+
+    function drawEffects() {
+      game.particles.forEach(p => {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      game.floats.forEach(f => {
+        ctx.save();
+        ctx.globalAlpha = Math.min(1, f.life / (f.maxLife * 0.45));
+        ctx.font = `900 ${f.size}px "PingFang TC", "Microsoft JhengHei", sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.fillStyle = 'rgba(20, 34, 46, 0.72)';
+        ctx.fillText(f.text, f.x + 2, f.y + 2);
+        ctx.fillStyle = f.color;
+        ctx.fillText(f.text, f.x, f.y);
+        ctx.restore();
+      });
+    }
+
+    // ---------------------------
+    // 10. 畫布互動事件（射考卷 / 點空位換座 / 點 NPC 應援光球）
+    // ---------------------------
+    canvas.addEventListener('pointerdown', (e) => {
+      if (game.status !== 'PLAYING') return;
+      sound.init();
+      const rect = canvas.getBoundingClientRect();
+      const px = e.clientX - rect.left;
+      const py = e.clientY - rect.top;
+
+      // 1. 優先檢查是否點擊到 NPC 的「⚡ 應援光球」
+      for (const npc of game.npcs) {
+        if (!npc.hasOrb) continue;
+        const d = game.desks[npc.seatIdx];
+        if (!d) continue;
+        const orbY = d.y - d.h * 1.48;
+        if (Math.hypot(px - d.x, py - orbY) < 32) {
+          npc.hasOrb = false;
+          game.feverEnergy = Math.min(100, game.feverEnergy + 24);
+          sound.sfxOrb();
+          spawnParticles(d.x, orbY, 14, ['#ffe259', '#ffffff', '#69d2ff'], 40, 150);
+          spawnFloat(d.x, orbY - 12, '⚡ +24% 齊射能量！', '#ffe259', 16);
+          syncBottomBarUI();
+          return;
+        }
+      }
+
+      // 2. 檢查是否點擊了 12 課桌椅中的「空位」（讓主角立刻跳過去換角度！）
+      const occupied = getOccupiedSeatSet();
+      for (const d of game.desks) {
+        if (
+          px >= d.x - d.w * 0.55 &&
+          px <= d.x + d.w * 0.55 &&
+          py >= d.y - d.h * 0.85 &&
+          py <= d.y + d.h * 0.45
+        ) {
+          if (!occupied.has(d.index)) {
+            movePlayerToSeat(d.index);
+            return;
+          }
+        }
+      }
+
+      // 3. 點擊黑板或上半部視野 → 從主角目前座位發射考卷！
+      const b = layout.board;
+      if (py <= b.y + b.h + 36) {
+        const d = game.desks[game.playerSeat];
+        if (d) {
+          const isGold = game.feverTimer > 0 || game.combo >= 6;
+          shootPaper(d.x, d.y, px, py, 'player', isGold ? 18 : 12, isGold);
+        }
+      }
+    });
+
+    // ---------------------------
+    // 11. 「刷新三觀」高解析度榮譽證書產生器 (1200 × 850)
+    // ---------------------------
+    const certCanvas = document.getElementById('certCanvas');
+    const cctx = certCanvas.getContext('2d');
+    const certPreviewImg = document.getElementById('certPreviewImg');
+    const certNameInput = document.getElementById('certNameInput');
+    const certDateInput = document.getElementById('certDateInput');
+    const certPhotoInput = document.getElementById('certPhotoInput');
+    const btnClearPhoto = document.getElementById('btnClearPhoto');
+
+    let uploadedAvatarImg = null;
+
+    // 預設頒發日期為今日
+    function initCertDate() {
+      const today = new Date();
+      const y = today.getFullYear();
+      const m = String(today.getMonth() + 1).padStart(2, '0');
+      const d = String(today.getDate()).padStart(2, '0');
+      certDateInput.value = `${y}-${m}-${d}`;
+    }
+
+    function getPlayerTitle() {
+      if (game.clearedStages >= 3) return '⭐⭐⭐ 三觀刷新宗師';
+      if (game.clearedStages === 2) return '⭐⭐ 百岳破關達人';
+      if (game.clearedStages === 1) return '⭐ 晨光新銳學霸';
+      return '✨ 山景教室見習生';
+    }
+
+    function renderCertificate() {
+      const CW = 1200;
+      const CH = 850;
+      const name = (certNameInput.value || '山景學霸').trim();
+      const dateStr = certDateInput.value || '2026-11-23';
+      const titleBadge = getPlayerTitle();
+      const displayScore = Math.max(game.totalScore, game.clearedStages >= 3 ? 1180 : game.totalScore);
+
+      document.getElementById('certStatsSummary').textContent =
+        `總分 ${displayScore} 分｜最高連擊 ${game.maxCombo}｜${titleBadge}`;
+
+      // 1. 暖象牙白高級證書紙紋底色
+      const bg = cctx.createLinearGradient(0, 0, CW, CH);
+      bg.addColorStop(0, '#fffdf7');
+      bg.addColorStop(0.5, '#fcf6e8');
+      bg.addColorStop(1, '#f7ecd6');
+      cctx.fillStyle = bg;
+      cctx.fillRect(0, 0, CW, CH);
+
+      // 2. 淡雅晴空山景浮水印（底部柔和漸層山巒與聖光）
+      cctx.save();
+      const sunW = cctx.createRadialGradient(CW * 0.5, CH * 0.3, 20, CW * 0.5, CH * 0.3, 460);
+      sunW.addColorStop(0, 'rgba(255, 224, 130, 0.22)');
+      sunW.addColorStop(1, 'rgba(255, 224, 130, 0)');
+      cctx.fillStyle = sunW;
+      cctx.fillRect(0, 0, CW, CH);
+
+      // 水彩風淡青色群山浮水印
+      cctx.fillStyle = 'rgba(78, 158, 135, 0.08)';
+      cctx.beginPath();
+      cctx.moveTo(40, CH - 40);
+      for (let x = 40; x <= CW - 40; x += 25) {
+        const y = CH - 130 - Math.abs(Math.sin(x * 0.0055)) * 120 - Math.cos(x * 0.011) * 35;
+        cctx.lineTo(x, y);
+      }
+      cctx.lineTo(CW - 40, CH - 40);
+      cctx.closePath();
+      cctx.fill();
+
+      cctx.fillStyle = 'rgba(42, 118, 92, 0.06)';
+      cctx.beginPath();
+      cctx.moveTo(40, CH - 40);
+      for (let x = 40; x <= CW - 40; x += 25) {
+        const y = CH - 85 - Math.abs(Math.sin(x * 0.008 + 1.4)) * 75;
+        cctx.lineTo(x, y);
+      }
+      cctx.lineTo(CW - 40, CH - 40);
+      cctx.closePath();
+      cctx.fill();
+      cctx.restore();
+
+      // 3. 雙層華麗燙金幾何邊框與四角裝飾花紋
+      const goldGrad = cctx.createLinearGradient(0, 0, CW, CH);
+      goldGrad.addColorStop(0, '#c89226');
+      goldGrad.addColorStop(0.35, '#f6d56f');
+      goldGrad.addColorStop(0.65, '#b87d14');
+      goldGrad.addColorStop(1, '#f3cd63');
+
+      cctx.strokeStyle = goldGrad;
+      cctx.lineWidth = 10;
+      cctx.strokeRect(32, 32, CW - 64, CH - 64);
+
+      cctx.lineWidth = 3;
+      cctx.strokeRect(48, 48, CW - 96, CH - 96);
+
+      // 四角幾何燙金花紋
+      const corners = [
+        [48, 48, 1, 1],
+        [CW - 48, 48, -1, 1],
+        [48, CH - 48, 1, -1],
+        [CW - 48, CH - 48, -1, -1]
+      ];
+      corners.forEach(([cx, cy, sx, sy]) => {
+        cctx.save();
+        cctx.translate(cx, cy);
+        cctx.scale(sx, sy);
+        cctx.strokeStyle = '#c89226';
+        cctx.lineWidth = 3;
+        cctx.beginPath();
+        cctx.moveTo(0, 48);
+        cctx.lineTo(48, 48);
+        cctx.lineTo(48, 0);
+        cctx.stroke();
+        cctx.fillStyle = '#f2c94c';
+        cctx.beginPath();
+        cctx.arc(24, 24, 8, 0, Math.PI * 2);
+        cctx.fill();
+        cctx.restore();
+      });
+
+      // 4. 頂部徽章與醒目大標題
+      cctx.fillStyle = '#1f6b4e';
+      cctx.font = '800 20px "PingFang TC", "Microsoft JhengHei", sans-serif';
+      cctx.textAlign = 'center';
+      cctx.fillText('✦ SUNLIT MOUNTAIN CLASSROOM・HONOR CERTIFICATE ✦', CW * 0.5, 112);
+
+      cctx.save();
+      cctx.shadowColor = 'rgba(184, 125, 20, 0.25)';
+      cctx.shadowBlur = 10;
+      cctx.shadowOffsetY = 3;
+      cctx.fillStyle = '#194a36';
+      cctx.font = '900 62px "PingFang TC", "Microsoft JhengHei", serif';
+      cctx.fillText('刷新三觀 榮譽證書', CW * 0.5, 192);
+      cctx.restore();
+
+      // 金色分隔飾線
+      cctx.strokeStyle = goldGrad;
+      cctx.lineWidth = 3;
+      cctx.beginPath();
+      cctx.moveTo(260, 218);
+      cctx.lineTo(940, 218);
+      cctx.stroke();
+
+      // 5. 左側圓形金框頭像（自訂照片或預設山景學霸徽章）
+      const avX = 240;
+      const avY = 425;
+      const avR = 112;
+      cctx.save();
+      cctx.shadowColor = 'rgba(140, 96, 20, 0.28)';
+      cctx.shadowBlur = 18;
+      cctx.beginPath();
+      cctx.arc(avX, avY, avR + 10, 0, Math.PI * 2);
+      cctx.fillStyle = goldGrad;
+      cctx.fill();
+      cctx.restore();
+
+      cctx.save();
+      cctx.beginPath();
+      cctx.arc(avX, avY, avR, 0, Math.PI * 2);
+      cctx.clip();
+      if (uploadedAvatarImg) {
+        // 自動等比置中裁切
+        const img = uploadedAvatarImg;
+        const size = Math.min(img.width, img.height);
+        const sx = (img.width - size) / 2;
+        const sy = (img.height - size) / 2;
+        cctx.drawImage(img, sx, sy, size, size, avX - avR, avY - avR, avR * 2, avR * 2);
+      } else {
+        // 預設亮麗「山景學霸徽章」
+        const bGrad = cctx.createLinearGradient(avX, avY - avR, avX, avY + avR);
+        bGrad.addColorStop(0, '#5ec2ff');
+        bGrad.addColorStop(0.65, '#c6ecff');
+        bGrad.addColorStop(1, '#fff1c1');
+        cctx.fillStyle = bGrad;
+        cctx.fillRect(avX - avR, avY - avR, avR * 2, avR * 2);
+        // 徽章山峰
+        cctx.fillStyle = '#2d825f';
+        cctx.beginPath();
+        cctx.moveTo(avX - avR, avY + avR);
+        cctx.lineTo(avX - 35, avY - 12);
+        cctx.lineTo(avX + 18, avY + 38);
+        cctx.lineTo(avX + 55, avY - 26);
+        cctx.lineTo(avX + avR, avY + avR);
+        cctx.closePath();
+        cctx.fill();
+        // 學士帽圖樣
+        cctx.fillStyle = '#1e354d';
+        cctx.beginPath();
+        cctx.moveTo(avX, avY - 68);
+        cctx.lineTo(avX + 54, avY - 46);
+        cctx.lineTo(avX, avY - 24);
+        cctx.lineTo(avX - 54, avY - 46);
+        cctx.closePath();
+        cctx.fill();
+        cctx.fillStyle = '#f5b932';
+        cctx.beginPath();
+        cctx.arc(avX + 46, avY - 26, 6, 0, Math.PI * 2);
+        cctx.fill();
+        cctx.fillStyle = '#ffffff';
+        cctx.font = '900 22px "PingFang TC", sans-serif';
+        cctx.textAlign = 'center';
+        cctx.fillText('山景學霸', avX, avY + 74);
+      }
+      cctx.restore();
+
+      // 頭像下方稱號緞帶
+      cctx.fillStyle = '#1f6b4e';
+      cctx.beginPath();
+      cctx.roundRect(avX - 115, avY + avR + 22, 230, 38, 19);
+      cctx.fill();
+      cctx.fillStyle = '#ffe885';
+      cctx.font = '800 18px "PingFang TC", sans-serif';
+      cctx.textAlign = 'center';
+      cctx.fillText(titleBadge, avX, avY + avR + 47);
+
+      // 6. 右側受獎人姓名與幽默認證內文
+      const textX = 415;
+      cctx.textAlign = 'left';
+      cctx.fillStyle = '#7c5318';
+      cctx.font = '700 22px "PingFang TC", sans-serif';
+      cctx.fillText('茲頒發予', textX, 290);
+
+      cctx.fillStyle = '#163c2c';
+      cctx.font = '900 46px "PingFang TC", serif';
+      cctx.fillText(name, textX + 104, 294);
+      // 姓名底線
+      cctx.strokeStyle = '#d9a43b';
+      cctx.lineWidth = 2.5;
+      cctx.beginPath();
+      cctx.moveTo(textX + 98, 306);
+      cctx.lineTo(1080, 306);
+      cctx.stroke();
+
+      cctx.fillStyle = '#2c3d49';
+      cctx.font = '600 24px "PingFang TC", "Microsoft JhengHei", sans-serif';
+      const lines = [
+        '於《山景教室：刷新三觀大作戰》中展現驚人眼力與換位智慧，',
+        '在晨光翠峰、晴空百岳與金霞雲海之間靈活閃避搗蛋猴子重圍，',
+        '不僅以香蕉誘敵、更凝聚全班齊射能量，成功締造輝煌佳績：',
+        `【 累計總分：${displayScore} 分 ／ 最高連擊：${game.maxCombo} 連擊 】`,
+        '其表現之神乎其技，徹底刷新全校師生與猴子之三觀，特頒此狀！'
+      ];
+      lines.forEach((ln, idx) => {
+        if (idx === 3) {
+          cctx.fillStyle = '#b55210';
+          cctx.font = '900 25px "PingFang TC", sans-serif';
+        } else {
+          cctx.fillStyle = '#2c3d49';
+          cctx.font = '600 23px "PingFang TC", sans-serif';
+        }
+        cctx.fillText(ln, textX, 366 + idx * 46);
+      });
+
+      // 頒發日期與單位
+      cctx.fillStyle = '#5c4728';
+      cctx.font = '700 22px "PingFang TC", sans-serif';
+      cctx.fillText(`頒發單位：晴空百岳山景教室委員會`, textX, 650);
+      cctx.fillText(`頒發日期：${dateStr}`, textX, 692);
+
+      // 7. 繪製可愛「搗蛋猴子認證印章」（藍金色圓形插畫章）
+      drawMonkeyCertStamp(820, 678);
+
+      // 8. 繪製莊重反差萌「大紅官印」（刷新三觀認證之印）
+      drawOfficialRedSeal(1010, 675);
+
+      // 同步輸出到 <img> 供預覽與手機長按存相簿
+      certPreviewImg.src = certCanvas.toDataURL('image/png');
+    }
+
+    function drawMonkeyCertStamp(cx, cy) {
+      cctx.save();
+      cctx.translate(cx, cy);
+      cctx.rotate(-0.14);
+
+      cctx.strokeStyle = '#2466a8';
+      cctx.lineWidth = 4;
+      cctx.beginPath();
+      cctx.arc(0, 0, 68, 0, Math.PI * 2);
+      cctx.stroke();
+
+      cctx.lineWidth = 1.8;
+      cctx.beginPath();
+      cctx.arc(0, 0, 58, 0, Math.PI * 2);
+      cctx.stroke();
+
+      // 印章內的可愛猴子臉
+      cctx.fillStyle = 'rgba(36, 102, 168, 0.12)';
+      cctx.beginPath();
+      cctx.arc(0, 0, 56, 0, Math.PI * 2);
+      cctx.fill();
+
+      cctx.fillStyle = '#2466a8';
+      cctx.beginPath();
+      cctx.arc(-22, -8, 9, 0, Math.PI * 2);
+      cctx.arc(22, -8, 9, 0, Math.PI * 2);
+      cctx.arc(0, -4, 22, 0, Math.PI * 2);
+      cctx.fill();
+
+      cctx.fillStyle = '#fcf6e8';
+      cctx.beginPath();
+      cctx.ellipse(0, 2, 15, 12, 0, 0, Math.PI * 2);
+      cctx.fill();
+      cctx.fillStyle = '#2466a8';
+      cctx.beginPath();
+      cctx.arc(-6, -4, 2.8, 0, Math.PI * 2);
+      cctx.arc(6, -4, 2.8, 0, Math.PI * 2);
+      cctx.fill();
+      cctx.strokeStyle = '#2466a8';
+      cctx.lineWidth = 2.2;
+      cctx.beginPath();
+      cctx.arc(0, 3, 6, 0.1 * Math.PI, 0.9 * Math.PI);
+      cctx.stroke();
+
+      cctx.fillStyle = '#2466a8';
+      cctx.font = '900 13px "PingFang TC", sans-serif';
+      cctx.textAlign = 'center';
+      cctx.fillText('★ 搗蛋猴認證 ★', 0, -34);
+      cctx.fillText('我甘拜下風', 0, 44);
+      cctx.restore();
+    }
+
+    function drawOfficialRedSeal(cx, cy) {
+      cctx.save();
+      cctx.translate(cx, cy);
+      cctx.rotate(0.06);
+
+      const s = 116;
+      cctx.strokeStyle = '#c82323';
+      cctx.fillStyle = 'rgba(200, 35, 35, 0.08)';
+      cctx.lineWidth = 6;
+      cctx.fillRect(-s / 2, -s / 2, s, s);
+      cctx.strokeRect(-s / 2, -s / 2, s, s);
+
+      cctx.lineWidth = 2;
+      cctx.strokeRect(-s / 2 + 8, -s / 2 + 8, s - 16, s - 16);
+
+      // 傳統官印由右至左、由上至下排列：「刷新三觀認證之印」
+      cctx.fillStyle = '#c82323';
+      cctx.font = '900 24px "STKaiti", "DFKai-SB", "BiauKai", serif';
+      cctx.textAlign = 'center';
+      cctx.textBaseline = 'middle';
+      const cols = [
+        ['刷', '新', '三', '觀'],
+        ['認', '證', '之', '印']
+      ];
+      // 右行先讀「刷新三觀」，左行讀「認證之印」
+      cols[0].forEach((ch, r) => cctx.fillText(ch, 23, -34 + r * 23));
+      cols[1].forEach((ch, r) => cctx.fillText(ch, -23, -34 + r * 23));
+
+      cctx.restore();
+    }
+
+    function openCertModal() {
+      renderCertificate();
+      document.getElementById('certModal').classList.remove('hidden');
+    }
+
+    // ---------------------------
+    // 12. 按鈕事件綁定
+    // ---------------------------
+    document.getElementById('btnStartGame').addEventListener('click', () => {
+      game.totalScore = 0;
+      game.maxCombo = 0;
+      game.clearedStages = 0;
+      startStage(0);
+    });
+
+    document.getElementById('btnStartCert').addEventListener('click', () => {
+      sound.init();
+      openCertModal();
+    });
+
+    document.getElementById('btnOpenCert').addEventListener('click', () => {
+      sound.init();
+      openCertModal();
+    });
+
+    document.getElementById('btnCloseCert').addEventListener('click', () => {
+      document.getElementById('certModal').classList.add('hidden');
+    });
+
+    document.getElementById('btnAudio').addEventListener('click', () => {
+      sound.init();
+      sound.startBGM();
+      const on = sound.toggle();
+      document.getElementById('btnAudio').textContent = on ? '🔊 音樂開' : '🔇 音樂關';
+    });
+
+    document.getElementById('btnShuffle').addEventListener('click', () => {
+      if (game.status !== 'PLAYING') return;
+      sound.init();
+      shuffleSeats(true);
+    });
+
+    document.getElementById('btnBanana').addEventListener('click', () => {
+      sound.init();
+      activateBanana();
+    });
+
+    document.getElementById('btnFever').addEventListener('click', () => {
+      sound.init();
+      activateFever();
+    });
+
+    // 證書即時互動事件
+    certNameInput.addEventListener('input', renderCertificate);
+    certDateInput.addEventListener('change', renderCertificate);
+
+    certPhotoInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          uploadedAvatarImg = img;
+          btnClearPhoto.style.display = 'inline-flex';
+          renderCertificate();
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    btnClearPhoto.addEventListener('click', () => {
+      uploadedAvatarImg = null;
+      certPhotoInput.value = '';
+      btnClearPhoto.style.display = 'none';
+      renderCertificate();
+    });
+
+    document.getElementById('btnDownloadCert').addEventListener('click', () => {
+      renderCertificate();
+      const link = document.createElement('a');
+      const safeName = (certNameInput.value || '山景學霸').trim().replace(/[\\/:*?"<>|]/g, '_');
+      link.download = `刷新三觀榮譽證書_${safeName}.png`;
+      link.href = certCanvas.toDataURL('image/png');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('💾 證書 PNG 已開始下載！手機亦可長按圖片存相簿');
+    });
+
+    // ---------------------------
+    // 13. 主動畫迴圈
+    // ---------------------------
+    let lastTime = 0;
+    function mainLoop(ts) {
+      const dt = Math.min(0.05, (ts - lastTime) / 1000 || 0.016);
+      lastTime = ts;
+
+      updateGame(dt);
+      renderGame();
+
+      requestAnimationFrame(mainLoop);
+    }
+
+    window.onload = function () {
+      initCertDate();
+      initEnvironmentDecor();
+      computeLayout();
+      shuffleSeats(false);
+      syncBottomBarUI();
+      requestAnimationFrame(mainLoop);
+    };
+  </script>
+</body>
+</html>
