@@ -1,0 +1,3057 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>翡翠算力帝國：顯卡、獸吼與高訂洞洞</title>
+  <style>
+    /* =====================================================================
+       一、設計系統：蒂芬妮綠 × 珠光白 × 香檳鎏金（高級質感風）
+    ===================================================================== */
+    :root {
+      --tiffany: #81D8D0;
+      --tiffany-deep: #0ABAB5;
+      --tiffany-soft: #E7F7F5;
+      --tiffany-mist: #F2FBF9;
+      --pearl: #FBFDFD;
+      --ink-jade: #0F2E2D;
+      --ink-jade-soft: #163C3A;
+      --ink-muted: #4C6E6C;
+      --gold: #C8A45D;
+      --gold-light: #E8D09B;
+      --gold-pale: #F7EED7;
+      --stock-up: #D64550;     /* 台股紅漲 */
+      --stock-down: #0D8A6A;   /* 台股綠跌 */
+      --font-serif: "Noto Serif TC", "Songti TC", "PMingLiU", Georgia, serif;
+      --font-sans: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, -apple-system, sans-serif;
+      --font-mono: "SF Mono", "JetBrains Mono", Consolas, monospace;
+      --radius-xl: 22px;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --shadow-luxury: 0 18px 46px rgba(15, 46, 45, 0.12), 0 4px 14px rgba(10, 186, 181, 0.08);
+      --shadow-gold: 0 10px 26px rgba(200, 164, 93, 0.28);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: var(--font-sans);
+      color: var(--ink-jade);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(129, 216, 208, 0.42), transparent 46%),
+        radial-gradient(circle at 88% 14%, rgba(232, 208, 155, 0.34), transparent 44%),
+        radial-gradient(circle at 50% 92%, rgba(10, 186, 181, 0.22), transparent 52%),
+        linear-gradient(160deg, #FBFDFD 0%, #E7F7F5 52%, #DCF3F0 100%);
+      overflow-x: hidden;
+      line-height: 1.65;
+    }
+
+    /* 絲緞微紋背景 */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: repeating-linear-gradient(
+        135deg,
+        rgba(200, 164, 93, 0.03) 0px,
+        rgba(200, 164, 93, 0.03) 1px,
+        transparent 1px,
+        transparent 18px
+      );
+      z-index: 0;
+    }
+
+    /* =====================================================================
+       二、頂部常駐奢華資訊列（HUD）
+    ===================================================================== */
+    .luxury-hud {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(251, 253, 253, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1.5px solid rgba(200, 164, 93, 0.45);
+      box-shadow: 0 6px 24px rgba(15, 46, 45, 0.07);
+    }
+
+    .hud-inner {
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 10px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .hud-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .hud-crest {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--tiffany), var(--tiffany-deep));
+      border: 1.5px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(10, 186, 181, 0.25);
+      flex-shrink: 0;
+    }
+
+    .hud-title {
+      font-family: var(--font-serif);
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: 0.08em;
+      color: var(--ink-jade);
+    }
+
+    .hud-pills {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .hud-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: rgba(231, 247, 245, 0.9);
+      border: 1px solid rgba(10, 186, 181, 0.28);
+      color: var(--ink-muted);
+    }
+
+    .hud-pill strong {
+      color: var(--ink-jade);
+      font-weight: 700;
+    }
+
+    .hud-stock-pill {
+      background: linear-gradient(135deg, #FFFFFF, #F7EED7);
+      border: 1.2px solid var(--gold);
+      box-shadow: 0 2px 10px rgba(200, 164, 93, 0.16);
+    }
+
+    .hud-stock-num {
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--ink-jade);
+    }
+    .hud-stock-num.up { color: var(--stock-up); }
+    .hud-stock-num.down { color: var(--stock-down); }
+
+    .hud-delta {
+      display: none;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+    }
+    .hud-delta.up {
+      display: inline-block;
+      background: rgba(214, 69, 80, 0.13);
+      color: var(--stock-up);
+    }
+    .hud-delta.down {
+      display: inline-block;
+      background: rgba(13, 138, 106, 0.14);
+      color: var(--stock-down);
+    }
+
+    .sound-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--pearl);
+      border: 1.2px solid var(--gold);
+      color: var(--ink-jade);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .sound-toggle:hover {
+      background: var(--gold-pale);
+    }
+
+    /* =====================================================================
+       三、主容器與珠寶盒雙層金框卡片
+    ===================================================================== */
+    .main-wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 1020px;
+      margin: 0 auto;
+      padding: 22px 16px 68px;
+    }
+
+    .screen {
+      display: none;
+      animation: luxuryReveal 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes luxuryReveal {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .jewel-card {
+      position: relative;
+      background: linear-gradient(180deg, rgba(251, 253, 253, 0.96), rgba(238, 249, 247, 0.95));
+      border: 1.5px solid var(--gold);
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      box-shadow: var(--shadow-luxury);
+      margin-bottom: 20px;
+    }
+
+    .jewel-card::after {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      border: 1px solid rgba(200, 164, 93, 0.34);
+      border-radius: 16px;
+      pointer-events: none;
+    }
+
+    .card-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid rgba(200, 164, 93, 0.35);
+    }
+
+    .stage-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 14px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--tiffany), var(--tiffany-deep));
+      color: #FFFFFF;
+      font-family: var(--font-serif);
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      box-shadow: 0 4px 12px rgba(10, 186, 181, 0.25);
+    }
+
+    .stage-sub {
+      font-size: 12.5px;
+      color: var(--ink-muted);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .story-quote {
+      background: linear-gradient(135deg, rgba(129, 216, 208, 0.16), rgba(247, 238, 215, 0.32));
+      border-left: 3.5px solid var(--gold);
+      border-radius: 10px;
+      padding: 13px 16px;
+      margin-bottom: 18px;
+      font-family: var(--font-serif);
+      font-size: 15px;
+      color: var(--ink-jade-soft);
+    }
+
+    /* =====================================================================
+       四、高訂按鈕與表單元件
+    ===================================================================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 22px;
+      border-radius: 999px;
+      border: 1.5px solid transparent;
+      font-family: var(--font-sans);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: transform 0.14s ease, box-shadow 0.2s ease, filter 0.2s ease, background 0.2s ease;
+      user-select: none;
+    }
+    .btn:active:not(:disabled) {
+      transform: scale(0.96);
+    }
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, #E8D09B 0%, #C8A45D 55%, #B1893D 100%);
+      color: #0F2E2D;
+      border-color: #F4E4BE;
+      box-shadow: var(--shadow-gold);
+    }
+    .btn-gold:hover:not(:disabled) {
+      filter: brightness(1.05);
+      box-shadow: 0 12px 30px rgba(200, 164, 93, 0.42);
+    }
+
+    .btn-tiffany {
+      background: linear-gradient(135deg, #81D8D0 0%, #0ABAB5 100%);
+      color: #FFFFFF;
+      border-color: #B4ECE6;
+      box-shadow: 0 10px 24px rgba(10, 186, 181, 0.28);
+    }
+    .btn-tiffany:hover:not(:disabled) {
+      filter: brightness(1.05);
+      box-shadow: 0 12px 28px rgba(10, 186, 181, 0.4);
+    }
+
+    .btn-jade {
+      background: linear-gradient(135deg, #163C3A, #0F2E2D);
+      color: #E8D09B;
+      border-color: var(--gold);
+      box-shadow: 0 10px 22px rgba(15, 46, 45, 0.24);
+    }
+    .btn-jade:hover:not(:disabled) {
+      filter: brightness(1.1);
+    }
+
+    .btn-outline {
+      background: rgba(255, 255, 255, 0.85);
+      color: var(--ink-jade);
+      border-color: var(--gold);
+    }
+    .btn-outline:hover:not(:disabled) {
+      background: var(--gold-pale);
+    }
+
+    .luxury-input {
+      width: 100%;
+      padding: 13px 16px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(200, 164, 93, 0.55);
+      background: #FFFFFF;
+      color: var(--ink-jade);
+      font-size: 15.5px;
+      font-family: var(--font-sans);
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .luxury-input:focus {
+      border-color: var(--tiffany-deep);
+      box-shadow: 0 0 0 3px rgba(10, 186, 181, 0.16);
+    }
+
+    /* 進度條通用 */
+    .meter-wrap {
+      margin-bottom: 14px;
+    }
+    .meter-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13.5px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--ink-jade);
+    }
+    .meter-track {
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(15, 46, 45, 0.09);
+      border: 1px solid rgba(200, 164, 93, 0.35);
+      overflow: hidden;
+      position: relative;
+    }
+    .meter-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--tiffany), var(--tiffany-deep), var(--gold));
+      transition: width 0.22s ease;
+    }
+
+    /* =====================================================================
+       五、開場畫面：珠寶盒開箱風格
+    ===================================================================== */
+    .hero-box {
+      text-align: center;
+      padding: 36px 22px 32px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(129, 216, 208, 0.38), transparent 58%),
+        linear-gradient(180deg, #FBFDFD 0%, #E7F7F5 100%);
+    }
+
+    .ribbon-crest {
+      width: 90px;
+      height: 90px;
+      margin: 0 auto 18px;
+      border-radius: 26px;
+      background: linear-gradient(145deg, #81D8D0, #0ABAB5);
+      border: 2px solid var(--gold);
+      box-shadow: 0 14px 30px rgba(10, 186, 181, 0.28), inset 0 2px 8px rgba(255, 255, 255, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .hero-kicker {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      letter-spacing: 0.24em;
+      color: var(--gold);
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .hero-title {
+      font-family: var(--font-serif);
+      font-size: clamp(30px, 6vw, 48px);
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      color: var(--ink-jade);
+      margin: 0 0 10px;
+    }
+
+    .hero-subtitle {
+      font-family: var(--font-serif);
+      font-size: clamp(15px, 2.5vw, 19px);
+      color: var(--tiffany-deep);
+      font-weight: 700;
+      margin-bottom: 22px;
+    }
+
+    .start-panel {
+      max-width: 460px;
+      margin: 0 auto 24px;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1.5px solid rgba(200, 164, 93, 0.55);
+      border-radius: 18px;
+      padding: 20px;
+      text-align: left;
+      box-shadow: 0 10px 28px rgba(15, 46, 45, 0.06);
+    }
+
+    .init-stock-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #E7F7F5, #F7EED7);
+      border: 1px dashed var(--gold);
+      margin-bottom: 14px;
+      font-size: 13.5px;
+    }
+
+    .init-stock-strip .pts {
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 18px;
+      color: var(--ink-jade);
+    }
+
+    .preview-chapters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      text-align: left;
+    }
+
+    .chapter-mini {
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid rgba(10, 186, 181, 0.28);
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 13px;
+      color: var(--ink-muted);
+    }
+    .chapter-mini strong {
+      display: block;
+      font-family: var(--font-serif);
+      font-size: 14.5px;
+      color: var(--ink-jade);
+      margin-bottom: 4px;
+    }
+
+    /* =====================================================================
+       六、第一關：世界地圖出貨 × 豺狼虎豹批鬥舞台
+    ===================================================================== */
+    .stage1-arena {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      min-height: 290px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 42%, #194745 0%, #0F2E2D 100%);
+      border: 2px solid var(--gold);
+      box-shadow: inset 0 0 40px rgba(129, 216, 208, 0.16);
+      margin-bottom: 16px;
+    }
+
+    .stage1-arena canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .beasts-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .beast-card {
+      position: absolute;
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 14px;
+      background: rgba(251, 253, 253, 0.96);
+      border: 2px solid var(--gold);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32);
+      cursor: pointer;
+      max-width: 225px;
+      transform: translate(-50%, -50%);
+      animation: beastPop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: transform 0.15s ease, opacity 0.2s ease;
+      z-index: 10;
+    }
+    .beast-card:hover {
+      transform: translate(-50%, -54%) scale(1.04);
+      border-color: var(--tiffany-deep);
+    }
+    .beast-card.defeated {
+      opacity: 0;
+      transform: translate(-50%, -80%) scale(1.18);
+      pointer-events: none;
+    }
+
+    @keyframes beastPop {
+      from { opacity: 0; transform: translate(-50%, -35%) scale(0.7); }
+      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+
+    .beast-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #F7EED7, #E8D09B);
+      border: 1.5px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .beast-info {
+      font-size: 12px;
+      line-height: 1.35;
+      color: var(--ink-jade);
+    }
+    .beast-info strong {
+      display: block;
+      color: #B43742;
+      font-size: 12.5px;
+    }
+
+    .s1-stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .stat-chip {
+      background: #FFFFFF;
+      border: 1px solid rgba(200, 164, 93, 0.42);
+      border-radius: 12px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13.5px;
+    }
+    .stat-chip strong {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      color: var(--tiffany-deep);
+    }
+
+    .s1-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* =====================================================================
+       七、第二關：萬籟之王（雙軌聲波示波器 × 四核心 × 怒吼蟲鳥平衡）
+    ===================================================================== */
+    .oscilloscope-box {
+      position: relative;
+      width: 100%;
+      height: 190px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #0D2625 0%, #143735 100%);
+      border: 2px solid var(--gold);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .oscilloscope-box canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    .osc-legend {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      pointer-events: none;
+    }
+
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .module-btn {
+      padding: 12px 10px;
+      border-radius: 14px;
+      background: #FFFFFF;
+      border: 1.5px solid rgba(200, 164, 93, 0.45);
+      color: var(--ink-jade);
+      font-weight: 700;
+      font-size: 13.5px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s ease;
+    }
+    .module-btn:hover:not(.on) {
+      border-color: var(--tiffany-deep);
+      background: var(--tiffany-mist);
+    }
+    .module-btn.on {
+      background: linear-gradient(135deg, #81D8D0, #0ABAB5);
+      color: #FFFFFF;
+      border-color: var(--gold);
+      box-shadow: 0 8px 18px rgba(10, 186, 181, 0.28);
+    }
+    .module-btn small {
+      font-size: 11px;
+      font-weight: 600;
+      opacity: 0.85;
+    }
+
+    .balance-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .golden-zone-bar {
+      position: relative;
+      height: 16px;
+      border-radius: 999px;
+      background: rgba(15, 46, 45, 0.1);
+      border: 1px solid rgba(200, 164, 93, 0.45);
+      overflow: hidden;
+    }
+    .golden-zone-band {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 38%;
+      width: 44%;
+      background: rgba(200, 164, 93, 0.28);
+      border-left: 1.5px dashed var(--gold);
+      border-right: 1.5px dashed var(--gold);
+      pointer-events: none;
+    }
+    .golden-zone-fill {
+      height: 100%;
+      width: 50%;
+      border-radius: 999px;
+      transition: width 0.16s ease;
+    }
+
+    .s2-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .log-console {
+      background: #0F2E2D;
+      border: 1.5px solid var(--gold);
+      border-radius: 12px;
+      padding: 10px 14px;
+      height: 104px;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #CFF6F2;
+    }
+    .log-line {
+      margin-bottom: 4px;
+    }
+    .log-line.gold { color: #E8D09B; }
+
+    /* =====================================================================
+       八、第三關：高訂洞洞美學（互動顯卡 Canvas × 董事會逼宮）
+    ===================================================================== */
+    .stage3-meters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .board-quote-box {
+      background: #FFFFFF;
+      border: 1.5px solid rgba(214, 69, 80, 0.4);
+      border-left: 4px solid var(--stock-up);
+      border-radius: 12px;
+      padding: 11px 15px;
+      font-size: 14px;
+      color: #7F1D26;
+      font-weight: 600;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .gpu-canvas-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      min-height: 280px;
+      border-radius: 18px;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 45%, #163C3A 0%, #0B2221 100%);
+      border: 2px solid var(--gold);
+      box-shadow: inset 0 0 36px rgba(129, 216, 208, 0.16);
+      cursor: pointer;
+      touch-action: none;
+    }
+    .gpu-canvas-wrap canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .tier-pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: var(--gold-pale);
+      border: 1px solid var(--gold);
+      color: var(--ink-jade);
+      font-family: var(--font-serif);
+      font-size: 12.5px;
+      font-weight: 700;
+    }
+
+    /* =====================================================================
+       九、股市盤勢揭曉彈窗
+    ===================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 120;
+      background: rgba(15, 46, 45, 0.72);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-backdrop.open {
+      display: flex;
+      animation: luxuryReveal 0.28s ease;
+    }
+
+    .stock-modal {
+      width: 100%;
+      max-width: 500px;
+      background: linear-gradient(180deg, #FBFDFD 0%, #E7F7F5 100%);
+      border: 2px solid var(--gold);
+      border-radius: 24px;
+      padding: 28px 24px;
+      text-align: center;
+      box-shadow: 0 28px 64px rgba(15, 46, 45, 0.45);
+      position: relative;
+    }
+
+    .stock-modal-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+    .stock-modal.is-up .stock-modal-tag {
+      background: rgba(214, 69, 80, 0.14);
+      color: var(--stock-up);
+      border: 1px solid rgba(214, 69, 80, 0.4);
+    }
+    .stock-modal.is-down .stock-modal-tag {
+      background: rgba(13, 138, 106, 0.14);
+      color: var(--stock-down);
+      border: 1px solid rgba(13, 138, 106, 0.4);
+    }
+
+    .stock-big-pts {
+      font-family: var(--font-mono);
+      font-size: clamp(38px, 9vw, 54px);
+      font-weight: 900;
+      line-height: 1.1;
+      margin: 8px 0 6px;
+    }
+    .stock-modal.is-up .stock-big-pts { color: var(--stock-up); }
+    .stock-modal.is-down .stock-big-pts { color: var(--stock-down); }
+
+    .stock-change-line {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+    .stock-modal.is-up .stock-change-line { color: var(--stock-up); }
+    .stock-modal.is-down .stock-change-line { color: var(--stock-down); }
+
+    .stock-news-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(200, 164, 93, 0.45);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+      color: var(--ink-jade-soft);
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    /* =====================================================================
+       十、最終結算頁：股市走勢圖 × 個人化高訂證書
+    ===================================================================== */
+    .chart-box {
+      width: 100%;
+      height: 300px;
+      background: #FFFFFF;
+      border: 1.5px solid rgba(200, 164, 93, 0.55);
+      border-radius: 16px;
+      padding: 10px;
+      margin-bottom: 16px;
+    }
+    .chart-box canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .kpi-item {
+      background: #FFFFFF;
+      border: 1px solid rgba(200, 164, 93, 0.45);
+      border-radius: 14px;
+      padding: 13px 15px;
+    }
+    .kpi-item .lbl {
+      font-size: 12px;
+      color: var(--ink-muted);
+      margin-bottom: 4px;
+    }
+    .kpi-item .val {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--ink-jade);
+    }
+    .kpi-item .val.up { color: var(--stock-up); }
+    .kpi-item .val.down { color: var(--stock-down); }
+
+    .cert-editor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .slogan-select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(200, 164, 93, 0.55);
+      background: #FFFFFF;
+      color: var(--ink-jade);
+      font-size: 14px;
+      font-family: var(--font-sans);
+    }
+
+    .cert-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .cert-stage {
+      background: linear-gradient(135deg, rgba(129, 216, 208, 0.25), rgba(247, 238, 215, 0.4));
+      border: 1.5px solid var(--gold);
+      border-radius: 18px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .cert-preview-img {
+      width: 100%;
+      max-width: 520px;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 20px 50px rgba(15, 46, 45, 0.24);
+      display: block;
+      margin: 0 auto;
+    }
+
+    .mobile-hint {
+      font-size: 12.5px;
+      color: var(--ink-muted);
+      margin-top: 10px;
+    }
+
+    /* 浮動 Toast（取代 alert） */
+    .toast {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      z-index: 200;
+      background: #0F2E2D;
+      color: #F7EED7;
+      border: 1.5px solid var(--gold);
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 12px 28px rgba(15, 46, 45, 0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      max-width: 92vw;
+      text-align: center;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== 頂部常駐奢華資訊列（HUD） ==================== -->
+  <header class="luxury-hud">
+    <div class="hud-inner">
+      <div class="hud-brand">
+        <div class="hud-crest" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 3L21 9L12 21L3 9L12 3Z" stroke="#FBFDFD" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M3 9H21M12 3L8 9L12 21L16 9L12 3Z" stroke="#E8D09B" stroke-width="1.2"/>
+          </svg>
+        </div>
+        <span class="hud-title">翡翠算力帝國</span>
+      </div>
+
+      <div class="hud-pills">
+        <div class="hud-pill">貴賓：<strong id="hudName">尚未登錄</strong></div>
+        <div class="hud-pill">進度：<strong id="hudStage">準備啟程</strong></div>
+        <div class="hud-pill hud-stock-pill">
+          <span>大盤</span>
+          <span id="hudStockNum" class="hud-stock-num">50,000</span>
+          <span style="font-size:11px; color:var(--ink-muted);">點</span>
+          <span id="hudDelta" class="hud-delta"></span>
+        </div>
+        <button id="soundToggleBtn" class="sound-toggle" type="button">
+          <span id="soundIcon">🔊</span>
+          <span id="soundText">音效開</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== 主內容區 ==================== -->
+  <main class="main-wrap">
+
+    <!-- ==================== 畫面 0：珠寶盒開場畫面 ==================== -->
+    <section id="screen-start" class="screen active">
+      <div class="jewel-card hero-box">
+        <div class="ribbon-crest" aria-hidden="true">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <rect x="8" y="13" width="32" height="22" rx="4" stroke="#FBFDFD" stroke-width="2.4"/>
+            <circle cx="18" cy="24" r="5" stroke="#E8D09B" stroke-width="2"/>
+            <circle cx="30" cy="24" r="5" stroke="#E8D09B" stroke-width="2"/>
+            <path d="M18 19V29M30 19V29" stroke="#FBFDFD" stroke-width="1.4"/>
+            <path d="M24 5L27 10H21L24 5Z" fill="#E8D09B"/>
+          </svg>
+        </div>
+
+        <div class="hero-kicker">HAUTE COUTURE SILICON CHRONICLES</div>
+        <h1 class="hero-title">《翡翠算力帝國》</h1>
+        <div class="hero-subtitle">從賣遍全球、獸鳴軟體王到戳洞華麗下台</div>
+
+        <div class="start-panel">
+          <div class="init-stock-strip">
+            <span>💎 創業初始大盤基準</span>
+            <span class="pts">50,000 點</span>
+          </div>
+
+          <label for="playerNameInput" style="display:block; font-size:13.5px; font-weight:700; color:var(--ink-jade); margin-bottom:6px;">
+            請輸入闖關者姓名（可留空自動配發高訂稱號）
+          </label>
+          <input
+            id="playerNameInput"
+            class="luxury-input"
+            type="text"
+            maxlength="20"
+            placeholder="例如：蒂芬妮創辦人、顯卡美學家..."
+            autocomplete="off"
+          />
+
+          <button id="startBtn" class="btn btn-gold" style="width:100%; margin-top:14px;" type="button">
+            ✨ 啟程：開啟創業傳奇
+          </button>
+        </div>
+
+        <div class="preview-chapters">
+          <div class="chapter-mini">
+            <strong>第一關｜翡翠初創</strong>
+            打造蒂芬妮綠顯示卡出貨全球六大據點，優雅擊退豺、狼、虎、豹的猛烈批鬥。
+          </div>
+          <div class="chapter-mini">
+            <strong>第二關｜萬籟之王</strong>
+            啟動四大核心模組，親手調和「野獸怒吼」與「蟲鳴鳥叫」的奇幻軟體之王。
+          </div>
+          <div class="chapter-mini">
+            <strong>第三關｜高訂洞洞美學</strong>
+            在旗艦顯卡上戳出鏤空雕花，洞越多質感越傳世，在董事會崩潰中體面下台！
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 畫面 1：第一關｜翡翠初創 ==================== -->
+    <section id="screen-stage1" class="screen">
+      <div class="jewel-card">
+        <div class="card-header">
+          <span class="stage-badge">第一關｜翡翠初創</span>
+          <span class="stage-sub">全球出貨 × 擊退豺狼虎豹的批鬥</span>
+        </div>
+
+        <div class="story-quote">
+          「你白手起家打造出絕美蒂芬妮綠顯示卡，訂單如雪片飛向全世界；卻也引來市場上『豺、狼、虎、豹』四大猛獸的嫉妒與猛烈批鬥！」
+        </div>
+
+        <div class="meter-wrap">
+          <div class="meter-top">
+            <span>🌍 全球高訂顯卡出貨率</span>
+            <span id="s1ProgressText" style="font-family:var(--font-mono); color:var(--tiffany-deep);">0%</span>
+          </div>
+          <div class="meter-track">
+            <div id="s1ProgressFill" class="meter-fill"></div>
+          </div>
+        </div>
+
+        <div class="s1-stats-bar">
+          <div class="stat-chip">
+            <span>🛡 已擊退猛獸批鬥</span>
+            <strong id="s1RepelCount">0 / 5</strong>
+          </div>
+          <div class="stat-chip">
+            <span>⚠️ 場上鬧事猛獸</span>
+            <strong id="s1ActiveBeasts" style="color:var(--stock-up);">0 隻</strong>
+          </div>
+        </div>
+
+        <div class="stage1-arena" id="s1Arena">
+          <canvas id="worldMapCanvas"></canvas>
+          <div class="beasts-layer" id="beastsLayer"></div>
+        </div>
+
+        <div class="s1-controls">
+          <div style="font-size:13px; color:var(--ink-muted);">
+            💡 提示：點擊「鍛造並出貨全球」或直接點地圖閃亮據點；冒出的<strong>豺狼虎豹</strong>請立刻點擊反擊！
+          </div>
+          <button id="shipGpuBtn" class="btn btn-gold" type="button">
+            💎 鍛造並出貨全球（+出貨光弧）
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 畫面 2：第二關｜萬籟之王 ==================== -->
+    <section id="screen-stage2" class="screen">
+      <div class="jewel-card">
+        <div class="card-header">
+          <span class="stage-badge">第二關｜萬籟之王</span>
+          <span class="stage-sub">會怒吼與蟲鳴鳥叫的軟體之王</span>
+        </div>
+
+        <div class="story-quote">
+          「硬體稱霸後，你親手寫出『軟體之王』——但它一啟動，竟同時爆發出震懾人心的野獸怒吼與療癒森林的蟲鳴鳥叫！」
+        </div>
+
+        <div class="meter-wrap">
+          <div class="meter-top">
+            <span>👑 軟體之王完成度（需啟動 4 大核心並達 100%）</span>
+            <span id="s2ProgressText" style="font-family:var(--font-mono); color:var(--tiffany-deep);">0%</span>
+          </div>
+          <div class="meter-track">
+            <div id="s2ProgressFill" class="meter-fill"></div>
+          </div>
+        </div>
+
+        <!-- 雙軌香檳金聲波示波器 -->
+        <div class="oscilloscope-box">
+          <canvas id="oscCanvas"></canvas>
+          <div class="osc-legend">
+            <span style="color:#E8D09B;">━━ 怒吼低頻波 (ROAR WAVE)</span>
+            <span style="color:#81D8D0;">━━ 蟲鳴鳥叫高頻波 (NATURE CHIRP)</span>
+          </div>
+        </div>
+
+        <!-- 4 大核心模組 -->
+        <div class="modules-grid" id="s2Modules">
+          <button class="module-btn" data-mod="0" type="button">
+            <span>👑 算力皇冠</span>
+            <small>點擊啟動</small>
+          </button>
+          <button class="module-btn" data-mod="1" type="button">
+            <span>🌿 生態結界</span>
+            <small>點擊啟動</small>
+          </button>
+          <button class="module-btn" data-mod="2" type="button">
+            <span>⚛️ 量子引擎</span>
+            <small>點擊啟動</small>
+          </button>
+          <button class="module-btn" data-mod="3" type="button">
+            <span>🎼 萬籟核心</span>
+            <small>點擊啟動</small>
+          </button>
+        </div>
+
+        <!-- 雙軌黃金區間平衡儀表 -->
+        <div class="balance-grid">
+          <div>
+            <div class="meter-top">
+              <span>🦁 野性怒吼值（黃金區間 38%～82%）</span>
+              <span id="roarValText" style="font-family:var(--font-mono);">55%</span>
+            </div>
+            <div class="golden-zone-bar">
+              <div class="golden-zone-band"></div>
+              <div id="roarBarFill" class="golden-zone-fill" style="width:55%; background:linear-gradient(90deg, #E8D09B, #C8A45D);"></div>
+            </div>
+          </div>
+          <div>
+            <div class="meter-top">
+              <span>🐦 自然蟲鳥值（黃金區間 38%～82%）</span>
+              <span id="natureValText" style="font-family:var(--font-mono);">55%</span>
+            </div>
+            <div class="golden-zone-bar">
+              <div class="golden-zone-band"></div>
+              <div id="natureBarFill" class="golden-zone-fill" style="width:55%; background:linear-gradient(90deg, #81D8D0, #0ABAB5);"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="s2-actions">
+          <button id="roarBtn" class="btn btn-jade" type="button">🦁 釋放霸氣怒吼</button>
+          <button id="injectCodeBtn" class="btn btn-gold" type="button">✨ 注入靈魂代碼</button>
+          <button id="natureBtn" class="btn btn-tiffany" type="button">🐦 注入蟲鳴鳥叫</button>
+        </div>
+
+        <div id="s2LogConsole" class="log-console"></div>
+      </div>
+    </section>
+
+    <!-- ==================== 畫面 3：第三關｜高訂洞洞美學 ==================== -->
+    <section id="screen-stage3" class="screen">
+      <div class="jewel-card">
+        <div class="card-header">
+          <span class="stage-badge">第三關｜高訂洞洞美學</span>
+          <span class="stage-sub">戳破顯卡的華麗下台</span>
+        </div>
+
+        <div class="story-quote">
+          「你突發奇想在旗艦顯示卡上戳洞追求極致奢華質感——洞戳得越多，顯卡越像精品高訂藝術品，董事會卻徹底崩潰，集體逼你下台！」
+        </div>
+
+        <div class="stage3-meters">
+          <div class="meter-wrap" style="margin-bottom:0;">
+            <div class="meter-top">
+              <span>💎 高訂質感指數 <span id="s3TierPill" class="tier-pill">工業量產</span></span>
+              <span id="s3QualityText" style="font-family:var(--font-mono); color:var(--tiffany-deep);">0 / 10 洞</span>
+            </div>
+            <div class="meter-track">
+              <div id="s3QualityFill" class="meter-fill"></div>
+            </div>
+          </div>
+
+          <div class="meter-wrap" style="margin-bottom:0;">
+            <div class="meter-top">
+              <span>🏛 董事會逼宮壓力條</span>
+              <span id="s3BoardText" style="font-family:var(--font-mono); color:var(--stock-up);">0%</span>
+            </div>
+            <div class="meter-track">
+              <div id="s3BoardFill" class="meter-fill" style="background:linear-gradient(90deg, #E8D09B, #D64550);"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="s3BoardQuote" class="board-quote-box">
+          <span>🏛 董事會：</span>
+          <span>「執行長，這張旗艦顯卡已經很完美了，請千萬不要拿鑽石錐子靠近它……」</span>
+        </div>
+
+        <div class="gpu-canvas-wrap" id="gpuCanvasWrap">
+          <canvas id="gpuCanvas"></canvas>
+        </div>
+
+        <div style="margin-top:12px; font-size:13px; color:var(--ink-muted); text-align:center;">
+          ✨ 點擊或滑動顯卡上閃耀的<strong>圓形、菱形、星芒、長條與核心標記洞口</strong>，戳破達 <strong>10 個洞</strong> 即可華麗下台通關！
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 畫面 4：最終結算、股市走勢圖與高訂證書 ==================== -->
+    <section id="screen-final" class="screen">
+      <!-- 區塊一：三關股市走勢圖 -->
+      <div class="jewel-card">
+        <div class="card-header">
+          <span class="stage-badge">榮耀結算｜三關股市走勢圖</span>
+          <span id="finalTitleTag" class="stage-sub">翡翠算力傳奇</span>
+        </div>
+
+        <div class="chart-box">
+          <canvas id="finalChartCanvas"></canvas>
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi-item">
+            <div class="lbl">創業起始點數</div>
+            <div class="val">50,000</div>
+          </div>
+          <div class="kpi-item">
+            <div class="lbl">最終收盤點數</div>
+            <div id="kpiFinalPts" class="val">--</div>
+          </div>
+          <div class="kpi-item">
+            <div class="lbl">三關累計總漲跌幅</div>
+            <div id="kpiTotalPct" class="val">--</div>
+          </div>
+          <div class="kpi-item">
+            <div class="lbl">高訂封號</div>
+            <div id="kpiRankTitle" class="val" style="font-family:var(--font-serif); font-size:16px;">--</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 區塊二：個人化高訂榮譽證書 -->
+      <div class="jewel-card">
+        <div class="card-header">
+          <span class="stage-badge">高訂榮譽證書｜1080 × 1520</span>
+          <span class="stage-sub">可自訂姓名、上傳照片與切換幽默標語</span>
+        </div>
+
+        <div class="cert-editor-grid">
+          <div>
+            <label for="certNameInput" style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">
+              證書姓名（即時更新）
+            </label>
+            <input id="certNameInput" class="luxury-input" type="text" maxlength="20" />
+          </div>
+          <div>
+            <label for="sloganSelect" style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">
+              選擇證書幽默高級標語
+            </label>
+            <select id="sloganSelect" class="slogan-select">
+              <option value="0">顯卡戳成洞洞裝，軟體會吼鳥會唱；五萬點上走一遭，下台也要最奢華！</option>
+              <option value="1">賣遍全球被獸罵，戳出高訂美學價；漲跌全看天意定，人生贏家不回家！</option>
+              <option value="2">豺狼虎豹攔不住，蟲鳴獅吼寫程式；顯卡越洞越高級，體面退場最紳士！</option>
+              <option value="3">蒂芬妮綠是信仰，五萬點上是戰場；不當執行長沒關係，高訂藝術我最強！</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="cert-actions">
+          <label class="btn btn-tiffany" style="cursor:pointer;">
+            📷 上傳個人照片
+            <input id="photoUploadInput" type="file" accept="image/*" style="display:none;" />
+          </label>
+          <button id="downloadCertBtn" class="btn btn-gold" type="button">
+            ⬇ 一鍵下載高訂證書（PNG）
+          </button>
+          <button id="replayBtn" class="btn btn-outline" type="button">
+            🔄 再玩一次
+          </button>
+        </div>
+
+        <div class="cert-stage">
+          <img id="certPreviewImg" class="cert-preview-img" alt="翡翠算力帝國高訂榮譽證書預覽" />
+          <div class="mobile-hint">
+            📱 手機使用者可直接<strong>長按上方證書圖片</strong>儲存至相簿，或點擊上方按鈕一鍵下載。
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== 股市盤勢揭曉彈窗 ==================== -->
+  <div id="stockModalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div id="stockModalCard" class="stock-modal">
+      <div id="stockModalTag" class="stock-modal-tag">📈 盤勢揭曉</div>
+      <div id="stockModalStage" style="font-size:13.5px; color:var(--ink-muted); font-weight:600;">第一關通關結算</div>
+      <div id="stockBigPts" class="stock-big-pts">50,000</div>
+      <div id="stockChangeLine" class="stock-change-line">+0 (+0.0%)</div>
+      <div id="stockNewsCard" class="stock-news-card"></div>
+      <button id="stockContinueBtn" class="btn btn-gold" style="width:100%;" type="button">
+        繼續下一章 ▶
+      </button>
+    </div>
+  </div>
+
+  <!-- 浮動 Toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- 隱藏高解析度證書畫布 (1080×1520) -->
+  <canvas id="certCanvas" width="1080" height="1520" style="display:none;"></canvas>
+
+  <script>
+    /* =====================================================================
+       《翡翠算力帝國：顯卡、獸吼與高訂洞洞》純原生遊戲引擎
+    ===================================================================== */
+    (() => {
+      "use strict";
+
+      const $ = (id) => document.getElementById(id);
+      const INITIAL_STOCK = 50000;
+
+      const SLOGANS = [
+        "顯卡戳成洞洞裝，軟體會吼鳥會唱；五萬點上走一遭，下台也要最奢華！",
+        "賣遍全球被獸罵，戳出高訂美學價；漲跌全看天意定，人生贏家不回家！",
+        "豺狼虎豹攔不住，蟲鳴獅吼寫程式；顯卡越洞越高級，體面退場最紳士！",
+        "蒂芬妮綠是信仰，五萬點上是戰場；不當執行長沒關係，高訂藝術我最強！"
+      ];
+
+      /* 通用圓角路徑（確保跨瀏覽器 100% 相容） */
+      function roundRectPath(ctx, x, y, w, h, r) {
+        const radius = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.arcTo(x + w, y, x + w, y + h, radius);
+        ctx.arcTo(x + w, y + h, x, y + h, radius);
+        ctx.arcTo(x, y + h, x, y, radius);
+        ctx.arcTo(x, y, x + w, y, radius);
+        ctx.closePath();
+      }
+
+      /* -------------------------------------------------------------------
+         1. Web Audio API 奢華音效與萬籟合成器（怒吼＋蟲鳴鳥叫＋風鈴）
+      ------------------------------------------------------------------- */
+      const AudioFX = {
+        ctx: null,
+        enabled: true,
+
+        init() {
+          if (!this.enabled) return;
+          try {
+            if (!this.ctx) {
+              const AC = window.AudioContext || window.webkitAudioContext;
+              if (AC) this.ctx = new AC();
+            }
+            if (this.ctx && this.ctx.state === "suspended") {
+              this.ctx.resume();
+            }
+          } catch (e) {}
+        },
+
+        tone(freq, dur = 0.14, type = "sine", vol = 0.12, delay = 0) {
+          if (!this.enabled) return;
+          this.init();
+          if (!this.ctx) return;
+          try {
+            const now = this.ctx.currentTime + delay;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, now);
+            gain.gain.setValueAtTime(0.0001, now);
+            gain.gain.exponentialRampToValueAtTime(vol, now + 0.015);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + dur + 0.03);
+          } catch (e) {}
+        },
+
+        chime() {
+          this.tone(783.99, 0.22, "sine", 0.1, 0);
+          this.tone(1046.5, 0.26, "triangle", 0.09, 0.06);
+          this.tone(1318.5, 0.34, "sine", 0.08, 0.12);
+        },
+
+        shipArc() {
+          this.tone(523.25, 0.12, "triangle", 0.09, 0);
+          this.tone(880, 0.16, "sine", 0.08, 0.05);
+        },
+
+        repelBeast() {
+          this.tone(659.25, 0.12, "sine", 0.11, 0);
+          this.tone(987.77, 0.18, "triangle", 0.11, 0.06);
+          this.tone(1567.98, 0.24, "sine", 0.09, 0.12);
+        },
+
+        /* 第二關專屬 1：低沉野獸怒吼（低頻鋸齒波＋濾波噪聲滑音） */
+        beastRoar(intensity = 1) {
+          if (!this.enabled) return;
+          this.init();
+          if (!this.ctx) return;
+          try {
+            const now = this.ctx.currentTime;
+            const dur = 0.65 + 0.25 * intensity;
+
+            // 低頻鋸齒波滑音
+            const osc = this.ctx.createOscillator();
+            const filter = this.ctx.createBiquadFilter();
+            const gain = this.ctx.createGain();
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(145 * (0.9 + Math.random() * 0.2), now);
+            osc.frequency.exponentialRampToValueAtTime(62, now + dur);
+
+            filter.type = "lowpass";
+            filter.frequency.setValueAtTime(620, now);
+            filter.frequency.exponentialRampToValueAtTime(180, now + dur);
+            filter.Q.value = 4.5;
+
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.linearRampToValueAtTime(0.14 * intensity, now + 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + dur + 0.05);
+
+            // 氣息噪聲層
+            const bufSize = Math.floor(this.ctx.sampleRate * dur);
+            const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+            const data = buf.getChannelData(0);
+            for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1) * 0.6;
+            const noise = this.ctx.createBufferSource();
+            noise.buffer = buf;
+
+            const nFilter = this.ctx.createBiquadFilter();
+            nFilter.type = "bandpass";
+            nFilter.frequency.setValueAtTime(360, now);
+            nFilter.frequency.exponentialRampToValueAtTime(150, now + dur);
+            nFilter.Q.value = 2.2;
+
+            const nGain = this.ctx.createGain();
+            nGain.gain.setValueAtTime(0.001, now);
+            nGain.gain.linearRampToValueAtTime(0.09 * intensity, now + 0.1);
+            nGain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+            noise.connect(nFilter);
+            nFilter.connect(nGain);
+            nGain.connect(this.ctx.destination);
+            noise.start(now);
+            noise.stop(now + dur + 0.05);
+          } catch (e) {}
+        },
+
+        /* 第二關專屬 2：清脆蟲鳴與鳥叫聲（FM 啾啾鳥鳴＋節奏蟋蟀／蟬鳴） */
+        birdAndInsect(intensity = 1) {
+          if (!this.enabled) return;
+          this.init();
+          if (!this.ctx) return;
+          try {
+            const now = this.ctx.currentTime;
+
+            // 鳥叫聲：雙音調頻啾啾
+            [0, 0.13].forEach((offset, idx) => {
+              const osc = this.ctx.createOscillator();
+              const gain = this.ctx.createGain();
+              osc.type = "sine";
+              const base = idx === 0 ? 2250 : 2680;
+              osc.frequency.setValueAtTime(base, now + offset);
+              osc.frequency.exponentialRampToValueAtTime(base * 1.48, now + offset + 0.055);
+              osc.frequency.exponentialRampToValueAtTime(base * 0.92, now + offset + 0.11);
+
+              gain.gain.setValueAtTime(0.0001, now + offset);
+              gain.gain.linearRampToValueAtTime(0.085 * intensity, now + offset + 0.02);
+              gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + 0.12);
+
+              osc.connect(gain);
+              gain.connect(this.ctx.destination);
+              osc.start(now + offset);
+              osc.stop(now + offset + 0.13);
+            });
+
+            // 蟋蟀／蟬鳴：高頻脈衝顫音
+            for (let k = 0; k < 4; k++) {
+              const t = now + 0.24 + k * 0.055;
+              const osc = this.ctx.createOscillator();
+              const gain = this.ctx.createGain();
+              osc.type = "triangle";
+              osc.frequency.setValueAtTime(4350 + (k % 2) * 280, t);
+              gain.gain.setValueAtTime(0.0001, t);
+              gain.gain.linearRampToValueAtTime(0.042 * intensity, t + 0.01);
+              gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.042);
+              osc.connect(gain);
+              gain.connect(this.ctx.destination);
+              osc.start(t);
+              osc.stop(t + 0.048);
+            }
+          } catch (e) {}
+        },
+
+        /* 第三關專屬：金屬穿孔＋奢華風鈴 */
+        pierceHole(count) {
+          this.tone(240 + count * 18, 0.07, "triangle", 0.14, 0);
+          this.tone(1174.66 + count * 45, 0.22, "sine", 0.1, 0.03);
+          this.tone(1760 + count * 30, 0.28, "sine", 0.07, 0.08);
+        },
+
+        stockReveal(isUp) {
+          if (isUp) {
+            this.tone(523.25, 0.18, "triangle", 0.13, 0);
+            this.tone(659.25, 0.18, "triangle", 0.13, 0.11);
+            this.tone(783.99, 0.22, "triangle", 0.14, 0.22);
+            this.tone(1046.5, 0.42, "sine", 0.14, 0.34);
+          } else {
+            this.tone(440, 0.18, "sawtooth", 0.08, 0);
+            this.tone(369.99, 0.2, "sawtooth", 0.08, 0.14);
+            this.tone(293.66, 0.42, "sawtooth", 0.09, 0.28);
+          }
+        }
+      };
+
+      /* -------------------------------------------------------------------
+         2. 全域遊戲狀態
+      ------------------------------------------------------------------- */
+      const state = {
+        playerName: "翡翠傳奇創辦人",
+        currentStock: INITIAL_STOCK,
+        stockHistory: [], // [{ label, shortLabel, points, pct, delta }]
+        nextAfterModal: null,
+        completedAt: null,
+        userPhotoImg: null,
+        selectedSloganIdx: 0,
+
+        // Stage 1
+        s1Progress: 0,
+        s1Repelled: 0,
+        s1ActiveBeasts: [],
+        s1Arcs: [],
+        s1Sparkles: [],
+        s1AnimId: null,
+        s1SpawnTimer: null,
+        s1DrainTimer: null,
+        s1Cleared: false,
+
+        // Stage 2
+        s2Progress: 0,
+        s2Modules: [false, false, false, false],
+        s2RoarVal: 55,
+        s2NatureVal: 55,
+        s2RoarPulse: 0.4,
+        s2NaturePulse: 0.4,
+        s2AnimId: null,
+        s2LoopTimer: null,
+        s2AmbientTimer: null,
+        s2Cleared: false,
+
+        // Stage 3
+        s3Holes: [],
+        s3PiercedCount: 0,
+        s3Sparkles: [],
+        s3AnimId: null,
+        s3Cleared: false
+      };
+
+      const screens = {
+        start: $("screen-start"),
+        stage1: $("screen-stage1"),
+        stage2: $("screen-stage2"),
+        stage3: $("screen-stage3"),
+        final: $("screen-final")
+      };
+
+      /* -------------------------------------------------------------------
+         3. 共用 UI 工具
+      ------------------------------------------------------------------- */
+      let toastTimer = null;
+      function showToast(msg) {
+        const el = $("toast");
+        el.textContent = msg;
+        el.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => el.classList.remove("show"), 2500);
+      }
+
+      function formatPts(n) {
+        return Math.round(n).toLocaleString("zh-TW");
+      }
+
+      function stopAllLoops() {
+        cancelAnimationFrame(state.s1AnimId);
+        clearInterval(state.s1SpawnTimer);
+        clearInterval(state.s1DrainTimer);
+        cancelAnimationFrame(state.s2AnimId);
+        clearInterval(state.s2LoopTimer);
+        clearInterval(state.s2AmbientTimer);
+        cancelAnimationFrame(state.s3AnimId);
+      }
+
+      function showScreen(key) {
+        stopAllLoops();
+        Object.values(screens).forEach((s) => s.classList.remove("active"));
+        screens[key].classList.add("active");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function updateHUD(stageLabel, lastPct = null) {
+        $("hudName").textContent = state.playerName;
+        if (stageLabel) $("hudStage").textContent = stageLabel;
+
+        const numEl = $("hudStockNum");
+        const deltaEl = $("hudDelta");
+        numEl.textContent = formatPts(state.currentStock);
+        numEl.classList.remove("up", "down");
+        deltaEl.classList.remove("up", "down");
+
+        if (lastPct !== null) {
+          if (lastPct >= 0) {
+            numEl.classList.add("up");
+            deltaEl.classList.add("up");
+            deltaEl.textContent = `▲ +${lastPct.toFixed(1)}%`;
+          } else {
+            numEl.classList.add("down");
+            deltaEl.classList.add("down");
+            deltaEl.textContent = `▼ ${lastPct.toFixed(1)}%`;
+          }
+        } else {
+          deltaEl.textContent = "";
+        }
+      }
+
+      $("soundToggleBtn").addEventListener("click", () => {
+        AudioFX.enabled = !AudioFX.enabled;
+        $("soundIcon").textContent = AudioFX.enabled ? "🔊" : "🔇";
+        $("soundText").textContent = AudioFX.enabled ? "音效開" : "靜音";
+        if (AudioFX.enabled) AudioFX.chime();
+      });
+
+      /* -------------------------------------------------------------------
+         4. 股市盤勢揭曉彈窗（每關 ±20.0% ～ ±30.0% 隨機震盪）
+      ------------------------------------------------------------------- */
+      function triggerStockModal(stageNum, stageTitle, shortLabel, upNews, downNews, onNext) {
+        stopAllLoops();
+        const oldPts = state.currentStock;
+        const isUp = Math.random() < 0.5;
+        const mag = Number((20 + Math.random() * 10).toFixed(1));
+        const pct = isUp ? mag : -mag;
+        const newPts = Math.round(oldPts * (1 + pct / 100));
+        const delta = newPts - oldPts;
+
+        state.currentStock = newPts;
+        state.stockHistory.push({
+          label: stageTitle,
+          shortLabel: shortLabel,
+          points: newPts,
+          pct: pct,
+          delta: delta
+        });
+
+        updateHUD(`${stageNum}/3 結算`, pct);
+
+        const card = $("stockModalCard");
+        card.classList.remove("is-up", "is-down");
+        card.classList.add(isUp ? "is-up" : "is-down");
+
+        $("stockModalTag").textContent = isUp
+          ? "🔥 盤勢狂飆・紅盤噴出"
+          : "📉 盤勢震盪・綠光洗盤";
+        $("stockModalStage").textContent = `${stageTitle} 過關結算｜隨機 ±20%～30% 波動`;
+
+        const arrow = isUp ? "▲" : "▼";
+        const sign = isUp ? "+" : "";
+        $("stockChangeLine").textContent = `${arrow} ${sign}${formatPts(delta)} 點（${sign}${pct.toFixed(1)}%）`;
+        $("stockNewsCard").innerHTML = `<strong>💎 財經快訊：</strong>${isUp ? upNews : downNews}`;
+        $("stockContinueBtn").textContent =
+          stageNum === 3 ? "查看股市走勢圖與領取高訂證書 🏆" : `進入第 ${stageNum + 1} 關 ▶`;
+
+        state.nextAfterModal = onNext;
+        $("stockModalBackdrop").classList.add("open");
+        AudioFX.stockReveal(isUp);
+
+        // 滾動數字動畫
+        const bigEl = $("stockBigPts");
+        const startT = performance.now();
+        const dur = 1000;
+        function tick(now) {
+          const p = Math.min(1, (now - startT) / dur);
+          const eased = 1 - Math.pow(1 - p, 3);
+          bigEl.textContent = formatPts(oldPts + (newPts - oldPts) * eased);
+          if (p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      }
+
+      $("stockContinueBtn").addEventListener("click", () => {
+        AudioFX.chime();
+        $("stockModalBackdrop").classList.remove("open");
+        if (typeof state.nextAfterModal === "function") {
+          const cb = state.nextAfterModal;
+          state.nextAfterModal = null;
+          cb();
+        }
+      });
+
+      /* -------------------------------------------------------------------
+         5. 開場與重置
+      ------------------------------------------------------------------- */
+      function initNewRun() {
+        state.currentStock = INITIAL_STOCK;
+        state.stockHistory = [
+          { label: "創業起點", shortLabel: "初始", points: INITIAL_STOCK, pct: 0, delta: 0 }
+        ];
+        state.completedAt = null;
+        updateHUD("1/3 翡翠初創", null);
+        startStage1();
+      }
+
+      $("startBtn").addEventListener("click", () => {
+        const raw = $("playerNameInput").value.trim();
+        state.playerName = raw || "翡翠傳奇創辦人";
+        AudioFX.init();
+        AudioFX.chime();
+        initNewRun();
+      });
+
+      $("playerNameInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") $("startBtn").click();
+      });
+
+      /* -------------------------------------------------------------------
+         6. 第一關｜翡翠初創：全球出貨與豺狼虎豹的批鬥
+      ------------------------------------------------------------------- */
+      const WORLD_HUBS = [
+        { name: "台北", x: 0.78, y: 0.50 },
+        { name: "東京", x: 0.85, y: 0.41 },
+        { name: "紐約", x: 0.25, y: 0.40 },
+        { name: "倫敦", x: 0.47, y: 0.31 },
+        { name: "巴黎", x: 0.50, y: 0.37 },
+        { name: "雪梨", x: 0.86, y: 0.78 }
+      ];
+
+      const BEAST_TYPES = [
+        { emoji: "🦊", name: "豺・空頭評論家", quote: "「強烈批鬥！立刻做空！」" },
+        { emoji: "🐺", name: "狼・華爾街惡狼", quote: "「這顯卡貴得像珠寶，根本泡沫！」" },
+        { emoji: "🐯", name: "虎・霸道市場虎", quote: "「敢賣到全世界，先問過我！」" },
+        { emoji: "🐆", name: "豹・酸民獵豹", quote: "「這散熱一定有鬼！」" }
+      ];
+
+      let beastUid = 1;
+
+      function startStage1() {
+        showScreen("stage1");
+        updateHUD("1/3 翡翠初創");
+        state.s1Progress = 0;
+        state.s1Repelled = 0;
+        state.s1ActiveBeasts = [];
+        state.s1Arcs = [];
+        state.s1Sparkles = [];
+        state.s1Cleared = false;
+        $("beastsLayer").innerHTML = "";
+        updateS1UI();
+
+        resizeS1Canvas();
+        animateS1();
+
+        // 立刻派出一隻猛獸熱場
+        setTimeout(() => {
+          if (screens.stage1.classList.contains("active") && !state.s1Cleared) spawnBeast();
+        }, 900);
+
+        state.s1SpawnTimer = setInterval(() => {
+          if (state.s1Cleared) return;
+          if (state.s1ActiveBeasts.length < 3) {
+            spawnBeast();
+          }
+        }, 2400);
+
+        // 場上有猛獸時，稍微拖慢出貨進度
+        state.s1DrainTimer = setInterval(() => {
+          if (state.s1Cleared) return;
+          if (state.s1ActiveBeasts.length > 0 && state.s1Progress > 0 && state.s1Progress < 100) {
+            state.s1Progress = Math.max(0, state.s1Progress - state.s1ActiveBeasts.length * 0.8);
+            updateS1UI();
+          }
+        }, 1000);
+      }
+
+      function updateS1UI() {
+        const pct = Math.min(100, Math.round(state.s1Progress));
+        $("s1ProgressText").textContent = pct + "%";
+        $("s1ProgressFill").style.width = pct + "%";
+        $("s1RepelCount").textContent = `${state.s1Repelled} / 5`;
+        $("s1ActiveBeasts").textContent = `${state.s1ActiveBeasts.length} 隻`;
+
+        if (!state.s1Cleared && state.s1Progress >= 100 && state.s1Repelled >= 5) {
+          state.s1Cleared = true;
+          showToast("💎 全球出貨 100% 且優雅擊退猛獸批鬥！");
+          setTimeout(() => {
+            triggerStockModal(
+              1,
+              "第一關：翡翠初創",
+              "第1關：翡翠初創",
+              "蒂芬妮綠顯示卡在全球六大時尚之都秒殺缺貨，外資喊進稱其為「算力界柏金包」！",
+              "豺狼虎豹聯手發布做空報告，市場短線獲利了結，股價迎來劇烈震盪！",
+              () => startStage2()
+            );
+          }, 700);
+        } else if (!state.s1Cleared && state.s1Progress >= 100 && state.s1Repelled < 5) {
+          // 確保猛獸持續補上讓玩家輕鬆擊退滿 5 隻
+          if (state.s1ActiveBeasts.length === 0) spawnBeast();
+        }
+      }
+
+      function fireGlobalArc(targetIdx = null) {
+        if (state.s1Cleared) return;
+        const from = WORLD_HUBS[0]; // 台北出發
+        const idx = targetIdx !== null ? targetIdx : (1 + Math.floor(Math.random() * (WORLD_HUBS.length - 1)));
+        const to = WORLD_HUBS[idx];
+        state.s1Arcs.push({
+          x1: from.x, y1: from.y,
+          x2: to.x, y2: to.y,
+          t: 0,
+          speed: 0.032 + Math.random() * 0.015
+        });
+
+        // 場上猛獸越多，單次出貨加成略降（鼓勵反擊猛獸）
+        const penalty = Math.max(0.45, 1 - state.s1ActiveBeasts.length * 0.16);
+        state.s1Progress = Math.min(100, state.s1Progress + 7.5 * penalty);
+        AudioFX.shipArc();
+        updateS1UI();
+      }
+
+      $("shipGpuBtn").addEventListener("click", () => {
+        fireGlobalArc();
+      });
+
+      function spawnBeast() {
+        const type = BEAST_TYPES[Math.floor(Math.random() * BEAST_TYPES.length)];
+        const id = beastUid++;
+        const xPct = 18 + Math.random() * 64;
+        const yPct = 22 + Math.random() * 58;
+
+        const el = document.createElement("div");
+        el.className = "beast-card";
+        el.style.left = xPct + "%";
+        el.style.top = yPct + "%";
+        el.innerHTML = `
+          <div class="beast-badge">${type.emoji}</div>
+          <div class="beast-info">
+            <strong>${type.name}</strong>
+            <span>${type.quote}</span>
+          </div>
+        `;
+
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (el.classList.contains("defeated")) return;
+          el.classList.add("defeated");
+          AudioFX.repelBeast();
+          state.s1Repelled++;
+          state.s1Progress = Math.min(100, state.s1Progress + 6.5);
+          state.s1ActiveBeasts = state.s1ActiveBeasts.filter((b) => b.id !== id);
+
+          // 產生香檳金星粉
+          for (let i = 0; i < 14; i++) {
+            state.s1Sparkles.push({
+              x: xPct / 100,
+              y: yPct / 100,
+              vx: (Math.random() - 0.5) * 0.014,
+              vy: (Math.random() - 0.5) * 0.018,
+              life: 1
+            });
+          }
+
+          showToast(`✨ 公關微笑反擊成功！${type.name} 化作滿場掌聲！`);
+          updateS1UI();
+          setTimeout(() => el.remove(), 220);
+        });
+
+        $("beastsLayer").appendChild(el);
+        state.s1ActiveBeasts.push({ id, el });
+        updateS1UI();
+      }
+
+      const worldCanvas = $("worldMapCanvas");
+      const worldCtx = worldCanvas.getContext("2d");
+
+      function resizeS1Canvas() {
+        const wrap = $("s1Arena");
+        if (!wrap || wrap.clientWidth === 0) return;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        worldCanvas.width = Math.floor(wrap.clientWidth * dpr);
+        worldCanvas.height = Math.floor(wrap.clientHeight * dpr);
+        worldCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      worldCanvas.addEventListener("click", (e) => {
+        const rect = worldCanvas.getBoundingClientRect();
+        const rx = (e.clientX - rect.left) / rect.width;
+        const ry = (e.clientY - rect.top) / rect.height;
+        // 找最近據點發射光弧
+        let bestIdx = 1;
+        let bestDist = 99;
+        WORLD_HUBS.forEach((h, i) => {
+          const d = Math.hypot(h.x - rx, h.y - ry);
+          if (d < bestDist) { bestDist = d; bestIdx = i; }
+        });
+        fireGlobalArc(bestIdx === 0 ? 2 : bestIdx);
+      });
+
+      function animateS1() {
+        const wrap = $("s1Arena");
+        const W = wrap.clientWidth || 640;
+        const H = wrap.clientHeight || 360;
+        const ctx = worldCtx;
+        const now = performance.now() * 0.002;
+
+        ctx.clearRect(0, 0, W, H);
+
+        // 經緯金線格網
+        ctx.strokeStyle = "rgba(232, 208, 155, 0.12)";
+        ctx.lineWidth = 1;
+        for (let x = 0.1; x < 1; x += 0.1) {
+          ctx.beginPath(); ctx.moveTo(W * x, 0); ctx.lineTo(W * x, H); ctx.stroke();
+        }
+        for (let y = 0.15; y < 1; y += 0.17) {
+          ctx.beginPath(); ctx.moveTo(0, H * y); ctx.lineTo(W, H * y); ctx.stroke();
+        }
+
+        // 極簡抽象大陸輪廓（高訂金線風格）
+        const continents = [
+          [[0.12,0.22],[0.31,0.20],[0.34,0.44],[0.24,0.52],[0.16,0.42]], // 北美
+          [[0.25,0.54],[0.34,0.60],[0.31,0.84],[0.24,0.78]],             // 南美
+          [[0.44,0.22],[0.58,0.20],[0.60,0.40],[0.45,0.41]],             // 歐洲
+          [[0.46,0.44],[0.59,0.46],[0.57,0.76],[0.48,0.72]],             // 非洲
+          [[0.61,0.22],[0.88,0.26],[0.86,0.54],[0.65,0.52]],             // 亞洲
+          [[0.78,0.68],[0.91,0.70],[0.89,0.86],[0.77,0.82]]              // 澳洲
+        ];
+        ctx.fillStyle = "rgba(129, 216, 208, 0.13)";
+        ctx.strokeStyle = "rgba(129, 216, 208, 0.36)";
+        ctx.lineWidth = 1.4;
+        continents.forEach((poly) => {
+          ctx.beginPath();
+          poly.forEach(([px, py], i) => {
+            if (i === 0) ctx.moveTo(W * px, H * py);
+            else ctx.lineTo(W * px, H * py);
+          });
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        });
+
+        // 繪製六大全球據點
+        WORLD_HUBS.forEach((h, i) => {
+          const hx = W * h.x;
+          const hy = H * h.y;
+          const pulse = 5 + Math.sin(now * 2.2 + i) * 3.5;
+
+          ctx.strokeStyle = i === 0 ? "rgba(232, 208, 155, 0.75)" : "rgba(129, 216, 208, 0.65)";
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(hx, hy, pulse + 4, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.fillStyle = i === 0 ? "#E8D09B" : "#81D8D0";
+          ctx.beginPath();
+          ctx.arc(hx, hy, 4.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = "#FBFDFD";
+          ctx.font = "700 12px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(h.name, hx, hy - 12);
+        });
+
+        // 繪製香檳金出貨物流光弧
+        state.s1Arcs = state.s1Arcs.filter((arc) => {
+          arc.t += arc.speed;
+          const x1 = W * arc.x1, y1 = H * arc.y1;
+          const x2 = W * arc.x2, y2 = H * arc.y2;
+          const cx = (x1 + x2) / 2;
+          const cy = Math.min(y1, y2) - H * 0.22;
+
+          ctx.strokeStyle = "rgba(232, 208, 155, 0.35)";
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.quadraticCurveTo(cx, cy, x2, y2);
+          ctx.stroke();
+
+          const t = Math.min(1, arc.t);
+          const bx = (1 - t) * (1 - t) * x1 + 2 * (1 - t) * t * cx + t * t * x2;
+          const by = (1 - t) * (1 - t) * y1 + 2 * (1 - t) * t * cy + t * t * y2;
+
+          ctx.fillStyle = "#F7EED7";
+          ctx.shadowColor = "#E8D09B";
+          ctx.shadowBlur = 12;
+          ctx.beginPath();
+          ctx.arc(bx, by, 5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+
+          return arc.t < 1.05;
+        });
+
+        // 繪製擊退猛獸後的香檳金粉
+        state.s1Sparkles = state.s1Sparkles.filter((sp) => {
+          sp.x += sp.vx;
+          sp.y += sp.vy;
+          sp.life -= 0.035;
+          ctx.fillStyle = `rgba(232, 208, 155, ${Math.max(0, sp.life)})`;
+          ctx.beginPath();
+          ctx.arc(W * sp.x, H * sp.y, 3.5 * sp.life, 0, Math.PI * 2);
+          ctx.fill();
+          return sp.life > 0;
+        });
+
+        state.s1AnimId = requestAnimationFrame(animateS1);
+      }
+
+      /* -------------------------------------------------------------------
+         7. 第二關｜萬籟之王：怒吼與蟲鳴鳥叫的軟體之王
+      ------------------------------------------------------------------- */
+      const S2_LOGS_ROAR = [
+        "[LOG] 核心發出獅吼：全場工程師瞬間靜默！",
+        "[LOG] 記憶體低頻咆哮：競爭對手伺服器震碎！",
+        "[LOG] 算力之王怒吼 +120dB：股價聽得心驚膽顫！"
+      ];
+      const S2_LOGS_NATURE = [
+        "[LOG] 偵測到蟬鳴鳥叫：BUG 自動羽化成蝶！",
+        "[LOG] 森林早鳥合聲啟動：CPU 溫度降至微風 22°C！",
+        "[LOG] 蟋蟀節奏編譯通過：系統散發芬多精！"
+      ];
+
+      function appendS2Log(text, isGold = false) {
+        const box = $("s2LogConsole");
+        const div = document.createElement("div");
+        div.className = "log-line" + (isGold ? " gold" : "");
+        div.textContent = text;
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
+      }
+
+      function startStage2() {
+        showScreen("stage2");
+        updateHUD("2/3 萬籟之王");
+        state.s2Progress = 0;
+        state.s2Modules = [false, false, false, false];
+        state.s2RoarVal = 56;
+        state.s2NatureVal = 56;
+        state.s2RoarPulse = 0.55;
+        state.s2NaturePulse = 0.55;
+        state.s2Cleared = false;
+
+        $("s2LogConsole").innerHTML = "";
+        appendS2Log("[SYS] 軟體之王初始化完成：野獸怒吼與森林蟲鳥聲已上線。", true);
+
+        document.querySelectorAll("#s2Modules .module-btn").forEach((btn) => {
+          btn.classList.remove("on");
+          btn.querySelector("small").textContent = "點擊啟動";
+        });
+
+        updateS2UI();
+        resizeOscCanvas();
+        animateOscilloscope();
+
+        // 持續性環境音效（交替播放怒吼與蟲鳴鳥叫）
+        let ambientFlip = false;
+        AudioFX.beastRoar(0.75);
+        setTimeout(() => {
+          if (screens.stage2.classList.contains("active") && !state.s2Cleared) {
+            AudioFX.birdAndInsect(0.8);
+          }
+        }, 700);
+
+        state.s2AmbientTimer = setInterval(() => {
+          if (state.s2Cleared) return;
+          ambientFlip = !ambientFlip;
+          if (ambientFlip) {
+            AudioFX.beastRoar(0.55);
+            state.s2RoarPulse = Math.max(state.s2RoarPulse, 0.85);
+          } else {
+            AudioFX.birdAndInsect(0.65);
+            state.s2NaturePulse = Math.max(state.s2NaturePulse, 0.85);
+          }
+        }, 2800);
+
+        // 雙軌自然衰減，鼓勵玩家同步調和怒吼與蟲鳴鳥叫
+        state.s2LoopTimer = setInterval(() => {
+          if (state.s2Cleared) return;
+          state.s2RoarVal = Math.max(10, state.s2RoarVal - 2.6);
+          state.s2NatureVal = Math.max(10, state.s2NatureVal - 2.6);
+          updateS2UI();
+        }, 550);
+      }
+
+      document.querySelectorAll("#s2Modules .module-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const idx = Number(btn.dataset.mod);
+          if (state.s2Modules[idx] || state.s2Cleared) return;
+          state.s2Modules[idx] = true;
+          btn.classList.add("on");
+          btn.querySelector("small").textContent = "✓ 已上線";
+          AudioFX.chime();
+          state.s2Progress = Math.min(100, state.s2Progress + 12);
+          appendS2Log(`[MOD] 核心模組「${btn.querySelector("span").textContent}」啟動成功！`, true);
+          updateS2UI();
+        });
+      });
+
+      $("roarBtn").addEventListener("click", () => {
+        if (state.s2Cleared) return;
+        state.s2RoarVal = Math.min(96, state.s2RoarVal + 18);
+        state.s2RoarPulse = 1.25;
+        AudioFX.beastRoar(1.0);
+        appendS2Log(S2_LOGS_ROAR[Math.floor(Math.random() * S2_LOGS_ROAR.length)], true);
+        updateS2UI();
+      });
+
+      $("natureBtn").addEventListener("click", () => {
+        if (state.s2Cleared) return;
+        state.s2NatureVal = Math.min(96, state.s2NatureVal + 18);
+        state.s2NaturePulse = 1.25;
+        AudioFX.birdAndInsect(1.0);
+        appendS2Log(S2_LOGS_NATURE[Math.floor(Math.random() * S2_LOGS_NATURE.length)], false);
+        updateS2UI();
+      });
+
+      $("injectCodeBtn").addEventListener("click", () => {
+        if (state.s2Cleared) return;
+        const roarOk = state.s2RoarVal >= 38 && state.s2RoarVal <= 82;
+        const natureOk = state.s2NatureVal >= 38 && state.s2NatureVal <= 82;
+        const modCount = state.s2Modules.filter(Boolean).length;
+
+        if (roarOk && natureOk) {
+          const gain = 9 + modCount * 2.5;
+          state.s2Progress = Math.min(100, state.s2Progress + gain);
+          AudioFX.chime();
+          appendS2Log(`[BUILD] 萬籟黃金共振！注入靈魂代碼 +${Math.round(gain)}%`, true);
+        } else {
+          state.s2Progress = Math.min(100, state.s2Progress + 3);
+          AudioFX.tone(320, 0.1, "triangle", 0.08);
+          showToast("💡 讓「怒吼值」與「蟲鳥值」同時保持在黃金區間（38%～82%）效率翻倍！");
+        }
+        updateS2UI();
+      });
+
+      function updateS2UI() {
+        const pct = Math.min(100, Math.round(state.s2Progress));
+        $("s2ProgressText").textContent = pct + "%";
+        $("s2ProgressFill").style.width = pct + "%";
+        $("roarValText").textContent = Math.round(state.s2RoarVal) + "%";
+        $("roarBarFill").style.width = state.s2RoarVal + "%";
+        $("natureValText").textContent = Math.round(state.s2NatureVal) + "%";
+        $("natureBarFill").style.width = state.s2NatureVal + "%";
+
+        const allMods = state.s2Modules.every(Boolean);
+        if (!state.s2Cleared && state.s2Progress >= 100 && allMods) {
+          state.s2Cleared = true;
+          clearInterval(state.s2AmbientTimer);
+          clearInterval(state.s2LoopTimer);
+          AudioFX.chime();
+          showToast("👑 軟體之王大功告成！萬籟共鳴響徹矽谷！");
+          setTimeout(() => {
+            triggerStockModal(
+              2,
+              "第二關：萬籟之王",
+              "第2關：萬籟之王",
+              "全球開發者盛讚軟體之王「聽完獅吼精神百倍、聽完鳥叫零過勞」，訂閱暴增引爆漲停！",
+              "法說會現場軟體突然大聲蟲鳴與獅吼，分析師誤以為系統中邪，恐慌拋售潮湧現！",
+              () => startStage3()
+            );
+          }, 750);
+        } else if (!state.s2Cleared && state.s2Progress >= 100 && !allMods) {
+          showToast("👑 完成度已滿！請將上方 4 個核心模組全數點擊啟動即可通關！");
+        }
+      }
+
+      const oscCanvas = $("oscCanvas");
+      const oscCtx = oscCanvas.getContext("2d");
+
+      function resizeOscCanvas() {
+        const box = oscCanvas.parentElement;
+        if (!box || box.clientWidth === 0) return;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        oscCanvas.width = Math.floor(box.clientWidth * dpr);
+        oscCanvas.height = Math.floor(box.clientHeight * dpr);
+        oscCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function animateOscilloscope() {
+        const box = oscCanvas.parentElement;
+        const W = box.clientWidth || 600;
+        const H = box.clientHeight || 190;
+        const ctx = oscCtx;
+        const t = performance.now() * 0.004;
+
+        state.s2RoarPulse = Math.max(0.28, state.s2RoarPulse * 0.96);
+        state.s2NaturePulse = Math.max(0.28, state.s2NaturePulse * 0.96);
+
+        ctx.clearRect(0, 0, W, H);
+
+        // 中線參考
+        ctx.strokeStyle = "rgba(232, 208, 155, 0.16)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, H * 0.5);
+        ctx.lineTo(W, H * 0.5);
+        ctx.stroke();
+
+        // 軌道一：香檳金怒吼低頻波
+        ctx.strokeStyle = "#E8D09B";
+        ctx.lineWidth = 2.6;
+        ctx.beginPath();
+        const roarAmp = (H * 0.22) * state.s2RoarPulse * (0.4 + state.s2RoarVal / 100);
+        for (let x = 0; x <= W; x += 4) {
+          const y =
+            H * 0.52 +
+            Math.sin(x * 0.025 + t * 2.2) * roarAmp +
+            Math.sin(x * 0.065 - t * 3.8) * (roarAmp * 0.35);
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        // 軌道二：蒂芬妮綠蟲鳴鳥叫高頻波
+        ctx.strokeStyle = "#81D8D0";
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        const natAmp = (H * 0.2) * state.s2NaturePulse * (0.4 + state.s2NatureVal / 100);
+        for (let x = 0; x <= W; x += 3) {
+          const envelope = Math.sin((x / W) * Math.PI);
+          const y =
+            H * 0.48 +
+            Math.sin(x * 0.14 - t * 6.5) * natAmp * envelope +
+            Math.cos(x * 0.28 + t * 9.0) * (natAmp * 0.28);
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        state.s2AnimId = requestAnimationFrame(animateOscilloscope);
+      }
+
+      /* -------------------------------------------------------------------
+         8. 第三關｜高訂洞洞美學：戳破顯卡的華麗下台
+      ------------------------------------------------------------------- */
+      const BOARD_QUOTES = [
+        "「執行長，這張旗艦顯卡已經很完美了，請千萬不要拿鑽石錐子靠近它……」",
+        "「等等！你剛剛在陽極外殼上戳了一個鑽石洞？！散熱工程師正在哭！」",
+        "「雖然那個菱形翡翠孔確實很高級……但這不是珠寶展示櫃啊！」",
+        "「三個洞了！質感美得像巴黎時裝週，可它已經插不進主機板了！」",
+        "「執行長請放下錐子！再戳下去連核心晶片都要變鏤空雕花了！」",
+        "「全體董事崩潰中：這張洞洞裝顯卡美到令人窒息，我們一致表決——請您體面下台！」"
+      ];
+
+      function generateGpuHoles() {
+        // 12 個不同形狀與大小的標記洞口（相對顯卡座標 0~1）
+        return [
+          { rx: 0.22, ry: 0.34, shape: "diamond", size: 22, pierced: false },
+          { rx: 0.32, ry: 0.62, shape: "circle",  size: 20, pierced: false },
+          { rx: 0.42, ry: 0.30, shape: "star",    size: 24, pierced: false },
+          { rx: 0.50, ry: 0.50, shape: "core",    size: 32, pierced: false },
+          { rx: 0.60, ry: 0.32, shape: "diamond", size: 22, pierced: false },
+          { rx: 0.68, ry: 0.64, shape: "star",    size: 23, pierced: false },
+          { rx: 0.78, ry: 0.36, shape: "circle",  size: 21, pierced: false },
+          { rx: 0.26, ry: 0.50, shape: "slot",    size: 26, pierced: false },
+          { rx: 0.74, ry: 0.52, shape: "slot",    size: 26, pierced: false },
+          { rx: 0.44, ry: 0.68, shape: "circle",  size: 19, pierced: false },
+          { rx: 0.58, ry: 0.68, shape: "diamond", size: 20, pierced: false },
+          { rx: 0.36, ry: 0.46, shape: "star",    size: 21, pierced: false }
+        ];
+      }
+
+      const gpuCanvas = $("gpuCanvas");
+      const gpuCtx = gpuCanvas.getContext("2d");
+
+      function startStage3() {
+        showScreen("stage3");
+        updateHUD("3/3 高訂洞洞美學");
+        state.s3Holes = generateGpuHoles();
+        state.s3PiercedCount = 0;
+        state.s3Sparkles = [];
+        state.s3Cleared = false;
+        updateS3UI();
+
+        resizeGpuCanvas();
+        animateGpu();
+      }
+
+      function resizeGpuCanvas() {
+        const wrap = $("gpuCanvasWrap");
+        if (!wrap || wrap.clientWidth === 0) return;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        gpuCanvas.width = Math.floor(wrap.clientWidth * dpr);
+        gpuCanvas.height = Math.floor(wrap.clientHeight * dpr);
+        gpuCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function updateS3UI() {
+        const c = state.s3PiercedCount;
+        const pct = Math.min(100, Math.round((c / 10) * 100));
+        $("s3QualityText").textContent = `${c} / 10 洞`;
+        $("s3QualityFill").style.width = pct + "%";
+        $("s3BoardText").textContent = pct + "%";
+        $("s3BoardFill").style.width = pct + "%";
+
+        let tier = "工業量產";
+        if (c >= 10) tier = "傳世博物館級洞洞裝";
+        else if (c >= 7) tier = "巴黎高訂";
+        else if (c >= 3) tier = "輕奢精品";
+        $("s3TierPill").textContent = tier;
+
+        const qIdx = Math.min(BOARD_QUOTES.length - 1, Math.floor(c / 2));
+        $("s3BoardQuote").innerHTML = `<span>🏛 董事會：</span><span>${BOARD_QUOTES[qIdx]}</span>`;
+
+        if (!state.s3Cleared && c >= 10) {
+          state.s3Cleared = true;
+          AudioFX.chime();
+          showToast("🎀 高訂質感 100%！在董事會掌聲與淚水中華麗下台！");
+          setTimeout(() => {
+            triggerStockModal(
+              3,
+              "第三關：高訂洞洞美學",
+              "第3關：洞洞下台",
+              "這張戳滿十洞的絕版顯卡在蘇富比拍出天價，市場瘋搶聯名周邊，大盤爆量飆漲！",
+              "創辦人因過度追求顯卡洞洞質感被迫體面下台，華爾街集體失落，指數重挫！",
+              () => showFinalScreen()
+            );
+          }, 950);
+        }
+      }
+
+      function tryPierceAt(clientX, clientY) {
+        if (state.s3Cleared) return;
+        const rect = gpuCanvas.getBoundingClientRect();
+        const x = clientX - rect.left;
+        const y = clientY - rect.top;
+        const W = rect.width;
+        const H = rect.height;
+
+        for (const hole of state.s3Holes) {
+          if (hole.pierced) continue;
+          const hx = W * hole.rx;
+          const hy = H * hole.ry;
+          const hitR = Math.max(28, hole.size * 1.4);
+          if (Math.hypot(x - hx, y - hy) <= hitR) {
+            hole.pierced = true;
+            state.s3PiercedCount++;
+            AudioFX.pierceHole(state.s3PiercedCount);
+
+            for (let i = 0; i < 18; i++) {
+              const ang = (Math.PI * 2 * i) / 18 + Math.random() * 0.3;
+              const spd = 1.6 + Math.random() * 3.4;
+              state.s3Sparkles.push({
+                x: hx, y: hy,
+                vx: Math.cos(ang) * spd,
+                vy: Math.sin(ang) * spd,
+                life: 1
+              });
+            }
+            updateS3UI();
+            break;
+          }
+        }
+      }
+
+      let isDraggingGpu = false;
+      gpuCanvas.addEventListener("pointerdown", (e) => {
+        isDraggingGpu = true;
+        tryPierceAt(e.clientX, e.clientY);
+      });
+      gpuCanvas.addEventListener("pointermove", (e) => {
+        if (isDraggingGpu) tryPierceAt(e.clientX, e.clientY);
+      });
+      window.addEventListener("pointerup", () => { isDraggingGpu = false; });
+
+      function drawHoleShape(ctx, shape, x, y, r) {
+        ctx.beginPath();
+        if (shape === "circle" || shape === "core") {
+          ctx.arc(x, y, r, 0, Math.PI * 2);
+        } else if (shape === "diamond") {
+          ctx.moveTo(x, y - r * 1.15);
+          ctx.lineTo(x + r * 0.95, y);
+          ctx.lineTo(x, y + r * 1.15);
+          ctx.lineTo(x - r * 0.95, y);
+          ctx.closePath();
+        } else if (shape === "star") {
+          for (let i = 0; i < 8; i++) {
+            const rad = i % 2 === 0 ? r * 1.15 : r * 0.48;
+            const ang = (Math.PI * i) / 4 - Math.PI / 2;
+            const px = x + Math.cos(ang) * rad;
+            const py = y + Math.sin(ang) * rad;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.closePath();
+        } else if (shape === "slot") {
+          roundRectPath(ctx, x - r * 1.1, y - r * 0.42, r * 2.2, r * 0.84, r * 0.42);
+        }
+      }
+
+      function animateGpu() {
+        const wrap = $("gpuCanvasWrap");
+        const W = wrap.clientWidth || 640;
+        const H = wrap.clientHeight || 360;
+        const ctx = gpuCtx;
+        const now = performance.now() * 0.003;
+
+        ctx.clearRect(0, 0, W, H);
+
+        // 顯卡本體位置與尺寸
+        const gx = W * 0.11;
+        const gy = H * 0.16;
+        const gw = W * 0.78;
+        const gh = H * 0.68;
+
+        // 底部金手指插槽
+        ctx.fillStyle = "#C8A45D";
+        for (let i = 0; i < 16; i++) {
+          ctx.fillRect(gx + gw * 0.22 + i * (gw * 0.025), gy + gh - 2, gw * 0.014, 14);
+        }
+
+        // 顯卡主體：蒂芬妮綠陽極金屬外殼
+        const cardGrad = ctx.createLinearGradient(gx, gy, gx + gw, gy + gh);
+        cardGrad.addColorStop(0, "#97E5DE");
+        cardGrad.addColorStop(0.45, "#5BCAC2");
+        cardGrad.addColorStop(1, "#0D9894");
+        ctx.fillStyle = cardGrad;
+        roundRectPath(ctx, gx, gy, gw, gh, 20);
+        ctx.fill();
+
+        // 雙層香檳金外框
+        ctx.strokeStyle = "#E8D09B";
+        ctx.lineWidth = 3;
+        roundRectPath(ctx, gx, gy, gw, gh, 20);
+        ctx.stroke();
+
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.45)";
+        ctx.lineWidth = 1;
+        roundRectPath(ctx, gx + 8, gy + 8, gw - 16, gh - 16, 14);
+        ctx.stroke();
+
+        // 散熱鰭片與電路金線紋路
+        ctx.strokeStyle = "rgba(232, 208, 155, 0.35)";
+        ctx.lineWidth = 1.2;
+        for (let i = 1; i <= 7; i++) {
+          const ly = gy + (gh * i) / 8;
+          ctx.beginPath();
+          ctx.moveTo(gx + 16, ly);
+          ctx.lineTo(gx + gw - 16, ly);
+          ctx.stroke();
+        }
+
+        // 品牌高訂銘牌
+        ctx.fillStyle = "rgba(15, 46, 45, 0.75)";
+        ctx.font = `800 ${Math.max(11, Math.round(W * 0.02))}px Georgia, serif`;
+        ctx.textAlign = "left";
+        ctx.fillText("TIFFANY RTX • HAUTE COUTURE EDITION", gx + 20, gy + 28);
+
+        // 繪製 12 個洞口（未戳破為閃爍虛線標記；已戳破為透光金邊鏤空雕花）
+        const scaleR = Math.min(W / 680, H / 380);
+        state.s3Holes.forEach((h, idx) => {
+          const hx = W * h.rx;
+          const hy = H * h.ry;
+          const r = h.size * Math.max(0.75, scaleR);
+
+          if (!h.pierced) {
+            const pulse = 0.55 + Math.sin(now * 2 + idx) * 0.35;
+            ctx.save();
+            drawHoleShape(ctx, h.shape, hx, hy, r);
+            ctx.fillStyle = `rgba(15, 46, 45, ${0.18 + pulse * 0.14})`;
+            ctx.fill();
+            ctx.strokeStyle = `rgba(255, 245, 214, ${0.55 + pulse * 0.45})`;
+            ctx.lineWidth = 2;
+            ctx.setLineDash([4, 3]);
+            ctx.stroke();
+            ctx.restore();
+          } else {
+            // 已戳破：深透光鏤空＋發亮香檳金雕花邊框
+            ctx.save();
+            drawHoleShape(ctx, h.shape, hx, hy, r);
+            const holeGrad = ctx.createRadialGradient(hx, hy, 2, hx, hy, r * 1.2);
+            holeGrad.addColorStop(0, "#FFF9E6");
+            holeGrad.addColorStop(0.35, "#81D8D0");
+            holeGrad.addColorStop(0.85, "#0B2221");
+            holeGrad.addColorStop(1, "#071514");
+            ctx.fillStyle = holeGrad;
+            ctx.fill();
+
+            ctx.strokeStyle = "#F7EED7";
+            ctx.lineWidth = 3;
+            ctx.shadowColor = "#E8D09B";
+            ctx.shadowBlur = 14;
+            ctx.stroke();
+            ctx.restore();
+          }
+        });
+
+        // 繪製戳洞星芒粒子
+        state.s3Sparkles = state.s3Sparkles.filter((sp) => {
+          sp.x += sp.vx;
+          sp.y += sp.vy;
+          sp.life -= 0.032;
+          ctx.fillStyle = `rgba(255, 244, 210, ${Math.max(0, sp.life)})`;
+          ctx.beginPath();
+          ctx.arc(sp.x, sp.y, 3.8 * sp.life, 0, Math.PI * 2);
+          ctx.fill();
+          return sp.life > 0;
+        });
+
+        state.s3AnimId = requestAnimationFrame(animateGpu);
+      }
+
+      /* -------------------------------------------------------------------
+         9. 最終通關畫面：股市走勢圖與 1080×1520 高訂證書
+      ------------------------------------------------------------------- */
+      function getLuxuryRank(finalPts) {
+        if (finalPts >= 70000) return "翡翠股神・高訂傳奇";
+        if (finalPts >= 50000) return "體面多頭・珠寶教父";
+        if (finalPts >= 35000) return "優雅震盪・藝術大師";
+        return "佛系綠盤・洞洞美學家";
+      }
+
+      function showFinalScreen() {
+        state.completedAt = new Date();
+        showScreen("final");
+        updateHUD("榮耀通關", null);
+
+        const finalPts = state.currentStock;
+        const totalPct = ((finalPts - INITIAL_STOCK) / INITIAL_STOCK) * 100;
+        const isNetUp = finalPts >= INITIAL_STOCK;
+        const rank = getLuxuryRank(finalPts);
+
+        $("finalTitleTag").textContent = rank;
+        $("kpiFinalPts").textContent = formatPts(finalPts) + " 點";
+        $("kpiFinalPts").className = "val " + (isNetUp ? "up" : "down");
+        $("kpiTotalPct").textContent = (totalPct >= 0 ? "+" : "") + totalPct.toFixed(1) + "%";
+        $("kpiTotalPct").className = "val " + (isNetUp ? "up" : "down");
+        $("kpiRankTitle").textContent = rank;
+
+        $("certNameInput").value = state.playerName;
+        $("sloganSelect").value = String(state.selectedSloganIdx);
+
+        requestAnimationFrame(() => {
+          drawStockChart($("finalChartCanvas"), state.stockHistory);
+          renderCertificate();
+        });
+      }
+
+      /* 共用：蒂芬妮綠 × 香檳金股市走勢圖 */
+      function drawStockChart(canvas, history, customRect = null, targetCtx = null) {
+        let ctx, W, H, ox = 0, oy = 0;
+
+        if (targetCtx && customRect) {
+          ctx = targetCtx;
+          ox = customRect.x;
+          oy = customRect.y;
+          W = customRect.w;
+          H = customRect.h;
+        } else {
+          const parent = canvas.parentElement;
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          W = parent.clientWidth - 20;
+          H = parent.clientHeight - 20;
+          if (W <= 0 || H <= 0) return;
+          canvas.width = Math.floor(W * dpr);
+          canvas.height = Math.floor(H * dpr);
+          ctx = canvas.getContext("2d");
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        ctx.save();
+        ctx.translate(ox, oy);
+
+        // 珠光底色
+        ctx.fillStyle = "#FBFDFD";
+        roundRectPath(ctx, 0, 0, W, H, 14);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(200, 164, 93, 0.45)";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        const padL = Math.max(58, W * 0.11);
+        const padR = Math.max(36, W * 0.06);
+        const padT = Math.max(44, H * 0.17);
+        const padB = Math.max(40, H * 0.16);
+        const plotW = W - padL - padR;
+        const plotH = H - padT - padB;
+
+        const pts = history.map((h) => h.points);
+        const rawMin = Math.min(...pts, INITIAL_STOCK);
+        const rawMax = Math.max(...pts, INITIAL_STOCK);
+        const span = Math.max(8000, rawMax - rawMin);
+        const minY = Math.max(0, Math.floor((rawMin - span * 0.2) / 1000) * 1000);
+        const maxY = Math.ceil((rawMax + span * 0.24) / 1000) * 1000;
+
+        const getX = (i) => padL + (plotW * i) / Math.max(1, history.length - 1);
+        const getY = (v) => padT + plotH - ((v - minY) / (maxY - minY || 1)) * plotH;
+
+        // 水平網格線
+        ctx.font = `600 ${Math.max(11, Math.round(H * 0.044))}px monospace`;
+        ctx.textAlign = "right";
+        for (let s = 0; s <= 4; s++) {
+          const val = minY + ((maxY - minY) * s) / 4;
+          const y = getY(val);
+          ctx.strokeStyle = "rgba(15, 46, 45, 0.08)";
+          ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+          ctx.fillStyle = "#4C6E6C";
+          ctx.fillText(Math.round(val).toLocaleString("zh-TW"), padL - 8, y + 4);
+        }
+
+        // 50,000 基準金線
+        const baseY = getY(INITIAL_STOCK);
+        ctx.save();
+        ctx.strokeStyle = "rgba(200, 164, 93, 0.7)";
+        ctx.setLineDash([5, 5]);
+        ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.moveTo(padL, baseY); ctx.lineTo(W - padR, baseY); ctx.stroke();
+        ctx.restore();
+
+        // 逐段繪製（台股紅漲 #D64550 / 綠跌 #0D8A6A）
+        for (let i = 1; i < history.length; i++) {
+          const x1 = getX(i - 1), y1 = getY(history[i - 1].points);
+          const x2 = getX(i), y2 = getY(history[i].points);
+          const isUp = history[i].pct >= 0;
+          const col = isUp ? "#D64550" : "#0D8A6A";
+
+          const g = ctx.createLinearGradient(0, Math.min(y1, y2), 0, padT + plotH);
+          g.addColorStop(0, isUp ? "rgba(214, 69, 80, 0.16)" : "rgba(13, 138, 106, 0.16)");
+          g.addColorStop(1, "rgba(251, 253, 253, 0)");
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+          ctx.lineTo(x2, padT + plotH); ctx.lineTo(x1, padT + plotH);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.strokeStyle = col;
+          ctx.lineWidth = Math.max(3, H * 0.013);
+          ctx.lineCap = "round";
+          ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        }
+
+        // 節點與文字
+        const fs = Math.max(11, Math.round(H * 0.045));
+        history.forEach((h, i) => {
+          const x = getX(i), y = getY(h.points);
+          const isInit = i === 0;
+          const isUp = h.pct >= 0;
+          const dotCol = isInit ? "#C8A45D" : (isUp ? "#D64550" : "#0D8A6A");
+
+          ctx.fillStyle = dotCol;
+          ctx.beginPath(); ctx.arc(x, y, Math.max(5.5, H * 0.022), 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = "#FFFFFF";
+          ctx.lineWidth = 2.2;
+          ctx.stroke();
+
+          ctx.textAlign = i === 0 ? "left" : (i === history.length - 1 ? "right" : "center");
+          const tx = i === 0 ? x - 4 : (i === history.length - 1 ? x + 4 : x);
+          ctx.font = `800 ${fs}px monospace`;
+          ctx.fillStyle = "#0F2E2D";
+          ctx.fillText(formatPts(h.points), tx, y - 13);
+
+          if (!isInit) {
+            ctx.font = `700 ${Math.max(10, fs - 1)}px monospace`;
+            ctx.fillStyle = isUp ? "#D64550" : "#0D8A6A";
+            ctx.fillText(`${isUp ? "+" : ""}${h.pct.toFixed(1)}%`, tx, y - 28);
+          }
+
+          ctx.textAlign = "center";
+          ctx.font = `700 ${Math.max(10, Math.round(H * 0.042))}px sans-serif`;
+          ctx.fillStyle = "#163C3A";
+          ctx.fillText(h.shortLabel, x, H - padB * 0.32);
+        });
+
+        ctx.restore();
+      }
+
+      /* -------------------------------------------------------------------
+         10. 繪製 1080×1520 蒂芬妮綠高訂榮譽證書
+      ------------------------------------------------------------------- */
+      function wrapChineseText(ctx, text, maxWidth) {
+        const lines = [];
+        let cur = "";
+        for (const ch of text) {
+          if (ctx.measureText(cur + ch).width > maxWidth) {
+            lines.push(cur);
+            cur = ch;
+          } else {
+            cur += ch;
+          }
+        }
+        if (cur) lines.push(cur);
+        return lines;
+      }
+
+      function renderCertificate() {
+        const canvas = $("certCanvas");
+        const ctx = canvas.getContext("2d");
+        const W = 1080;
+        const H = 1520;
+
+        // 1. 蒂芬妮綠絲緞漸層底色
+        const bg = ctx.createLinearGradient(0, 0, W, H);
+        bg.addColorStop(0, "#A9E8E1");
+        bg.addColorStop(0.22, "#81D8D0");
+        bg.addColorStop(0.55, "#E7F7F5");
+        bg.addColorStop(1, "#81D8D0");
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, W, H);
+
+        // 珠光白主內頁卡片
+        ctx.fillStyle = "rgba(251, 253, 253, 0.94)";
+        roundRectPath(ctx, 48, 48, W - 96, H - 96, 30);
+        ctx.fill();
+
+        // 雙層香檳金花框
+        ctx.strokeStyle = "#C8A45D";
+        ctx.lineWidth = 6;
+        roundRectPath(ctx, 48, 48, W - 96, H - 96, 30);
+        ctx.stroke();
+
+        ctx.strokeStyle = "rgba(200, 164, 93, 0.52)";
+        ctx.lineWidth = 2;
+        roundRectPath(ctx, 68, 68, W - 136, H - 136, 22);
+        ctx.stroke();
+
+        // 頂部珠寶緞帶飾紋
+        ctx.fillStyle = "#81D8D0";
+        ctx.fillRect(W / 2 - 220, 96, 440, 40);
+        ctx.strokeStyle = "#C8A45D";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(W / 2 - 220, 96, 440, 40);
+
+        ctx.fillStyle = "#0F2E2D";
+        ctx.font = "800 20px Georgia, serif";
+        ctx.textAlign = "center";
+        ctx.fillText("TIFFANY SILICON • HAUTE COUTURE", W / 2, 123);
+
+        // 證書大標題
+        ctx.fillStyle = "#0F2E2D";
+        ctx.font = "900 50px 'Noto Serif TC', 'Songti TC', Georgia, serif";
+        ctx.fillText("《翡翠算力帝國》", W / 2, 204);
+
+        ctx.fillStyle = "#0ABAB5";
+        ctx.font = "700 28px 'Noto Serif TC', 'Songti TC', serif";
+        ctx.fillText("顯卡、獸吼與高訂洞洞・榮譽通關證書", W / 2, 248);
+
+        // 圓形雙金框個人頭像
+        const cx = 230, cy = 415, rad = 112;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+        ctx.clip();
+
+        if (state.userPhotoImg) {
+          const img = state.userPhotoImg;
+          const sc = Math.max((rad * 2) / img.width, (rad * 2) / img.height);
+          const dw = img.width * sc, dh = img.height * sc;
+          ctx.drawImage(img, cx - dw / 2, cy - dh / 2, dw, dh);
+        } else {
+          // 預設高訂翡翠皇冠頭像
+          const pg = ctx.createLinearGradient(cx - rad, cy - rad, cx + rad, cy + rad);
+          pg.addColorStop(0, "#81D8D0");
+          pg.addColorStop(1, "#0F2E2D");
+          ctx.fillStyle = pg;
+          ctx.fillRect(cx - rad, cy - rad, rad * 2, rad * 2);
+
+          ctx.fillStyle = "#E8D09B";
+          ctx.beginPath();
+          ctx.moveTo(cx - 56, cy + 28);
+          ctx.lineTo(cx - 48, cy - 30);
+          ctx.lineTo(cx - 18, cy + 2);
+          ctx.lineTo(cx, cy - 46);
+          ctx.lineTo(cx + 18, cy + 2);
+          ctx.lineTo(cx + 48, cy - 30);
+          ctx.lineTo(cx + 56, cy + 28);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillStyle = "#FBFDFD";
+          ctx.font = "700 20px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("高訂創辦人", cx, cy + 68);
+        }
+        ctx.restore();
+
+        // 雙層金圈
+        ctx.strokeStyle = "#C8A45D";
+        ctx.lineWidth = 6;
+        ctx.beginPath(); ctx.arc(cx, cy, rad + 2, 0, Math.PI * 2); ctx.stroke();
+        ctx.strokeStyle = "#81D8D0";
+        ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(cx, cy, rad + 10, 0, Math.PI * 2); ctx.stroke();
+
+        // 右側貴賓資料
+        const ix = 385;
+        ctx.textAlign = "left";
+        ctx.fillStyle = "#4C6E6C";
+        ctx.font = "700 22px sans-serif";
+        ctx.fillText("特頒予傳奇闖關者", ix, 348);
+
+        ctx.fillStyle = "#0F2E2D";
+        ctx.font = "900 48px 'Noto Serif TC', 'Songti TC', serif";
+        ctx.fillText(state.playerName || "翡翠傳奇創辦人", ix, 410);
+
+        const rank = getLuxuryRank(state.currentStock);
+        ctx.fillStyle = "#C8A45D";
+        ctx.font = "800 26px 'Noto Serif TC', serif";
+        ctx.fillText(`榮譽封號：${rank}`, ix, 458);
+
+        const dt = state.completedAt || new Date();
+        const dtStr = `${dt.getFullYear()}/${String(dt.getMonth() + 1).padStart(2, "0")}/${String(dt.getDate()).padStart(2, "0")} ${String(dt.getHours()).padStart(2, "0")}:${String(dt.getMinutes()).padStart(2, "0")}`;
+        ctx.fillStyle = "#4C6E6C";
+        ctx.font = "600 20px monospace";
+        ctx.fillText(`通關日期：${dtStr}`, ix, 500);
+
+        // 三關成就徽章
+        const badges = [
+          { t: "第一關・翡翠初創", s: "賣遍全球 擊退猛獸", c: "#0ABAB5" },
+          { t: "第二關・萬籟之王", s: "怒吼蟲鳥 軟體稱王", c: "#C8A45D" },
+          { t: "第三關・洞洞美學", s: "十洞高訂 華麗下台", c: "#163C3A" }
+        ];
+        badges.forEach((b, idx) => {
+          const bx = 98 + idx * 302;
+          const by = 562;
+          ctx.fillStyle = "#E7F7F5";
+          ctx.strokeStyle = b.c;
+          ctx.lineWidth = 2.5;
+          roundRectPath(ctx, bx, by, 280, 92, 16);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = b.c;
+          ctx.font = "800 21px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("✓ " + b.t, bx + 140, by + 38);
+
+          ctx.fillStyle = "#163C3A";
+          ctx.font = "600 17px sans-serif";
+          ctx.fillText(b.s, bx + 140, by + 70);
+        });
+
+        // 內嵌三關股市走勢折線圖
+        ctx.fillStyle = "#0F2E2D";
+        ctx.font = "800 24px 'Noto Serif TC', serif";
+        ctx.textAlign = "left";
+        ctx.fillText("📈 三關股市漲跌幅走勢圖（初始 50,000 點・紅漲綠跌）", 98, 704);
+
+        drawStockChart(null, state.stockHistory, { x: 98, y: 722, w: 884, h: 330 }, ctx);
+
+        // 股市總結條
+        const finalPts = state.currentStock;
+        const totalPct = ((finalPts - INITIAL_STOCK) / INITIAL_STOCK) * 100;
+        const isNetUp = finalPts >= INITIAL_STOCK;
+
+        ctx.fillStyle = "#0F2E2D";
+        roundRectPath(ctx, 98, 1072, 884, 80, 16);
+        ctx.fill();
+        ctx.strokeStyle = "#C8A45D";
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#FBFDFD";
+        ctx.font = "700 26px monospace";
+        ctx.fillText(`50,000 點  ➔  ${formatPts(finalPts)} 點`, W / 2 - 125, 1122);
+
+        ctx.fillStyle = isNetUp ? "#FF7B84" : "#6EE7B7";
+        ctx.font = "900 28px monospace";
+        ctx.fillText(`(${isNetUp ? "▲ +" : "▼ "}${totalPct.toFixed(1)}%)`, W / 2 + 250, 1122);
+
+        // 幽默大字標語區塊
+        ctx.fillStyle = "rgba(247, 238, 215, 0.72)";
+        ctx.strokeStyle = "#C8A45D";
+        ctx.lineWidth = 3;
+        roundRectPath(ctx, 98, 1178, 884, 152, 18);
+        ctx.fill();
+        ctx.stroke();
+
+        const slogan = SLOGANS[state.selectedSloganIdx] || SLOGANS[0];
+        ctx.fillStyle = "#0F2E2D";
+        ctx.font = "800 31px 'Noto Serif TC', 'Songti TC', serif";
+        ctx.textAlign = "center";
+        const lines = wrapChineseText(ctx, `「${slogan}」`, 810);
+        const startY = lines.length === 1 ? 1265 : 1242;
+        lines.forEach((ln, i) => {
+          ctx.fillText(ln, W / 2, startY + i * 46);
+        });
+
+        // 底部香檳金認證鋼印
+        ctx.textAlign = "left";
+        ctx.fillStyle = "#4C6E6C";
+        ctx.font = "700 20px sans-serif";
+        ctx.fillText("頒發單位：翡翠算力帝國・高訂下台委員會認證", 110, 1396);
+        ctx.font = "600 17px monospace";
+        ctx.fillText("TIFFANY GPU EMPIRE • OFFICIAL HAUTE COUTURE CERTIFICATE", 110, 1428);
+
+        // 右下圓形香檳金鋼印
+        ctx.save();
+        ctx.translate(875, 1398);
+        ctx.rotate(-0.12);
+        ctx.fillStyle = "rgba(200, 164, 93, 0.16)";
+        ctx.strokeStyle = "#C8A45D";
+        ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.arc(0, 0, 58, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(0, 0, 48, 0, Math.PI * 2); ctx.stroke();
+
+        ctx.fillStyle = "#9E7830";
+        ctx.font = "900 18px 'Noto Serif TC', serif";
+        ctx.textAlign = "center";
+        ctx.fillText("高訂下台", 0, -6);
+        ctx.fillText("認證鋼印", 0, 18);
+        ctx.restore();
+
+        $("certPreviewImg").src = canvas.toDataURL("image/png");
+      }
+
+      $("certNameInput").addEventListener("input", (e) => {
+        state.playerName = e.target.value.trim() || "翡翠傳奇創辦人";
+        updateHUD("榮耀通關", null);
+        renderCertificate();
+      });
+
+      $("sloganSelect").addEventListener("change", (e) => {
+        state.selectedSloganIdx = Number(e.target.value);
+        AudioFX.chime();
+        renderCertificate();
+      });
+
+      $("photoUploadInput").addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            state.userPhotoImg = img;
+            AudioFX.chime();
+            showToast("📷 個人照片已鑲嵌至高訂雙金框！");
+            renderCertificate();
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      $("downloadCertBtn").addEventListener("click", () => {
+        AudioFX.chime();
+        const canvas = $("certCanvas");
+        const a = document.createElement("a");
+        const safeName = (state.playerName || "貴賓").replace(/[\\/:*?"<>|]/g, "_");
+        a.download = `翡翠算力帝國_高訂證書_${safeName}.png`;
+        a.href = canvas.toDataURL("image/png");
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showToast("⬇ 高畫質證書已開始下載！手機端亦可長按圖片儲存。");
+      });
+
+      $("replayBtn").addEventListener("click", () => {
+        AudioFX.chime();
+        initNewRun();
+        showToast("✨ 已重置大盤為 50,000 點，展開全新奢華傳奇！");
+      });
+
+      /* 視窗縮放自適應重繪 */
+      window.addEventListener("resize", () => {
+        if (screens.stage1.classList.contains("active")) resizeS1Canvas();
+        if (screens.stage2.classList.contains("active")) resizeOscCanvas();
+        if (screens.stage3.classList.contains("active")) resizeGpuCanvas();
+        if (screens.final.classList.contains("active")) {
+          drawStockChart($("finalChartCanvas"), state.stockHistory);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
