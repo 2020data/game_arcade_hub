@@ -1,0 +1,2845 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>紅線大合唱：少子化 × AI 動物大賽跑</title>
+  <style>
+    /* ==========================================================================
+       1. 實體微縮模型工作桌與全域設計代幣 (Tactile 3D Diorama & Wood Desk)
+       ========================================================================== */
+    :root {
+      --wood-light: #e2be96;
+      --wood-mid: #cfa274;
+      --wood-dark: #a6784b;
+      --wood-edge: #7c542f;
+      --cream: #fff9ef;
+      --clay-red: #e85346;
+      --clay-red-dark: #b63226;
+      --clay-yellow: #f9c440;
+      --clay-yellow-dark: #c98f16;
+      --clay-teal: #34a89a;
+      --clay-teal-dark: #1d756a;
+      --clay-blue: #4c86e8;
+      --clay-blue-dark: #2a59ac;
+      --clay-dark: #2d2622;
+      --led-bg: #1c1917;
+      --led-amber: #ffbe3b;
+      --led-cyan: #4ef2d8;
+      --led-pink: #ff6b8b;
+      --shadow-soft: 0 14px 32px rgba(58, 34, 14, 0.28);
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100vh;
+      font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", "Heiti TC", system-ui, -apple-system, sans-serif;
+      color: var(--clay-dark);
+      overflow-x: hidden;
+      /* 溫潤原木桌面紋理背景 */
+      background-color: var(--wood-mid);
+      background-image:
+        radial-gradient(ellipse at 50% 0%, rgba(255, 248, 232, 0.45) 0%, rgba(166, 120, 75, 0.1) 55%, rgba(82, 48, 22, 0.42) 100%),
+        repeating-linear-gradient(
+          92deg,
+          rgba(255, 255, 255, 0.04) 0px,
+          rgba(255, 255, 255, 0.04) 3px,
+          rgba(110, 68, 32, 0.05) 3px,
+          rgba(110, 68, 32, 0.05) 11px
+        );
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 10px 10px 20px;
+    }
+
+    /* 主模型底座容器 */
+    .diorama-shell {
+      width: 100%;
+      max-width: 1020px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* ==========================================================================
+       2. 上方實體翻牌 / LED 數據儀表板
+       ========================================================================== */
+    .dashboard-board {
+      background: linear-gradient(180deg, #4b3d35 0%, #2f2621 100%);
+      border-radius: 18px;
+      padding: 10px 14px;
+      border: 3px solid #6b564a;
+      box-shadow:
+        0 7px 0 #1e1713,
+        0 14px 24px rgba(45, 25, 10, 0.4),
+        inset 0 2px 3px rgba(255, 255, 255, 0.2);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      position: relative;
+    }
+
+    .brand-plate {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(180deg, #fff6e5 0%, #ebd9bc 100%);
+      padding: 6px 12px;
+      border-radius: 12px;
+      box-shadow:
+        0 4px 0 #9f825b,
+        inset 0 2px 0 rgba(255, 255, 255, 0.9);
+      border: 2px solid #c9ab80;
+    }
+
+    .brand-plate .title-main {
+      font-size: 1rem;
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      color: #3a2416;
+      line-height: 1.15;
+    }
+
+    .brand-plate .title-sub {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #8f472e;
+    }
+
+    .meters-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .flip-meter {
+      background: var(--led-bg);
+      border-radius: 12px;
+      padding: 5px 11px;
+      min-width: 118px;
+      border: 2px solid #4d433d;
+      box-shadow:
+        inset 0 4px 8px rgba(0, 0, 0, 0.75),
+        0 2px 0 rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 翻牌中線質感 */
+    .flip-meter::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 56%;
+      height: 1px;
+      background: rgba(0, 0, 0, 0.55);
+      pointer-events: none;
+    }
+
+    .flip-label {
+      font-size: 0.66rem;
+      font-weight: 700;
+      color: #b8aba1;
+      letter-spacing: 0.05em;
+      margin-bottom: 1px;
+    }
+
+    .flip-value {
+      font-size: 1.18rem;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.04em;
+      text-shadow: 0 0 10px currentColor;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .flip-value.pop {
+      transform: scale(1.25);
+    }
+
+    .val-year { color: var(--led-amber); }
+    .val-birth { color: var(--led-pink); }
+    .val-ai { color: var(--led-cyan); }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ==========================================================================
+       3. 實體立體按壓鍵樣式 (3D Tactile Toy Buttons)
+       ========================================================================== */
+    .toy-btn {
+      appearance: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 900;
+      border-radius: 14px;
+      padding: 9px 15px;
+      font-size: 0.92rem;
+      color: #fff;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+      text-shadow: 0 2px 2px rgba(0, 0, 0, 0.28);
+      touch-action: manipulation;
+    }
+
+    .toy-btn::before {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 8px;
+      right: 8px;
+      height: 36%;
+      border-radius: 10px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0) 100%);
+      pointer-events: none;
+    }
+
+    .toy-btn:active, .toy-btn.pressed {
+      transform: translateY(4px);
+    }
+
+    .btn-red {
+      background: linear-gradient(180deg, #f5685b 0%, var(--clay-red) 100%);
+      box-shadow: 0 6px 0 var(--clay-red-dark), 0 10px 16px rgba(100, 20, 15, 0.35);
+    }
+    .btn-red:active, .btn-red.pressed {
+      box-shadow: 0 2px 0 var(--clay-red-dark), 0 4px 8px rgba(100, 20, 15, 0.3);
+    }
+
+    .btn-yellow {
+      background: linear-gradient(180deg, #ffd466 0%, var(--clay-yellow) 100%);
+      color: #462d07;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+      box-shadow: 0 6px 0 var(--clay-yellow-dark), 0 10px 16px rgba(120, 80, 10, 0.3);
+    }
+    .btn-yellow:active, .btn-yellow.pressed {
+      box-shadow: 0 2px 0 var(--clay-yellow-dark), 0 4px 8px rgba(120, 80, 10, 0.25);
+    }
+
+    .btn-teal {
+      background: linear-gradient(180deg, #4ec7b8 0%, var(--clay-teal) 100%);
+      box-shadow: 0 6px 0 var(--clay-teal-dark), 0 10px 16px rgba(15, 80, 72, 0.35);
+    }
+    .btn-teal:active, .btn-teal.pressed {
+      box-shadow: 0 2px 0 var(--clay-teal-dark), 0 4px 8px rgba(15, 80, 72, 0.25);
+    }
+
+    .btn-dark {
+      background: linear-gradient(180deg, #5c5049 0%, #3a312c 100%);
+      box-shadow: 0 6px 0 #1e1815, 0 10px 16px rgba(0, 0, 0, 0.35);
+    }
+    .btn-dark:active, .btn-dark.pressed {
+      box-shadow: 0 2px 0 #1e1815, 0 4px 8px rgba(0, 0, 0, 0.28);
+    }
+
+    .btn-cream {
+      background: linear-gradient(180deg, #fffdf8 0%, #efe1c8 100%);
+      color: #4a3525;
+      text-shadow: none;
+      box-shadow: 0 5px 0 #b89a74, 0 8px 14px rgba(60, 35, 10, 0.22);
+    }
+    .btn-cream:active, .btn-cream.pressed {
+      box-shadow: 0 2px 0 #b89a74, 0 3px 6px rgba(60, 35, 10, 0.18);
+    }
+
+    .btn-sm {
+      padding: 7px 11px;
+      font-size: 0.82rem;
+      border-radius: 11px;
+    }
+
+    /* ==========================================================================
+       4. 立體木框微縮模型舞台 (Canvas Stage)
+       ========================================================================== */
+    .stage-frame {
+      position: relative;
+      width: 100%;
+      background: linear-gradient(180deg, #b88856 0%, #8f6237 100%);
+      padding: 10px;
+      border-radius: 24px;
+      box-shadow:
+        0 12px 0 #664221,
+        0 24px 40px rgba(42, 22, 8, 0.48),
+        inset 0 2px 3px rgba(255, 240, 215, 0.55);
+      border: 2px solid #d9ae7e;
+    }
+
+    .stage-inner {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      min-height: 300px;
+      max-height: 540px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #8fd3f4;
+      box-shadow: inset 0 6px 18px rgba(0, 0, 0, 0.25);
+    }
+
+    canvas#gameCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      touch-action: none;
+    }
+
+    /* 合唱卡拉 OK 歌詞跑馬燈（僅在合唱階段顯示） */
+    .karaoke-bar {
+      position: absolute;
+      left: 50%;
+      bottom: 12px;
+      transform: translateX(-50%);
+      width: 92%;
+      max-width: 780px;
+      background: rgba(28, 21, 18, 0.88);
+      border: 3px solid #ffd466;
+      border-radius: 18px;
+      padding: 10px 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 4px;
+      z-index: 12;
+      pointer-events: none;
+    }
+
+    .karaoke-bar.active {
+      display: flex;
+      animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .karaoke-singer {
+      font-size: 0.8rem;
+      font-weight: 900;
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: #ff6b8b;
+      color: #fff;
+      letter-spacing: 0.05em;
+    }
+
+    .karaoke-text {
+      font-size: clamp(0.95rem, 2.2vw, 1.3rem);
+      font-weight: 900;
+      color: #fff9e6;
+      text-shadow: 0 2px 8px rgba(255, 190, 59, 0.65);
+      line-height: 1.35;
+    }
+
+    .karaoke-hint {
+      font-size: 0.72rem;
+      color: #ffd466;
+      font-weight: 700;
+    }
+
+    /* ==========================================================================
+       5. 覆蓋式實體模型卡片（開始選單 / 結算獎牌）
+       ========================================================================== */
+    .overlay-panel {
+      position: absolute;
+      inset: 0;
+      background: rgba(34, 22, 14, 0.56);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      z-index: 20;
+      transition: opacity 0.25s ease;
+    }
+
+    .overlay-panel.hidden {
+      display: none;
+    }
+
+    .diorama-card {
+      width: 100%;
+      max-width: 560px;
+      background: linear-gradient(180deg, #fffaf0 0%, #f5e6cc 100%);
+      border-radius: 24px;
+      padding: 18px 20px;
+      border: 4px solid #d4b082;
+      box-shadow:
+        0 10px 0 #9e784c,
+        0 20px 38px rgba(25, 12, 4, 0.5),
+        inset 0 2px 0 #ffffff;
+      text-align: center;
+      max-height: 94%;
+      overflow-y: auto;
+      animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.86) translateY(14px); opacity: 0; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .card-badge {
+      display: inline-block;
+      background: #e85346;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 900;
+      padding: 4px 12px;
+      border-radius: 999px;
+      box-shadow: 0 3px 0 #a32c22;
+      margin-bottom: 6px;
+    }
+
+    .diorama-card h1, .diorama-card h2 {
+      margin: 4px 0 6px;
+      font-size: clamp(1.25rem, 3vw, 1.65rem);
+      font-weight: 900;
+      color: #3a2314;
+    }
+
+    .diorama-card p.desc {
+      margin: 0 0 12px;
+      font-size: 0.86rem;
+      line-height: 1.5;
+      color: #5e4432;
+      font-weight: 600;
+    }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .mode-chip {
+      background: linear-gradient(180deg, #ffffff 0%, #efe2cc 100%);
+      border: 3px solid #cdb08a;
+      border-radius: 16px;
+      padding: 10px 6px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform 0.1s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 5px 0 #b5956c;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .mode-chip .icon { font-size: 1.5rem; }
+    .mode-chip .m-title { font-size: 0.85rem; font-weight: 900; color: #3a2416; }
+    .mode-chip .m-sub { font-size: 0.68rem; font-weight: 700; color: #7a5c44; }
+
+    .mode-chip.selected {
+      background: linear-gradient(180deg, #fff5d6 0%, #ffe08a 100%);
+      border-color: #e89c17;
+      box-shadow: 0 5px 0 #b8730b, 0 0 0 3px rgba(249, 196, 64, 0.35);
+      transform: translateY(-2px);
+    }
+
+    .rules-box {
+      background: rgba(255, 255, 255, 0.72);
+      border: 2px dashed #c8a67c;
+      border-radius: 14px;
+      padding: 8px 12px;
+      margin-bottom: 14px;
+      font-size: 0.78rem;
+      color: #533a28;
+      text-align: left;
+      line-height: 1.5;
+    }
+
+    .medal-ring {
+      width: 84px;
+      height: 84px;
+      margin: 0 auto 8px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 32% 28%, #fff3b0 0%, #f9c440 48%, #c98612 100%);
+      border: 5px solid #fff8dc;
+      box-shadow: 0 6px 0 #9c6509, 0 12px 22px rgba(90, 50, 5, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.4rem;
+      animation: floatMedal 2.2s ease-in-out infinite;
+    }
+
+    @keyframes floatMedal {
+      0%, 100% { transform: translateY(0) rotate(-3deg); }
+      50% { transform: translateY(-6px) rotate(3deg); }
+    }
+
+    .result-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 10px 0 14px;
+    }
+
+    .stat-pill {
+      background: #fff;
+      border-radius: 14px;
+      padding: 8px 6px;
+      border: 2px solid #dfc5a0;
+      box-shadow: 0 3px 0 #cbb089;
+    }
+
+    .stat-pill .s-k { font-size: 0.68rem; font-weight: 800; color: #8c6b50; }
+    .stat-pill .s-v { font-size: 1.08rem; font-weight: 900; color: #3d2415; margin-top: 2px; }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    /* ==========================================================================
+       6. 下方實體玩具控制器（支援滑鼠點擊、手機觸控與鍵盤同步回饋）
+       ========================================================================== */
+    .controller-dock {
+      background: linear-gradient(180deg, #f3e4cd 0%, #dfcaa8 100%);
+      border-radius: 20px;
+      padding: 10px 14px;
+      border: 3px solid #c3a378;
+      box-shadow:
+        0 7px 0 #997950,
+        0 14px 24px rgba(55, 32, 12, 0.32),
+        inset 0 2px 0 rgba(255, 255, 255, 0.8);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .pad-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 240px;
+      justify-content: center;
+      background: rgba(255, 252, 245, 0.55);
+      padding: 7px 10px;
+      border-radius: 16px;
+      border: 2px solid #d4b892;
+    }
+
+    .pad-label {
+      font-size: 0.8rem;
+      font-weight: 900;
+      color: #4b3321;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      margin-right: 4px;
+      min-width: 72px;
+    }
+
+    .pad-label small {
+      font-size: 0.66rem;
+      color: #84654b;
+      font-weight: 700;
+    }
+
+    .pad-btn {
+      flex: 1;
+      min-height: 46px;
+      font-size: 0.9rem;
+      padding: 8px 10px;
+    }
+
+    .chorus-pad {
+      display: none;
+      width: 100%;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chorus-pad.active {
+      display: flex;
+    }
+
+    /* 響應式微調 */
+    @media (max-width: 680px) {
+      .dashboard-board { padding: 8px 10px; gap: 6px; }
+      .brand-plate { width: 100%; justify-content: center; }
+      .flip-meter { min-width: 96px; flex: 1; padding: 4px 6px; }
+      .flip-value { font-size: 1rem; }
+      .stage-frame { padding: 6px; border-radius: 18px; }
+      .stage-inner { aspect-ratio: 4 / 3; min-height: 260px; }
+      .mode-grid { grid-template-columns: 1fr; }
+      .pad-group { min-width: 100%; }
+      .result-stats { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="diorama-shell">
+    <!-- ==================== 1. 上方實體數據儀表板 ==================== -->
+    <header class="dashboard-board">
+      <div class="brand-plate">
+        <span style="font-size:1.55rem;">🐻‍❄️🐾</span>
+        <div>
+          <div class="title-main">紅線大合唱</div>
+          <div class="title-sub">少子化 × AI 動物大賽跑</div>
+        </div>
+      </div>
+
+      <div class="meters-group">
+        <div class="flip-meter">
+          <span class="flip-label">台灣年份</span>
+          <span class="flip-value val-year" id="uiYear">2024</span>
+        </div>
+        <div class="flip-meter">
+          <span class="flip-label">當年新生兒</span>
+          <span class="flip-value val-birth" id="uiBirth">13.4萬</span>
+        </div>
+        <div class="flip-meter">
+          <span class="flip-label">AI跳級創業</span>
+          <span class="flip-value val-ai" id="uiAiRate">0%</span>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <button class="toy-btn btn-cream btn-sm" id="btnMute" title="開關音效">🔊 音效開</button>
+        <button class="toy-btn btn-dark btn-sm" id="btnMenu" title="回選單">🏠 選單</button>
+      </div>
+    </header>
+
+    <!-- ==================== 2. 立體木框微縮模型舞台 ==================== -->
+    <main class="stage-frame">
+      <div class="stage-inner" id="stageInner">
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- 合唱卡拉 OK 跑馬燈 -->
+        <div class="karaoke-bar" id="karaokeBar">
+          <span class="karaoke-singer" id="karaokeSinger">🐻 學霸熊</span>
+          <div class="karaoke-text" id="karaokeText">準備開唱！</div>
+          <div class="karaoke-hint">✨ 點擊空中立體音符泡泡 或 連按空白鍵 放煙火加默契分！</div>
+        </div>
+
+        <!-- 開始選單立體卡片 -->
+        <div class="overlay-panel" id="menuOverlay">
+          <div class="diorama-card">
+            <span class="card-badge">TACTILE 3D DIORAMA EDITION</span>
+            <h1>紅線大合唱：少子化 × AI 動物大賽跑</h1>
+            <p class="desc">
+              2024～2030 台灣微縮運動場開跑！面對少子化浪潮與每年 5% 學生靠 AI 跳槽創業，
+              學霸黑熊與創客石虎狂奔衝線——只要衝破紅線，沒有輸家，立刻相擁大合唱！
+            </p>
+
+            <div class="mode-grid" id="modeGrid">
+              <button class="mode-chip selected" data-mode="p1_bear">
+                <span class="icon">🐻</span>
+                <span class="m-title">單人：學霸熊</span>
+                <span class="m-sub">對戰 AI 創客虎</span>
+              </button>
+              <button class="mode-chip" data-mode="p1_cat">
+                <span class="icon">🐆</span>
+                <span class="m-title">單人：創客虎</span>
+                <span class="m-sub">對戰 AI 學霸熊</span>
+              </button>
+              <button class="mode-chip" data-mode="p2_vs">
+                <span class="icon">⚔️</span>
+                <span class="m-title">雙人同機對戰</span>
+                <span class="m-sub">1P 黑熊 vs 2P 石虎</span>
+              </button>
+            </div>
+
+            <div class="rules-box">
+              <b>🎮 操作方式：</b><br />
+              • <b>學霸熊（上跑道）</b>：<code>W</code> 跳躍 / <code>D</code> 衝刺（撿奶瓶補隊友、神盾擋高房價）<br />
+              • <b>創客虎（下跑道）</b>：<code>↑</code> 跳躍 / <code>→</code> 衝刺（撿算力咖啡加速、躲AI幻覺香蕉皮）<br />
+              • <b>年份拱門事件</b>：每過一年，黑熊身後有 <b>5%</b> 小跟班直接跳欄杆戴墨鏡幫石虎創業加速！
+            </div>
+
+            <div class="btn-row">
+              <button class="toy-btn btn-red" id="btnStartRace" style="min-width:210px; font-size:1.05rem; padding:12px 24px;">
+                🏁 鳴槍開跑！
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 終點結算獎牌卡片 -->
+        <div class="overlay-panel hidden" id="resultOverlay">
+          <div class="diorama-card">
+            <div class="medal-ring" id="resultMedal">🏆</div>
+            <span class="card-badge" id="resultBadge">紅線抱抱大合唱圓滿落幕</span>
+            <h2 id="resultTitle">紅線奇蹟！最佳默契合唱獎</h2>
+            <p class="desc" id="resultSubtitle">
+              不管是留校練真功夫，還是靠 AI 開一人公司，衝破紅線後大家都是最棒的台灣隊友！
+            </p>
+
+            <div class="result-stats">
+              <div class="stat-pill">
+                <div class="s-k">先觸碰紅線</div>
+                <div class="s-v" id="statWinner">🐻 學霸熊</div>
+              </div>
+              <div class="stat-pill">
+                <div class="s-k">5% 跳槽創業</div>
+                <div class="s-v" id="statDefectors">6 隻小跟班</div>
+              </div>
+              <div class="stat-pill">
+                <div class="s-k">默契合唱分數</div>
+                <div class="s-v" id="statHarmony" style="color:#e85346;">0 分</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button class="toy-btn btn-yellow" id="btnSingAgain">🎤 再唱一次</button>
+              <button class="toy-btn btn-red" id="btnRaceAgain">🏁 重新開跑</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ==================== 3. 下方實體立體觸控控制器 ==================== -->
+    <section class="controller-dock" id="controllerDock">
+      <!-- 賽跑控制組：1P 學霸熊 -->
+      <div class="pad-group" id="padBear">
+        <div class="pad-label">
+          <span>🐻 學霸熊</span>
+          <small id="bearRoleTag">1P (W / D)</small>
+        </div>
+        <button class="toy-btn btn-teal pad-btn" id="btnBearJump">⬆️ 跳躍 (W)</button>
+        <button class="toy-btn btn-yellow pad-btn" id="btnBearBoost">⚡ 衝刺 (D)</button>
+      </div>
+
+      <!-- 賽跑控制組：2P 創客虎 -->
+      <div class="pad-group" id="padCat">
+        <div class="pad-label">
+          <span>🐆 創客虎</span>
+          <small id="catRoleTag">AI 控制</small>
+        </div>
+        <button class="toy-btn btn-teal pad-btn" id="btnCatJump">⬆️ 跳躍 (↑)</button>
+        <button class="toy-btn btn-red pad-btn" id="btnCatBoost">🚀 衝刺 (→)</button>
+      </div>
+
+      <!-- 合唱互動控制組 -->
+      <div class="chorus-pad" id="padChorus">
+        <button class="toy-btn btn-red" id="btnChorusTap" style="min-width:260px; font-size:1.05rem; padding:12px 26px;">
+          🎵 拍手和聲放煙火！(空白鍵)
+        </button>
+        <div style="font-weight:900; color:#4b3321; font-size:1rem; background:#fff8eb; padding:8px 14px; border-radius:14px; border:2px solid #d4b082;">
+          默契分數：<span id="liveHarmonyScore" style="color:#e85346;">0</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      /* ==========================================================================
+         一、遊戲常數與台灣真實感數據設定 (2024 → 2030)
+         ========================================================================== */
+      const YEAR_DATA = [
+        { year: 2024, births: "13.4萬", aiRate: 0 },
+        { year: 2025, births: "10.7萬", aiRate: 5 },
+        { year: 2026, births: "9.8萬",  aiRate: 10 },
+        { year: 2027, births: "9.3萬",  aiRate: 15 },
+        { year: 2028, births: "8.9萬",  aiRate: 20 },
+        { year: 2029, births: "8.6萬",  aiRate: 25 },
+        { year: 2030, births: "8.3萬",  aiRate: 30 }
+      ];
+
+      // 5% 跳槽創業搞笑台詞
+      const DEFECT_QUOTES = [
+        "AI幫我寫程式，先去接案啦！",
+        "免學費！一人公司開張！",
+        "不考期中考，我去做SaaS！",
+        "用AI畫貼圖月入十萬啦！",
+        "算力就是學歷，我去創業！",
+        "我寫好Agent自動接單囉！"
+      ];
+
+      // 終點大合唱完整搞笑主題曲歌詞與演唱節拍（單位：秒）
+      const CHORUS_LYRICS = [
+        { start: 0.0,  end: 4.8,  singer: "🐻 學霸熊", color: "#3e342f", voice: "bear",
+          text: "二零二四到二六，新生兒快破十萬頭，教室空位比我還會躲！" },
+        { start: 4.8,  end: 9.6,  singer: "🐆 創客虎", color: "#d98218", voice: "cat",
+          text: "每年百分之五轉頭走，打開 AI 接案不回頭，免繳學費當老闆好自由！" },
+        { start: 9.6,  end: 14.4, singer: "🐻 學霸熊", color: "#3e342f", voice: "bear",
+          text: "我抱奶瓶躲高房價，小班制也能練出真功夫！" },
+        { start: 14.4, end: 19.2, singer: "🐆 創客虎", color: "#d98218", voice: "cat",
+          text: "我喝算力咖啡踩幻覺，半夜客戶改稿我也挺得住！" },
+        { start: 19.2, end: 27.5, singer: "🐾 雙主角＋5%小跟班大合唱", color: "#e85346", voice: "both",
+          text: "衝破紅線不用分輸贏～抱在一起唱到太陽升起！不管上學還是開公司，有愛有 AI 都是台灣奇蹟！啦啦啦～紅線抱抱大合唱！" }
+      ];
+      const CHORUS_DURATION = 27.8;
+
+      const FINISH_DIST = 6600; // 終點總距離（約 36 秒刺激賽程）
+      const ARCH_STEP = 920;    // 每座年份拱門間距（共 6 座：2025～2030）
+
+      /* ==========================================================================
+         二、Web Audio API 即時合成音效與雙聲部主題曲引擎（零外部音檔）
+         ========================================================================== */
+      class SoundEngine {
+        constructor() {
+          this.ctx = null;
+          this.muted = false;
+          this.songTimer = null;
+          this.stepIdx = 0;
+        }
+
+        ensureCtx() {
+          if (!this.ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) this.ctx = new AudioCtx();
+          }
+          if (this.ctx && this.ctx.state === "suspended") {
+            this.ctx.resume().catch(() => {});
+          }
+        }
+
+        toggleMute() {
+          this.muted = !this.muted;
+          if (this.muted) this.stopSong();
+          return this.muted;
+        }
+
+        // 基礎單音合成器
+        playTone(freq, duration, type = "sine", vol = 0.14, slideTo = null, delay = 0) {
+          if (this.muted) return;
+          this.ensureCtx();
+          if (!this.ctx) return;
+
+          const now = this.ctx.currentTime + delay;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, now);
+          if (slideTo) {
+            osc.frequency.exponentialRampToValueAtTime(Math.max(20, slideTo), now + duration);
+          }
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(vol, now + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + duration + 0.02);
+        }
+
+        // 鼓點合成（大鼓與清脆拍手）
+        playDrum(kind = "kick", delay = 0) {
+          if (this.muted) return;
+          this.ensureCtx();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime + delay;
+
+          if (kind === "kick") {
+            const osc = this.ctx.createOscillator();
+            const g = this.ctx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(145, now);
+            osc.frequency.exponentialRampToValueAtTime(42, now + 0.12);
+            g.gain.setValueAtTime(0.24, now);
+            g.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+            osc.connect(g);
+            g.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.15);
+          } else {
+            // 輕快白噪音小鼓/沙鈴
+            const bufSize = Math.floor(this.ctx.sampleRate * 0.07);
+            const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+            const data = buf.getChannelData(0);
+            for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufSize);
+            const src = this.ctx.createBufferSource();
+            src.buffer = buf;
+            const filter = this.ctx.createBiquadFilter();
+            filter.type = "highpass";
+            filter.frequency.value = kind === "hat" ? 4500 : 1200;
+            const g = this.ctx.createGain();
+            g.gain.setValueAtTime(kind === "hat" ? 0.06 : 0.12, now);
+            g.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+            src.connect(filter);
+            filter.connect(g);
+            g.connect(this.ctx.destination);
+            src.start(now);
+          }
+        }
+
+        sfxJump(isCat) {
+          this.playTone(isCat ? 360 : 240, 0.16, "triangle", 0.16, isCat ? 680 : 480);
+        }
+
+        sfxBoost() {
+          this.playTone(320, 0.12, "sawtooth", 0.09, 640, 0);
+          this.playTone(480, 0.16, "triangle", 0.12, 880, 0.05);
+        }
+
+        sfxItem() {
+          this.playTone(523.25, 0.1, "triangle", 0.15, null, 0);
+          this.playTone(659.25, 0.1, "triangle", 0.15, null, 0.07);
+          this.playTone(783.99, 0.18, "sine", 0.18, null, 0.14);
+        }
+
+        sfxHit() {
+          this.playTone(170, 0.22, "sawtooth", 0.14, 65);
+          this.playDrum("snare", 0);
+        }
+
+        sfxArch() {
+          // 撞破年份拱門＋5% 跳槽滑音
+          this.playTone(440, 0.12, "triangle", 0.15, null, 0);
+          this.playTone(554.37, 0.12, "triangle", 0.15, null, 0.06);
+          this.playTone(659.25, 0.22, "sine", 0.18, 987.77, 0.12);
+        }
+
+        sfxStartGun() {
+          this.playDrum("snare", 0);
+          this.playTone(523.25, 0.12, "triangle", 0.18, null, 0.05);
+          this.playTone(783.99, 0.25, "triangle", 0.2, null, 0.15);
+        }
+
+        sfxHugRibbon() {
+          const notes = [523.25, 659.25, 783.99, 1046.5];
+          notes.forEach((n, i) => this.playTone(n, 0.35, "triangle", 0.16, null, i * 0.08));
+        }
+
+        sfxHarmonyChime(combo) {
+          const scale = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66];
+          const base = scale[combo % scale.length];
+          this.playTone(base, 0.22, "sine", 0.16, null, 0);
+          this.playTone(base * 1.25, 0.25, "triangle", 0.12, null, 0.04);
+        }
+
+        // 啟動歡樂熱血的雙聲部終點合唱曲（150 BPM，每拍 0.2 秒）
+        startChorusSong(getElapsedSec) {
+          this.stopSong();
+          if (this.muted) return;
+          this.ensureCtx();
+          this.stepIdx = 0;
+
+          // C 大調歡樂五聲與流行旋律音階
+          const bearMel = [130.81, 146.83, 164.81, 196.00, 164.81, 146.83, 130.81, 196.00,
+                           174.61, 164.81, 146.83, 130.81, 146.83, 164.81, 196.00, 130.81];
+          const catMel  = [523.25, 659.25, 783.99, 659.25, 880.00, 783.99, 659.25, 587.33,
+                           523.25, 587.33, 659.25, 783.99, 880.00, 1046.5, 880.00, 783.99];
+          const chorusHigh = [523.25, 523.25, 659.25, 783.99, 880.00, 880.00, 783.99, 659.25,
+                              587.33, 659.25, 783.99, 880.00, 1046.5, 880.00, 783.99, 1046.5];
+          const bassLine = [130.81, 130.81, 196.00, 196.00, 174.61, 174.61, 196.00, 146.83];
+
+          this.songTimer = setInterval(() => {
+            if (this.muted) return;
+            const elapsed = getElapsedSec();
+            if (elapsed > CHORUS_DURATION) {
+              this.stopSong();
+              return;
+            }
+            const step = this.stepIdx++;
+            const curLine = CHORUS_LYRICS.find(l => elapsed >= l.start && elapsed < l.end) || CHORUS_LYRICS[4];
+
+            // 輕快鼓點
+            if (step % 4 === 0) this.playDrum("kick");
+            if (step % 4 === 2) this.playDrum("snare");
+            if (step % 2 === 1) this.playDrum("hat");
+
+            // 根據當前演唱角色切換聲部音色
+            if (curLine.voice === "bear") {
+              // 黑熊渾厚低音貝斯＋溫暖管樂
+              const f = bearMel[step % bearMel.length];
+              this.playTone(f, 0.22, "triangle", 0.18);
+              if (step % 2 === 0) this.playTone(f * 2, 0.16, "sine", 0.08);
+            } else if (curLine.voice === "cat") {
+              // 石虎亮麗電音高音＋輕快低音伴奏
+              const f = catMel[step % catMel.length];
+              this.playTone(f, 0.17, "square", 0.065);
+              if (step % 2 === 0) this.playTone(bassLine[(step >> 1) % bassLine.length], 0.2, "triangle", 0.11);
+            } else {
+              // 雙主角＋5%小跟班大合唱：雙聲部熱血和聲！
+              const fh = chorusHigh[step % chorusHigh.length];
+              const fb = bassLine[(step >> 1) % bassLine.length];
+              this.playTone(fh, 0.2, "triangle", 0.14);
+              this.playTone(fh * 0.75, 0.2, "sine", 0.09); // 三度/四度和聲
+              this.playTone(fb, 0.24, "triangle", 0.16);   // 黑熊低音支撐
+              if (step % 2 === 0) this.playTone(fh * 1.5, 0.1, "sine", 0.05); // 閃亮高音點綴
+            }
+          }, 215);
+        }
+
+        stopSong() {
+          if (this.songTimer) {
+            clearInterval(this.songTimer);
+            this.songTimer = null;
+          }
+        }
+      }
+
+      const sound = new SoundEngine();
+
+      /* ==========================================================================
+         三、DOM 元件與 Canvas 響應式初始化
+         ========================================================================== */
+      const canvas = document.getElementById("gameCanvas");
+      const ctx = canvas.getContext("2d");
+      const stageInner = document.getElementById("stageInner");
+
+      const uiYear = document.getElementById("uiYear");
+      const uiBirth = document.getElementById("uiBirth");
+      const uiAiRate = document.getElementById("uiAiRate");
+      const btnMute = document.getElementById("btnMute");
+      const btnMenu = document.getElementById("btnMenu");
+
+      const menuOverlay = document.getElementById("menuOverlay");
+      const resultOverlay = document.getElementById("resultOverlay");
+      const modeGrid = document.getElementById("modeGrid");
+      const btnStartRace = document.getElementById("btnStartRace");
+      const btnSingAgain = document.getElementById("btnSingAgain");
+      const btnRaceAgain = document.getElementById("btnRaceAgain");
+
+      const karaokeBar = document.getElementById("karaokeBar");
+      const karaokeSinger = document.getElementById("karaokeSinger");
+      const karaokeText = document.getElementById("karaokeText");
+
+      const padBear = document.getElementById("padBear");
+      const padCat = document.getElementById("padCat");
+      const padChorus = document.getElementById("padChorus");
+      const bearRoleTag = document.getElementById("bearRoleTag");
+      const catRoleTag = document.getElementById("catRoleTag");
+      const btnBearJump = document.getElementById("btnBearJump");
+      const btnBearBoost = document.getElementById("btnBearBoost");
+      const btnCatJump = document.getElementById("btnCatJump");
+      const btnCatBoost = document.getElementById("btnCatBoost");
+      const btnChorusTap = document.getElementById("btnChorusTap");
+      const liveHarmonyScore = document.getElementById("liveHarmonyScore");
+
+      // 結算元素
+      const statWinner = document.getElementById("statWinner");
+      const statDefectors = document.getElementById("statDefectors");
+      const statHarmony = document.getElementById("statHarmony");
+      const resultTitle = document.getElementById("resultTitle");
+
+      // 邏輯畫布基準尺寸（固定 960×540 邏輯座標，自動等比縮放至實際像素）
+      const LOGICAL_W = 960;
+      const LOGICAL_H = 540;
+      let dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      function resizeCanvas() {
+        const rect = stageInner.getBoundingClientRect();
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.max(320, Math.floor(rect.width * dpr));
+        canvas.height = Math.max(200, Math.floor(rect.height * dpr));
+      }
+      window.addEventListener("resize", resizeCanvas);
+
+      /* ==========================================================================
+         四、遊戲狀態機與實體資料結構
+         ========================================================================== */
+      let gameMode = "p1_bear"; // p1_bear | p1_cat | p2_vs
+      let phase = "menu";       // menu | racing | ribbon_pull | chorus | result
+      let lastTime = 0;
+      let worldTime = 0;
+
+      // 數據追蹤
+      let currentYearIdx = 0;
+      let totalDefectors = 0;
+      let winnerId = "bear";
+      let harmonyScore = 0;
+      let harmonyCombo = 0;
+      let chorusTime = 0;
+      let ribbonPullTime = 0;
+      let cameraX = 0;
+
+      // 雙主角實體
+      function createRacer(id) {
+        return {
+          id,
+          name: id === "bear" ? "學霸熊" : "創客虎",
+          dist: 0,
+          speed: 175,
+          baseSpeed: 175,
+          y: 0,       // 跳躍高度（向上為正）
+          vy: 0,
+          boostTimer: 0,
+          boostCd: 0,
+          shieldTimer: 0,
+          stunTimer: 0,
+          runCycle: 0,
+          squash: 1,  // 軟膠公仔彈性壓縮係數
+          followers: id === "bear" ? 8 : 1, // 起跑時黑熊身後有 8 隻小跟班，石虎 1 隻
+          aiJumpCd: 0,
+          emoteText: "",
+          emoteTimer: 0
+        };
+      }
+
+      let bear = createRacer("bear");
+      let cat = createRacer("cat");
+
+      // 賽道物件：年份拱門、路障與道具、跳槽小跟班、粒子與飄浮文字、音符泡泡
+      let arches = [];
+      let laneObjects = [];
+      let jumpingDefectors = [];
+      let particles = [];
+      let floatingTexts = [];
+      let noteBubbles = [];
+      let noteSpawnTimer = 0;
+
+      // 小跟班種類配色（黏土公仔：小雞、小兔、柴犬）
+      const SIDEKICK_TYPES = [
+        { type: "chick", color: "#ffd94a", dark: "#d49c1a", ear: "comb" },
+        { type: "bunny", color: "#fff6ee", dark: "#d7c3b0", ear: "long" },
+        { type: "shiba", color: "#e89d54", dark: "#b56926", ear: "tri" }
+      ];
+
+      function updateDashboardUI(animate = false) {
+        const d = YEAR_DATA[Math.min(currentYearIdx, YEAR_DATA.length - 1)];
+        uiYear.textContent = d.year;
+        uiBirth.textContent = d.births;
+        uiAiRate.textContent = d.aiRate + "%";
+        if (animate) {
+          [uiYear, uiBirth, uiAiRate].forEach(el => {
+            el.classList.remove("pop");
+            void el.offsetWidth;
+            el.classList.add("pop");
+            setTimeout(() => el.classList.remove("pop"), 260);
+          });
+        }
+      }
+
+      function updateControllerVisibility() {
+        if (phase === "chorus") {
+          padBear.style.display = "none";
+          padCat.style.display = "none";
+          padChorus.classList.add("active");
+        } else {
+          padBear.style.display = "flex";
+          padCat.style.display = "flex";
+          padChorus.classList.remove("active");
+
+          if (gameMode === "p1_bear") {
+            bearRoleTag.textContent = "玩家 (W / D)";
+            catRoleTag.textContent = "AI 自動奔跑";
+            padCat.style.opacity = "0.55";
+            padBear.style.opacity = "1";
+          } else if (gameMode === "p1_cat") {
+            bearRoleTag.textContent = "AI 自動奔跑";
+            catRoleTag.textContent = "玩家 (↑ / →)";
+            padBear.style.opacity = "0.55";
+            padCat.style.opacity = "1";
+          } else {
+            bearRoleTag.textContent = "1P (W / D)";
+            catRoleTag.textContent = "2P (↑ / →)";
+            padBear.style.opacity = "1";
+            padCat.style.opacity = "1";
+          }
+        }
+      }
+
+      function generateTrackObjects() {
+        arches = [];
+        laneObjects = [];
+
+        // 生成 2025 ~ 2030 年份立體拱門
+        for (let i = 1; i <= 6; i++) {
+          arches.push({
+            yearIdx: i,
+            year: YEAR_DATA[i].year,
+            dist: i * ARCH_STEP,
+            broken: false,
+            breakAnim: 0
+          });
+        }
+
+        // 沿著兩條跑道生成立體路障與道具
+        const bearObsTypes = [
+          { kind: "obs", id: "desk", label: "空教室", w: 46, h: 42 },
+          { kind: "obs", id: "house", label: "高房價", w: 50, h: 48 }
+        ];
+        const bearItemTypes = [
+          { kind: "item", id: "bottle", label: "育兒奶瓶", w: 34, h: 42 },
+          { kind: "item", id: "shield", label: "小班神盾", w: 38, h: 38 }
+        ];
+        const catObsTypes = [
+          { kind: "obs", id: "banana", label: "AI幻覺", w: 42, h: 28 },
+          { kind: "obs", id: "paywall", label: "收費牆", w: 44, h: 52 },
+          { kind: "obs", id: "client", label: "半夜改稿", w: 46, h: 42 }
+        ];
+        const catItemTypes = [
+          { kind: "item", id: "coffee", label: "算力咖啡", w: 34, h: 40 },
+          { kind: "item", id: "solocorp", label: "一人公司", w: 40, h: 38 }
+        ];
+
+        for (let d = 520; d < FINISH_DIST - 380; d += 340) {
+          // 避開年份拱門正中心
+          const nearArch = arches.some(a => Math.abs(a.dist - d) < 120);
+          if (nearArch) continue;
+
+          // 上跑道（學霸熊）
+          const bIsItem = Math.random() < 0.36;
+          const bPool = bIsItem ? bearItemTypes : bearObsTypes;
+          const bTpl = bPool[Math.floor(Math.random() * bPool.length)];
+          laneObjects.push({
+            lane: "bear",
+            dist: d + (Math.random() * 70 - 35),
+            ...bTpl,
+            hit: false
+          });
+
+          // 下跑道（創客虎）
+          const cIsItem = Math.random() < 0.36;
+          const cPool = cIsItem ? catItemTypes : catObsTypes;
+          const cTpl = cPool[Math.floor(Math.random() * cPool.length)];
+          laneObjects.push({
+            lane: "cat",
+            dist: d + 110 + (Math.random() * 70 - 35),
+            ...cTpl,
+            hit: false
+          });
+        }
+      }
+
+      function startRace() {
+        sound.stopSong();
+        sound.sfxStartGun();
+        phase = "racing";
+        currentYearIdx = 0;
+        totalDefectors = 0;
+        harmonyScore = 0;
+        harmonyCombo = 0;
+        chorusTime = 0;
+        ribbonPullTime = 0;
+        cameraX = 0;
+
+        bear = createRacer("bear");
+        cat = createRacer("cat");
+        jumpingDefectors = [];
+        particles = [];
+        floatingTexts = [];
+        noteBubbles = [];
+
+        generateTrackObjects();
+        updateDashboardUI(false);
+        menuOverlay.classList.add("hidden");
+        resultOverlay.classList.add("hidden");
+        karaokeBar.classList.remove("active");
+        updateControllerVisibility();
+      }
+
+      function startChorusPhase(isReplay = false) {
+        phase = "chorus";
+        chorusTime = 0;
+        if (isReplay) {
+          harmonyScore = 0;
+          harmonyCombo = 0;
+        }
+        noteBubbles = [];
+        noteSpawnTimer = 0.25;
+        liveHarmonyScore.textContent = harmonyScore;
+        resultOverlay.classList.add("hidden");
+        karaokeBar.classList.add("active");
+        updateControllerVisibility();
+
+        // 爆發第一波慶祝紙花與愛心
+        spawnCelebrationBurst(LOGICAL_W * 0.5, LOGICAL_H * 0.45, 36);
+        sound.startChorusSong(() => chorusTime);
+      }
+
+      function finishChorusToResult() {
+        phase = "result";
+        sound.stopSong();
+        karaokeBar.classList.remove("active");
+        updateControllerVisibility();
+
+        statWinner.textContent = winnerId === "bear" ? "🐻 學霸熊" : "🐆 創客虎";
+        statDefectors.textContent = `${totalDefectors} 隻小跟班 (${YEAR_DATA[Math.min(currentYearIdx, 6)].aiRate}%)`;
+        statHarmony.textContent = `${harmonyScore} 分`;
+
+        if (harmonyScore >= 1200) {
+          resultTitle.textContent = "金曲獎級！台灣紅線奇蹟大合唱";
+        } else if (harmonyScore >= 600) {
+          resultTitle.textContent = "超有默契！擁抱歡唱冠軍組合";
+        } else {
+          resultTitle.textContent = "溫馨暖心！紅線抱抱好夥伴";
+        }
+
+        resultOverlay.classList.remove("hidden");
+      }
+
+      /* ==========================================================================
+         五、玩家操作、跳躍衝刺與 AI 邏輯
+         ========================================================================== */
+      function triggerJump(racer) {
+        if (phase !== "racing") return;
+        if (racer.y <= 1) {
+          racer.vy = 560;
+          racer.squash = 1.28;
+          sound.sfxJump(racer.id === "cat");
+          spawnDust(racer === bear ? getRacerScreenX(bear) : getRacerScreenX(cat),
+                    racer === bear ? 344 : 438, 6);
+        }
+      }
+
+      function triggerBoost(racer) {
+        if (phase !== "racing") return;
+        if (racer.boostCd <= 0 && racer.stunTimer <= 0) {
+          racer.boostTimer = 1.15;
+          racer.boostCd = 2.6;
+          racer.squash = 0.82;
+          sound.sfxBoost();
+          const sx = getRacerScreenX(racer);
+          const sy = racer === bear ? 330 : 424;
+          spawnCelebrationBurst(sx - 25, sy, 10);
+        }
+      }
+
+      function runAIFor(racer, dt) {
+        racer.aiJumpCd = Math.max(0, racer.aiJumpCd - dt);
+        // 偵測前方路障自動跳躍
+        const upcomingObs = laneObjects.find(
+          o => !o.hit && o.lane === racer.id && o.kind === "obs" &&
+               o.dist > racer.dist + 18 && o.dist < racer.dist + 125
+        );
+        if (upcomingObs && racer.y <= 1 && racer.aiJumpCd <= 0) {
+          if (Math.random() < 0.86) {
+            triggerJump(racer);
+            racer.aiJumpCd = 0.55;
+          }
+        }
+        // 冷卻好就適時衝刺
+        if (racer.boostCd <= 0 && Math.random() < dt * 0.9) {
+          triggerBoost(racer);
+        }
+      }
+
+      // 觸發 5% 跳槽創業動畫
+      function triggerDefectEvent(archYear) {
+        totalDefectors++;
+        if (bear.followers > 2) bear.followers--;
+        cat.followers = Math.min(9, cat.followers + 1);
+
+        const quote = DEFECT_QUOTES[(totalDefectors - 1) % DEFECT_QUOTES.length];
+        const sidekickTpl = SIDEKICK_TYPES[totalDefectors % SIDEKICK_TYPES.length];
+
+        jumpingDefectors.push({
+          t: 0,
+          duration: 1.45,
+          startX: getRacerScreenX(bear) - 42,
+          startY: 332,
+          endX: getRacerScreenX(cat) - 36,
+          endY: 432,
+          quote,
+          tpl: sidekickTpl,
+          sunglassesOn: false
+        });
+
+        // 給創客虎一小段創業噴射加速
+        cat.boostTimer = Math.max(cat.boostTimer, 0.9);
+        cat.emoteText = "+5% AI 創業隊友！";
+        cat.emoteTimer = 1.6;
+        bear.emoteText = `${archYear}年招生逆風！`;
+        bear.emoteTimer = 1.6;
+      }
+
+      /* ==========================================================================
+         六、粒子、飄浮文字與合唱互動音符系統
+         ========================================================================== */
+      function spawnDust(x, y, count = 6) {
+        for (let i = 0; i < count; i++) {
+          particles.push({
+            kind: "dust",
+            x, y,
+            vx: -40 - Math.random() * 80,
+            vy: -20 - Math.random() * 55,
+            size: 5 + Math.random() * 6,
+            color: "#f6ead8",
+            life: 0.45 + Math.random() * 0.25,
+            maxLife: 0.7
+          });
+        }
+      }
+
+      function spawnCelebrationBurst(x, y, count = 18) {
+        const colors = ["#ff6b8b", "#ffd466", "#4ef2d8", "#ff8e53", "#a29bfe", "#ffffff"];
+        for (let i = 0; i < count; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const spd = 70 + Math.random() * 210;
+          const isHeart = Math.random() < 0.35;
+          particles.push({
+            kind: isHeart ? "heart" : "confetti",
+            x, y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd - 90,
+            rot: Math.random() * Math.PI * 2,
+            vrot: (Math.random() - 0.5) * 8,
+            size: isHeart ? 10 + Math.random() * 8 : 6 + Math.random() * 6,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            life: 1.0 + Math.random() * 0.7,
+            maxLife: 1.7
+          });
+        }
+      }
+
+      function spawnFloatingText(x, y, text, color = "#ffd466") {
+        floatingTexts.push({ x, y, text, color, life: 1.15, maxLife: 1.15 });
+      }
+
+      function spawnNoteBubble() {
+        const symbols = ["🎵", "🎶", "💖", "✨", "🎤"];
+        const colors = ["#ff6b8b", "#ffd466", "#4ef2d8", "#74b9ff", "#fd79a8"];
+        const x = 130 + Math.random() * (LOGICAL_W - 260);
+        noteBubbles.push({
+          x,
+          y: LOGICAL_H - 95,
+          vx: (Math.random() - 0.5) * 40,
+          vy: -78 - Math.random() * 48,
+          r: 28 + Math.random() * 8,
+          symbol: symbols[Math.floor(Math.random() * symbols.length)],
+          color: colors[Math.floor(Math.random() * colors.length)],
+          wobble: Math.random() * Math.PI * 2,
+          popped: false
+        });
+      }
+
+      function triggerChorusBeat(targetX = null, targetY = null) {
+        if (phase !== "chorus") return;
+
+        let hitBubble = null;
+        if (targetX !== null && targetY !== null) {
+          for (let i = noteBubbles.length - 1; i >= 0; i--) {
+            const b = noteBubbles[i];
+            const dist = Math.hypot(b.x - targetX, b.y - targetY);
+            if (dist <= b.r + 18) {
+              hitBubble = b;
+              noteBubbles.splice(i, 1);
+              break;
+            }
+          }
+        } else if (noteBubbles.length > 0) {
+          // 空白鍵或下方大按鈕自動擊中畫面中最新的一顆音符泡泡
+          hitBubble = noteBubbles.shift();
+        }
+
+        harmonyCombo++;
+        const pts = hitBubble ? 100 + Math.min(harmonyCombo * 10, 100) : 50;
+        harmonyScore += pts;
+        liveHarmonyScore.textContent = harmonyScore;
+        sound.sfxHarmonyChime(harmonyCombo);
+
+        // 讓擁抱中的雙主角軟 Q 彈跳
+        bear.squash = 1.28;
+        cat.squash = 1.28;
+
+        const fx = hitBubble ? hitBubble.x : LOGICAL_W * 0.5 + (Math.random() * 180 - 90);
+        const fy = hitBubble ? hitBubble.y : LOGICAL_H * 0.42;
+        spawnCelebrationBurst(fx, fy, hitBubble ? 20 : 12);
+        spawnFloatingText(fx, fy - 12, hitBubble ? `+${pts} 完美和聲!` : `+${pts} 拍手應援!`, "#ffe066");
+      }
+
+      /* ==========================================================================
+         七、主更新迴圈 (Physics & Game Logic)
+         ========================================================================== */
+      function getRacerScreenX(racer) {
+        const leadDist = Math.max(bear.dist, cat.dist);
+        const leadScreenX = 335;
+        const diff = racer.dist - leadDist;
+        return Math.max(120, Math.min(LOGICAL_W - 140, leadScreenX + diff * 0.72));
+      }
+
+      function update(dt) {
+        worldTime += dt;
+
+        // 1. 粒子與飄浮文字更新（所有階段皆更新）
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const p = particles[i];
+          p.life -= dt;
+          if (p.life <= 0) { particles.splice(i, 1); continue; }
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.vy += (p.kind === "dust" ? 30 : 240) * dt;
+          if (p.rot !== undefined) p.rot += p.vrot * dt;
+        }
+
+        for (let i = floatingTexts.length - 1; i >= 0; i--) {
+          const ft = floatingTexts[i];
+          ft.life -= dt;
+          ft.y -= 42 * dt;
+          if (ft.life <= 0) floatingTexts.splice(i, 1);
+        }
+
+        // 2. 選單展示模式：兩隻小公仔在原地可愛慢跑
+        if (phase === "menu") {
+          cameraX += 70 * dt;
+          bear.runCycle += dt * 9;
+          cat.runCycle += dt * 9.5;
+          return;
+        }
+
+        // 3. 賽跑階段
+        if (phase === "racing") {
+          // AI 接管非玩家角色
+          if (gameMode === "p1_bear") runAIFor(cat, dt);
+          if (gameMode === "p1_cat") runAIFor(bear, dt);
+
+          const racers = [bear, cat];
+          racers.forEach(r => {
+            r.boostTimer = Math.max(0, r.boostTimer - dt);
+            r.boostCd = Math.max(0, r.boostCd - dt);
+            r.shieldTimer = Math.max(0, r.shieldTimer - dt);
+            r.stunTimer = Math.max(0, r.stunTimer - dt);
+            r.emoteTimer = Math.max(0, r.emoteTimer - dt);
+            r.squash += (1 - r.squash) * Math.min(1, dt * 12);
+
+            // 速度計算（加入輕微橡皮筋平衡，讓雙主角經常並駕齊驅更好玩）
+            const other = r === bear ? cat : bear;
+            const rubberBand = Math.max(-18, Math.min(24, (other.dist - r.dist) * 0.08));
+            let targetSpd = r.baseSpeed + rubberBand;
+            if (r === bear) targetSpd += (r.followers - 4) * 2.5;
+            if (r === cat) targetSpd += (r.followers - 1) * 3.2;
+            if (r.boostTimer > 0) targetSpd += 135;
+            if (r.stunTimer > 0) targetSpd *= 0.42;
+
+            r.speed += (targetSpd - r.speed) * Math.min(1, dt * 8);
+            r.dist += r.speed * dt;
+            r.runCycle += dt * (r.speed * 0.058);
+
+            // 跳躍重力
+            if (r.y > 0 || r.vy > 0) {
+              r.y += r.vy * dt;
+              r.vy -= 1480 * dt;
+              if (r.y <= 0) {
+                r.y = 0;
+                r.vy = 0;
+                r.squash = 0.78;
+                spawnDust(getRacerScreenX(r), r === bear ? 344 : 438, 4);
+              }
+            }
+          });
+
+          const leadDist = Math.max(bear.dist, cat.dist);
+          cameraX = leadDist;
+
+          // 檢查年份拱門撞破事件
+          for (const arch of arches) {
+            if (!arch.broken && leadDist >= arch.dist) {
+              arch.broken = true;
+              arch.breakAnim = 1;
+              currentYearIdx = Math.max(currentYearIdx, arch.yearIdx);
+              updateDashboardUI(true);
+              sound.sfxArch();
+              spawnCelebrationBurst(335, 290, 22);
+              spawnFloatingText(335, 220, `🎉 ${arch.year}年！5%轉戰AI創業！`, "#4ef2d8");
+              triggerDefectEvent(arch.year);
+            }
+            if (arch.broken && arch.breakAnim > 0) {
+              arch.breakAnim = Math.max(0, arch.breakAnim - dt * 1.4);
+            }
+          }
+
+          // 更新 5% 跳槽小跟班拋物線動畫
+          for (let i = jumpingDefectors.length - 1; i >= 0; i--) {
+            const jd = jumpingDefectors[i];
+            jd.t += dt / jd.duration;
+            if (jd.t >= 0.42 && !jd.sunglassesOn) {
+              jd.sunglassesOn = true;
+              spawnCelebrationBurst(
+                jd.startX + (jd.endX - jd.startX) * jd.t,
+                jd.startY + (jd.endY - jd.startY) * jd.t - 110,
+                8
+              );
+            }
+            if (jd.t >= 1) jumpingDefectors.splice(i, 1);
+          }
+
+          // 路障與道具碰撞偵測
+          for (const obj of laneObjects) {
+            if (obj.hit) continue;
+            const r = obj.lane === "bear" ? bear : cat;
+            if (Math.abs(obj.dist - r.dist) < 34) {
+              const sx = getRacerScreenX(r);
+              const sy = r === bear ? 315 : 410;
+
+              if (obj.kind === "item") {
+                obj.hit = true;
+                sound.sfxItem();
+                spawnCelebrationBurst(sx, sy, 14);
+                if (obj.id === "bottle") {
+                  r.followers = Math.min(10, r.followers + 1);
+                  r.boostTimer = 1.3;
+                  spawnFloatingText(sx, sy - 35, "🍼 育兒津貼！隊友+1加速", "#ffd466");
+                } else if (obj.id === "shield") {
+                  r.shieldTimer = 4.2;
+                  spawnFloatingText(sx, sy - 35, "🛡️ 小班制神盾啟動！", "#4ef2d8");
+                } else if (obj.id === "coffee") {
+                  r.boostTimer = 1.65;
+                  spawnFloatingText(sx, sy - 35, "☕ AI算力咖啡噴射！", "#ffbe3b");
+                } else if (obj.id === "solocorp") {
+                  r.shieldTimer = 4.2;
+                  r.boostTimer = 0.8;
+                  spawnFloatingText(sx, sy - 35, "💼 免學費一人公司護體！", "#4ef2d8");
+                }
+              } else {
+                // 路障：跳得夠高就安全越過
+                if (r.y < obj.h * 0.72) {
+                  obj.hit = true;
+                  if (r.shieldTimer > 0) {
+                    r.shieldTimer = 0;
+                    sound.sfxItem();
+                    spawnCelebrationBurst(sx, sy, 12);
+                    spawnFloatingText(sx, sy - 30, "✨ 神盾彈開路障！", "#4ef2d8");
+                  } else {
+                    r.stunTimer = 0.85;
+                    r.squash = 0.68;
+                    sound.sfxHit();
+                    spawnDust(sx, sy + 15, 10);
+                    spawnFloatingText(sx, sy - 30, `💥 撞到${obj.label}！`, "#ff6b8b");
+                  }
+                }
+              }
+            }
+          }
+
+          // 判斷是否衝破紅線
+          if (leadDist >= FINISH_DIST) {
+            winnerId = bear.dist >= cat.dist ? "bear" : "cat";
+            phase = "ribbon_pull";
+            ribbonPullTime = 0;
+            sound.sfxHugRibbon();
+            spawnCelebrationBurst(LOGICAL_W * 0.5, LOGICAL_H * 0.55, 30);
+          }
+          return;
+        }
+
+        // 4. 衝破紅線物理彈性拉近擁抱階段（約 2.2 秒）
+        if (phase === "ribbon_pull") {
+          ribbonPullTime += dt;
+          bear.squash += (1 - bear.squash) * dt * 8;
+          cat.squash += (1 - cat.squash) * dt * 8;
+          if (ribbonPullTime >= 2.2) {
+            startChorusPhase(false);
+          }
+          return;
+        }
+
+        // 5. 聚光燈擁抱大合唱與音符互動階段
+        if (phase === "chorus") {
+          chorusTime += dt;
+          bear.squash += (1 - bear.squash) * Math.min(1, dt * 8);
+          cat.squash += (1 - cat.squash) * Math.min(1, dt * 8);
+
+          // 更新卡拉 OK 歌詞跑馬燈
+          const activeLine = CHORUS_LYRICS.find(l => chorusTime >= l.start && chorusTime < l.end)
+            || CHORUS_LYRICS[CHORUS_LYRICS.length - 1];
+          karaokeSinger.textContent = activeLine.singer;
+          karaokeSinger.style.background = activeLine.color;
+          karaokeText.textContent = activeLine.text;
+
+          // 生成立體亮面音符泡泡
+          noteSpawnTimer -= dt;
+          if (noteSpawnTimer <= 0 && chorusTime < CHORUS_DURATION - 1.5) {
+            spawnNoteBubble();
+            noteSpawnTimer = activeLine.voice === "both" ? 0.52 : 0.78;
+          }
+
+          // 音符泡泡上升與微幅搖曳
+          for (let i = noteBubbles.length - 1; i >= 0; i--) {
+            const b = noteBubbles[i];
+            b.wobble += dt * 4;
+            b.x += (b.vx + Math.sin(b.wobble) * 28) * dt;
+            b.y += b.vy * dt;
+            if (b.y < -40) noteBubbles.splice(i, 1);
+          }
+
+          // 偶爾自動冒出小愛心
+          if (Math.random() < dt * 3.5) {
+            particles.push({
+              kind: "heart",
+              x: LOGICAL_W * 0.5 + (Math.random() * 140 - 70),
+              y: 300 + Math.random() * 40,
+              vx: (Math.random() - 0.5) * 40,
+              vy: -90 - Math.random() * 60,
+              rot: (Math.random() - 0.5) * 0.4,
+              vrot: (Math.random() - 0.5) * 1.5,
+              size: 11 + Math.random() * 7,
+              color: Math.random() < 0.5 ? "#ff6b8b" : "#ffd466",
+              life: 1.3,
+              maxLife: 1.3
+            });
+          }
+
+          if (chorusTime >= CHORUS_DURATION) {
+            finishChorusToResult();
+          }
+        }
+      }
+
+      /* ==========================================================================
+         八、實體微縮模型 (Tactile 3D Clay Diorama) 繪圖函式庫
+         ========================================================================== */
+
+      // 輔助：繪製圓角矩形
+      function roundRect(x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+      }
+
+      // 輔助：繪製帶立體漸層與高光的黏土球體
+      function drawClaySphere(cx, cy, rx, ry, colorTop, colorMid, colorBot, highlight = true) {
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.scale(1, ry / rx);
+        const grad = ctx.createRadialGradient(-rx * 0.32, -rx * 0.35, rx * 0.08, 0, 0, rx * 1.08);
+        grad.addColorStop(0, colorTop);
+        grad.addColorStop(0.55, colorMid);
+        grad.addColorStop(1, colorBot);
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(0, 0, rx, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (highlight) {
+          ctx.fillStyle = "rgba(255, 255, 255, 0.34)";
+          ctx.beginPath();
+          ctx.ellipse(-rx * 0.32, -rx * 0.36, rx * 0.28, rx * 0.16, -0.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      // 輔助：落地接觸陰影 (Contact Shadow)
+      function drawContactShadow(x, y, rx, ry, alpha = 0.32) {
+        ctx.save();
+        const grad = ctx.createRadialGradient(x, y, rx * 0.1, x, y, rx);
+        grad.addColorStop(0, `rgba(45, 24, 12, ${alpha})`);
+        grad.addColorStop(1, "rgba(45, 24, 12, 0)");
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // 繪製立體亮面愛心
+      function drawHeart(x, y, size, color, rot = 0) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(rot);
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(0, size * 0.35);
+        ctx.bezierCurveTo(-size, -size * 0.35, -size * 0.6, -size * 1.15, 0, -size * 0.45);
+        ctx.bezierCurveTo(size * 0.6, -size * 1.15, size, -size * 0.35, 0, size * 0.35);
+        ctx.fill();
+        // 高光
+        ctx.fillStyle = "rgba(255,255,255,0.45)";
+        ctx.beginPath();
+        ctx.ellipse(-size * 0.3, -size * 0.42, size * 0.18, size * 0.1, -0.4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      /* -------------------- 背景微縮台灣地景（視差捲動） -------------------- */
+      function drawBackgroundDiorama(scrollX, isStageDark = false) {
+        // 1. 柔和攝影棚天空漸層
+        const sky = ctx.createLinearGradient(0, 0, 0, 290);
+        if (isStageDark) {
+          sky.addColorStop(0, "#1c1a38");
+          sky.addColorStop(0.6, "#322854");
+          sky.addColorStop(1, "#4e3866");
+        } else {
+          sky.addColorStop(0, "#81ccf5");
+          sky.addColorStop(0.6, "#bfe8fc");
+          sky.addColorStop(1, "#fff1d6");
+        }
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, LOGICAL_W, 300);
+
+        // 2. 黏土立體白雲（慢速視差）
+        const cloudScroll = (scrollX * 0.08) % 1100;
+        for (let i = 0; i < 5; i++) {
+          const cx = ((i * 230 - cloudScroll + 1200) % 1100) - 70;
+          const cy = 52 + (i % 3) * 28;
+          ctx.save();
+          ctx.globalAlpha = isStageDark ? 0.35 : 0.95;
+          drawClaySphere(cx, cy, 26, 20, "#ffffff", "#f5f8fc", "#d9e6f2", false);
+          drawClaySphere(cx + 22, cy - 8, 30, 24, "#ffffff", "#f5f8fc", "#d9e6f2", false);
+          drawClaySphere(cx + 46, cy + 2, 24, 18, "#ffffff", "#f5f8fc", "#d9e6f2", false);
+          ctx.restore();
+        }
+
+        // 3. 遠景台灣黏土玉山群峰
+        const mtnScroll = (scrollX * 0.14) % 960;
+        for (let rep = -1; rep <= 1; rep++) {
+          const ox = rep * 960 - mtnScroll;
+          ctx.fillStyle = isStageDark ? "#2f3959" : "#7dc29b";
+          ctx.beginPath();
+          ctx.moveTo(ox, 270);
+          ctx.quadraticCurveTo(ox + 160, 125, ox + 320, 240);
+          ctx.quadraticCurveTo(ox + 500, 105, ox + 690, 235);
+          ctx.quadraticCurveTo(ox + 830, 145, ox + 960, 270);
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        // 4. 中景立體微縮台灣地景（台北101、紅磚校園、珍奶店、半導體廠）
+        const cityCycle = 1280;
+        const cityScroll = (scrollX * 0.32) % cityCycle;
+        for (let rep = -1; rep <= 1; rep++) {
+          const base = rep * cityCycle - cityScroll;
+          drawMiniTaipei101(base + 140, 262);
+          drawMiniCampus(base + 430, 262);
+          drawMiniBobaShop(base + 770, 262);
+          drawMiniSemiconFab(base + 1050, 262);
+        }
+      }
+
+      // 微縮黏土台北 101
+      function drawMiniTaipei101(x, groundY) {
+        ctx.save();
+        drawContactShadow(x, groundY, 38, 10, 0.22);
+        // 底座
+        ctx.fillStyle = "#5ba8a0";
+        roundRect(x - 24, groundY - 36, 48, 36, 5);
+        ctx.fill();
+        // 6 節竹節立體方塊
+        for (let i = 0; i < 6; i++) {
+          const y = groundY - 54 - i * 19;
+          const wTop = 36 - i * 2.2;
+          const wBot = 28 - i * 2;
+          const g = ctx.createLinearGradient(x - wTop / 2, y, x + wTop / 2, y);
+          g.addColorStop(0, "#97e5db");
+          g.addColorStop(0.5, "#59bfb3");
+          g.addColorStop(1, "#328c83");
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.moveTo(x - wTop / 2, y);
+          ctx.lineTo(x + wTop / 2, y);
+          ctx.lineTo(x + wBot / 2, y + 18);
+          ctx.lineTo(x - wBot / 2, y + 18);
+          ctx.closePath();
+          ctx.fill();
+          ctx.strokeStyle = "rgba(255,255,255,0.45)";
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        }
+        // 塔尖
+        ctx.fillStyle = "#d9f7f2";
+        ctx.fillRect(x - 3, groundY - 190, 6, 26);
+        ctx.restore();
+      }
+
+      // 微縮紅磚校園
+      function drawMiniCampus(x, groundY) {
+        ctx.save();
+        drawContactShadow(x, groundY, 72, 12, 0.22);
+        const g = ctx.createLinearGradient(x - 62, groundY - 68, x + 62, groundY);
+        g.addColorStop(0, "#e37e63");
+        g.addColorStop(1, "#b54c35");
+        ctx.fillStyle = g;
+        roundRect(x - 62, groundY - 68, 124, 68, 8);
+        ctx.fill();
+        // 白色奶油屋簷
+        ctx.fillStyle = "#fff5e4";
+        roundRect(x - 66, groundY - 76, 132, 12, 5);
+        ctx.fill();
+        // 中央鐘樓
+        ctx.fillStyle = "#d46a4e";
+        roundRect(x - 20, groundY - 102, 40, 30, 6);
+        ctx.fill();
+        drawClaySphere(x, groundY - 87, 10, 10, "#ffffff", "#fff6e0", "#d4c3a3", false);
+        // 教室窗戶
+        ctx.fillStyle = "#ffe599";
+        for (let i = -2; i <= 2; i++) {
+          if (i === 0) continue;
+          roundRect(x + i * 22 - 7, groundY - 52, 14, 20, 4);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      // 微縮珍珠奶茶店
+      function drawMiniBobaShop(x, groundY) {
+        ctx.save();
+        drawContactShadow(x, groundY, 54, 11, 0.22);
+        ctx.fillStyle = "#fff3dc";
+        roundRect(x - 45, groundY - 62, 90, 62, 8);
+        ctx.fill();
+        // 紅白條紋遮雨棚
+        for (let i = 0; i < 6; i++) {
+          ctx.fillStyle = i % 2 === 0 ? "#e85346" : "#fff8ef";
+          roundRect(x - 48 + i * 16, groundY - 68, 16, 14, 3);
+          ctx.fill();
+        }
+        // 屋頂巨大立體珍奶模型
+        ctx.fillStyle = "#e6b88a";
+        ctx.beginPath();
+        ctx.moveTo(x - 16, groundY - 106);
+        ctx.lineTo(x + 16, groundY - 106);
+        ctx.lineTo(x + 12, groundY - 68);
+        ctx.lineTo(x - 12, groundY - 68);
+        ctx.closePath();
+        ctx.fill();
+        // 黑珍珠
+        ctx.fillStyle = "#2b1d14";
+        for (let p = -1; p <= 1; p++) {
+          ctx.beginPath();
+          ctx.arc(x + p * 6, groundY - 75, 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        // 粗吸管
+        ctx.fillStyle = "#ff6b8b";
+        ctx.fillRect(x - 3, groundY - 124, 6, 20);
+        ctx.restore();
+      }
+
+      // 微縮半導體晶圓廠
+      function drawMiniSemiconFab(x, groundY) {
+        ctx.save();
+        drawContactShadow(x, groundY, 68, 12, 0.22);
+        const g = ctx.createLinearGradient(x - 58, groundY - 70, x + 58, groundY);
+        g.addColorStop(0, "#ffffff");
+        g.addColorStop(1, "#cfdbe6");
+        ctx.fillStyle = g;
+        roundRect(x - 58, groundY - 66, 116, 66, 10);
+        ctx.fill();
+        // 科技藍光帶
+        ctx.fillStyle = "#4ef2d8";
+        roundRect(x - 48, groundY - 46, 96, 10, 5);
+        ctx.fill();
+        // 立體晶片標誌
+        ctx.fillStyle = "#2f3e4e";
+        roundRect(x - 16, groundY - 92, 32, 26, 6);
+        ctx.fill();
+        ctx.fillStyle = "#ffd466";
+        ctx.font = "900 12px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("AI", x, groundY - 74);
+        ctx.restore();
+      }
+
+      /* -------------------- 立體 PU 橡膠雙跑道與微縮草皮 -------------------- */
+      function drawDioramaTrack(scrollX) {
+        // 1. 上方微縮草皮帶（含黏土小樹叢）
+        const grassGrad = ctx.createLinearGradient(0, 250, 0, 295);
+        grassGrad.addColorStop(0, "#8ad46c");
+        grassGrad.addColorStop(1, "#5ca847");
+        ctx.fillStyle = grassGrad;
+        ctx.fillRect(0, 252, LOGICAL_W, 42);
+
+        const bushScroll = (scrollX * 0.72) % 240;
+        for (let x = -bushScroll; x < LOGICAL_W + 80; x += 240) {
+          drawClaySphere(x, 268, 20, 15, "#a9e87e", "#6dc24e", "#468a32", false);
+          drawClaySphere(x + 18, 272, 15, 12, "#a9e87e", "#6dc24e", "#468a32", false);
+        }
+
+        // 2. 跑道上緣立體白色木欄杆
+        ctx.fillStyle = "#fff9ef";
+        ctx.fillRect(0, 286, LOGICAL_W, 9);
+        ctx.fillStyle = "#d6c3ab";
+        ctx.fillRect(0, 295, LOGICAL_W, 4);
+
+        // 3. 紅色 PU 橡膠雙跑道（立體厚實質感）
+        const trackGrad = ctx.createLinearGradient(0, 299, 0, 482);
+        trackGrad.addColorStop(0, "#df6453");
+        trackGrad.addColorStop(0.5, "#cc4c3c");
+        trackGrad.addColorStop(1, "#b33a2c");
+        ctx.fillStyle = trackGrad;
+        ctx.fillRect(0, 299, LOGICAL_W, 184);
+
+        // 跑道 PU 顆粒感細節與距離標線
+        const stripeScroll = (scrollX * 0.72) % 120;
+        ctx.fillStyle = "rgba(255, 255, 255, 0.16)";
+        for (let x = -stripeScroll; x < LOGICAL_W + 60; x += 120) {
+          ctx.fillRect(x, 304, 14, 174);
+        }
+
+        // 中央凸起立體白色分隔欄（黑熊與石虎跑道分界）
+        ctx.fillStyle = "rgba(70, 18, 12, 0.35)";
+        ctx.fillRect(0, 393, LOGICAL_W, 6);
+        ctx.fillStyle = "#fffdf8";
+        ctx.fillRect(0, 386, LOGICAL_W, 7);
+
+        // 跑道底緣立體厚度（微縮模型底座剖面）
+        ctx.fillStyle = "#7a2319";
+        ctx.fillRect(0, 483, LOGICAL_W, 14);
+        const woodFront = ctx.createLinearGradient(0, 497, 0, LOGICAL_H);
+        woodFront.addColorStop(0, "#c89662");
+        woodFront.addColorStop(1, "#8f6034");
+        ctx.fillStyle = woodFront;
+        ctx.fillRect(0, 497, LOGICAL_W, LOGICAL_H - 497);
+      }
+
+      /* -------------------- 雙主角立體公仔繪製 -------------------- */
+
+      // 台灣黑熊「學霸熊」軟膠黏土公仔
+      function drawScholarBear(x, y, runCycle, squash, shieldTimer, isHugging = false) {
+        ctx.save();
+        ctx.translate(x, y);
+        const bounce = Math.abs(Math.sin(runCycle)) * (isHugging ? 5 : 8);
+        ctx.translate(0, -bounce);
+        ctx.scale(2 - squash, squash);
+
+        // 神盾氣泡
+        if (shieldTimer > 0) {
+          const sg = ctx.createRadialGradient(-10, -34, 8, 0, -28, 52);
+          sg.addColorStop(0, "rgba(180, 255, 245, 0.15)");
+          sg.addColorStop(0.75, "rgba(78, 242, 216, 0.32)");
+          sg.addColorStop(1, "rgba(78, 242, 216, 0.85)");
+          ctx.fillStyle = sg;
+          ctx.beginPath();
+          ctx.arc(0, -30, 48, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        const legSwing = isHugging ? 0 : Math.sin(runCycle) * 10;
+
+        // 迷你立體棕色書包（背在身後）
+        ctx.fillStyle = "#a35b2a";
+        roundRect(-34, -42, 18, 24, 6);
+        ctx.fill();
+        ctx.fillStyle = "#d98943";
+        roundRect(-33, -41, 14, 10, 4);
+        ctx.fill();
+
+        // 雙腳（黏土圓腳）
+        drawClaySphere(-10 + legSwing, -6, 9, 8, "#524a46", "#2b2523", "#141110", false);
+        drawClaySphere(10 - legSwing, -6, 9, 8, "#524a46", "#2b2523", "#141110", false);
+
+        // 圓潤霧面深黑身體
+        drawClaySphere(0, -26, 24, 23, "#544c47", "#2b2522", "#14100e", true);
+
+        // 台灣黑熊招牌立體白色胸前 V 字
+        ctx.strokeStyle = "#fffdf8";
+        ctx.lineWidth = 5.5;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.beginPath();
+        ctx.moveTo(4, -33);
+        ctx.lineTo(13, -22);
+        ctx.lineTo(20, -33);
+        ctx.stroke();
+
+        // 圓耳朵
+        drawClaySphere(-12, -62, 8, 8, "#544c47", "#2b2522", "#14100e", false);
+        drawClaySphere(12, -62, 8, 8, "#544c47", "#2b2522", "#14100e", false);
+
+        // 圓潤大頭
+        drawClaySphere(2, -52, 21, 19, "#5b524c", "#2e2724", "#15110f", true);
+
+        // 淺棕吻部與亮面黑鼻頭
+        drawClaySphere(15, -47, 9, 7, "#f7e6ce", "#dfc29d", "#b8966e", false);
+        drawClaySphere(20, -50, 4, 3, "#555", "#111", "#000", true);
+
+        // 可愛眼睛（擁抱時變成開心彎彎眼）
+        if (isHugging) {
+          ctx.strokeStyle = "#fff";
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.arc(10, -54, 4, Math.PI * 1.1, Math.PI * 1.9);
+          ctx.stroke();
+          // 害羞腮紅
+          ctx.fillStyle = "rgba(255, 118, 140, 0.65)";
+          ctx.beginPath();
+          ctx.ellipse(9, -46, 5, 3, 0, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.fillStyle = "#fff";
+          ctx.beginPath();
+          ctx.arc(11, -55, 3.6, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "#111";
+          ctx.beginPath();
+          ctx.arc(12.2, -55, 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // 迷你立體學士帽與金色流蘇
+        ctx.save();
+        ctx.translate(1, -70);
+        ctx.rotate(-0.08);
+        ctx.fillStyle = "#1f2937";
+        roundRect(-10, -4, 20, 7, 2);
+        ctx.fill();
+        ctx.fillStyle = "#334155";
+        ctx.beginPath();
+        ctx.moveTo(0, -13);
+        ctx.lineTo(22, -5);
+        ctx.lineTo(0, 2);
+        ctx.lineTo(-22, -5);
+        ctx.closePath();
+        ctx.fill();
+        // 金色流蘇
+        ctx.strokeStyle = "#ffd466";
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.moveTo(0, -5);
+        ctx.lineTo(-16, -2);
+        ctx.lineTo(-18, 8);
+        ctx.stroke();
+        ctx.restore();
+
+        // 前手臂（擁抱時張開抱住對方）
+        if (isHugging) {
+          drawClaySphere(22, -28, 12, 7, "#544c47", "#2b2522", "#14100e", false);
+        } else {
+          drawClaySphere(10 - legSwing * 0.6, -24, 8, 6, "#544c47", "#2b2522", "#14100e", false);
+        }
+
+        ctx.restore();
+      }
+
+      // 石虎「創客虎」軟膠黏土公仔
+      function drawMakerCat(x, y, runCycle, squash, shieldTimer, isHugging = false, flipX = false) {
+        ctx.save();
+        ctx.translate(x, y);
+        const bounce = Math.abs(Math.sin(runCycle)) * (isHugging ? 5 : 9);
+        ctx.translate(0, -bounce);
+        if (flipX) ctx.scale(-1, 1);
+        ctx.scale(2 - squash, squash);
+
+        // 護盾氣泡
+        if (shieldTimer > 0) {
+          const sg = ctx.createRadialGradient(-10, -32, 8, 0, -26, 50);
+          sg.addColorStop(0, "rgba(255, 240, 180, 0.15)");
+          sg.addColorStop(0.75, "rgba(255, 200, 60, 0.32)");
+          sg.addColorStop(1, "rgba(255, 190, 50, 0.88)");
+          ctx.fillStyle = sg;
+          ctx.beginPath();
+          ctx.arc(0, -28, 46, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        const legSwing = isHugging ? 0 : Math.sin(runCycle) * 11;
+
+        // 搖擺長尾
+        ctx.save();
+        ctx.strokeStyle = "#d9922c";
+        ctx.lineWidth = 8;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(-18, -20);
+        ctx.quadraticCurveTo(-36, -34 + Math.sin(runCycle * 1.4) * 8, -32, -48);
+        ctx.stroke();
+        ctx.restore();
+
+        // 雙腳
+        drawClaySphere(-9 + legSwing, -6, 8, 7, "#ffe099", "#e8a53a", "#b37014", false);
+        drawClaySphere(9 - legSwing, -6, 8, 7, "#ffe099", "#e8a53a", "#b37014", false);
+
+        // 金黃帶斑點身體
+        drawClaySphere(0, -24, 21, 20, "#ffe49e", "#ebb044", "#bd7b19", true);
+        // 石虎斑點
+        ctx.fillStyle = "#6e4214";
+        ctx.beginPath();
+        ctx.ellipse(-6, -26, 3.5, 2.5, 0.3, 0, Math.PI * 2);
+        ctx.ellipse(2, -19, 3, 2, -0.2, 0, Math.PI * 2);
+        ctx.ellipse(-9, -17, 2.5, 2, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 石虎圓耳（耳背白斑特徵）
+        drawClaySphere(-11, -60, 8, 8, "#ffe49e", "#e8a53a", "#a66812", false);
+        drawClaySphere(11, -60, 8, 8, "#ffe49e", "#e8a53a", "#a66812", false);
+        ctx.fillStyle = "#fff8eb";
+        ctx.beginPath();
+        ctx.arc(-11, -60, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 頭部
+        drawClaySphere(2, -49, 20, 18, "#ffeaad", "#f0b64a", "#bf7d19", true);
+        // 額頭白色條紋（石虎經典特徵）
+        ctx.strokeStyle = "#fffaf0";
+        ctx.lineWidth = 2.6;
+        ctx.beginPath();
+        ctx.moveTo(4, -62); ctx.lineTo(6, -54);
+        ctx.moveTo(10, -61); ctx.lineTo(11, -54);
+        ctx.stroke();
+
+        // 酷炫亮面墨鏡（擁抱時微微滑下露出開心彎眼）
+        if (isHugging) {
+          ctx.strokeStyle = "#472708";
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.arc(11, -51, 4, Math.PI * 1.1, Math.PI * 1.9);
+          ctx.stroke();
+          ctx.fillStyle = "rgba(255, 118, 140, 0.65)";
+          ctx.beginPath();
+          ctx.ellipse(11, -44, 5, 3, 0, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.fillStyle = "#1a1f29";
+          roundRect(3, -55, 19, 9, 4);
+          ctx.fill();
+          // 墨鏡白色斜反光
+          ctx.strokeStyle = "rgba(255,255,255,0.75)";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(7, -53); ctx.lineTo(11, -48);
+          ctx.moveTo(14, -53); ctx.lineTo(18, -48);
+          ctx.stroke();
+        }
+
+        // 抱著銀色迷你立體筆電（賽跑時）或伸手擁抱
+        if (isHugging) {
+          drawClaySphere(20, -26, 11, 6.5, "#ffe49e", "#ebb044", "#bd7b19", false);
+        } else {
+          ctx.save();
+          ctx.translate(18, -24);
+          // 筆電底座
+          ctx.fillStyle = "#cbd5e1";
+          roundRect(-6, 0, 18, 4, 2);
+          ctx.fill();
+          // 筆電螢幕
+          ctx.fillStyle = "#e2e8f0";
+          ctx.beginPath();
+          ctx.moveTo(8, 1);
+          ctx.lineTo(14, -12);
+          ctx.lineTo(18, -10);
+          ctx.lineTo(12, 2);
+          ctx.closePath();
+          ctx.fill();
+          // AI 螢幕微光
+          ctx.fillStyle = "#4ef2d8";
+          ctx.beginPath();
+          ctx.arc(10, -6, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        ctx.restore();
+      }
+
+      // 迷你黏土小跟班（小雞、小兔、柴犬）
+      function drawMiniSidekick(x, y, tpl, phaseOffset, hasSunglasses = false, scale = 1) {
+        ctx.save();
+        ctx.translate(x, y - Math.abs(Math.sin(worldTime * 11 + phaseOffset)) * 7);
+        ctx.scale(scale, scale);
+        drawContactShadow(0, 6, 11, 4, 0.2);
+
+        // 耳朵 / 雞冠
+        if (tpl.ear === "long") {
+          drawClaySphere(-4, -22, 3.5, 7, "#fff", tpl.color, tpl.dark, false);
+          drawClaySphere(4, -22, 3.5, 7, "#fff", tpl.color, tpl.dark, false);
+        } else if (tpl.ear === "comb") {
+          ctx.fillStyle = "#e85346";
+          ctx.beginPath();
+          ctx.arc(0, -20, 4, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.fillStyle = tpl.dark;
+          ctx.beginPath();
+          ctx.moveTo(-8, -14); ctx.lineTo(-5, -22); ctx.lineTo(-1, -15);
+          ctx.moveTo(8, -14); ctx.lineTo(5, -22); ctx.lineTo(1, -15);
+          ctx.fill();
+        }
+
+        // 圓滾滾身體
+        drawClaySphere(0, -9, 11, 10, "#fff8ec", tpl.color, tpl.dark, true);
+
+        // 臉部表情或酷炫墨鏡
+        if (hasSunglasses) {
+          ctx.fillStyle = "#181c24";
+          roundRect(0, -14, 11, 5, 2);
+          ctx.fill();
+          ctx.fillStyle = "#4ef2d8";
+          ctx.fillRect(2, -13, 3, 1.5);
+        } else {
+          ctx.fillStyle = "#2b221c";
+          ctx.beginPath();
+          ctx.arc(5, -11, 1.7, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      /* -------------------- 年份立體木框拱門與路障道具 -------------------- */
+      function drawYearArch(arch, screenX) {
+        if (screenX < -120 || screenX > LOGICAL_W + 120) return;
+        ctx.save();
+        ctx.translate(screenX, 0);
+
+        // 左右木柱
+        ctx.fillStyle = "#8c5b32";
+        roundRect(-10, 224, 14, 260, 4);
+        ctx.fill();
+        ctx.fillStyle = "#b8804d";
+        roundRect(-8, 224, 5, 260, 2);
+        ctx.fill();
+
+        // 橫幅看板（撞破時彈跳開裂）
+        const lift = arch.broken ? -22 * (1 - arch.breakAnim) : 0;
+        const tilt = arch.broken ? 0.14 : 0;
+        ctx.save();
+        ctx.translate(0, 226 + lift);
+        ctx.rotate(tilt);
+
+        const boardG = ctx.createLinearGradient(0, -24, 0, 22);
+        boardG.addColorStop(0, arch.broken ? "#ffd466" : "#fff8ea");
+        boardG.addColorStop(1, arch.broken ? "#e89c17" : "#e3cfa9");
+        ctx.fillStyle = boardG;
+        ctx.strokeStyle = "#7a4e26";
+        ctx.lineWidth = 3.5;
+        roundRect(-52, -24, 104, 42, 12);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#3a2212";
+        ctx.font = "900 18px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(`${arch.year} 年`, 0, -2);
+        ctx.fillStyle = "#c93b2b";
+        ctx.font = "800 11px sans-serif";
+        ctx.fillText("AI +5% 創業潮", 0, 12);
+        ctx.restore();
+
+        ctx.restore();
+      }
+
+      function drawLaneObject(obj, screenX) {
+        if (obj.hit || screenX < -80 || screenX > LOGICAL_W + 80) return;
+        const baseY = obj.lane === "bear" ? 344 : 438;
+        const bob = obj.kind === "item" ? Math.sin(worldTime * 5 + obj.dist) * 6 : 0;
+
+        ctx.save();
+        ctx.translate(screenX, baseY);
+        drawContactShadow(0, 4, obj.w * 0.52, 8, 0.28);
+        ctx.translate(0, bob);
+
+        if (obj.id === "desk") {
+          // 立體空教室木課桌積木
+          ctx.fillStyle = "#c78b4e";
+          roundRect(-22, -34, 44, 10, 4); ctx.fill();
+          ctx.fillStyle = "#8a5a2b";
+          ctx.fillRect(-16, -24, 6, 24);
+          ctx.fillRect(10, -24, 6, 24);
+          drawTagPill(0, -44, "空教室", "#7a4b22");
+        } else if (obj.id === "house") {
+          // 高房價巨石
+          drawClaySphere(0, -22, 24, 22, "#b5bcc4", "#7e8791", "#4b535c", true);
+          ctx.fillStyle = "#fff";
+          ctx.font = "900 12px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("高房價", 0, -18);
+        } else if (obj.id === "banana") {
+          // AI 幻覺發光香蕉皮
+          ctx.fillStyle = "#ffe14d";
+          ctx.beginPath();
+          ctx.ellipse(0, -8, 20, 9, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "#a29bfe";
+          ctx.beginPath();
+          ctx.arc(0, -16, 7, 0, Math.PI * 2);
+          ctx.fill();
+          drawTagPill(0, -34, "AI幻覺", "#6c5ce7");
+        } else if (obj.id === "paywall") {
+          // 模型收費牆
+          ctx.fillStyle = "#d64545";
+          roundRect(-20, -48, 40, 48, 6); ctx.fill();
+          ctx.strokeStyle = "#ffd466";
+          ctx.lineWidth = 2.5;
+          ctx.stroke();
+          ctx.fillStyle = "#fff";
+          ctx.font = "900 13px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("$20", 0, -26);
+          ctx.font = "800 10px sans-serif";
+          ctx.fillText("收費牆", 0, -10);
+        } else if (obj.id === "client") {
+          // 客戶半夜改需求鬧鐘氣泡
+          drawClaySphere(0, -22, 21, 20, "#ff9e9e", "#e85346", "#9e241b", true);
+          ctx.fillStyle = "#fff";
+          ctx.font = "900 11px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("改需求!", 0, -18);
+        } else if (obj.id === "bottle") {
+          // 育兒津貼奶瓶
+          ctx.fillStyle = "#fffdf8";
+          roundRect(-11, -34, 22, 28, 8); ctx.fill();
+          ctx.fillStyle = "#6cc4ff";
+          roundRect(-13, -38, 26, 8, 4); ctx.fill();
+          ctx.fillStyle = "#ffd466";
+          ctx.beginPath(); ctx.arc(0, -41, 5, 0, Math.PI * 2); ctx.fill();
+          drawTagPill(0, -54, "育兒奶瓶", "#2b85c9");
+        } else if (obj.id === "shield") {
+          // 小班制神盾
+          drawClaySphere(0, -22, 18, 18, "#aef7ec", "#34a89a", "#17695f", true);
+          ctx.fillStyle = "#fff";
+          ctx.font = "900 14px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("🛡️", 0, -16);
+        } else if (obj.id === "coffee") {
+          // AI 算力咖啡
+          ctx.fillStyle = "#fff8eb";
+          roundRect(-12, -34, 24, 28, 6); ctx.fill();
+          ctx.fillStyle = "#7c4724";
+          roundRect(-14, -39, 28, 8, 4); ctx.fill();
+          ctx.fillStyle = "#4ef2d8";
+          ctx.font = "900 12px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("⚡", 0, -16);
+          drawTagPill(0, -52, "算力咖啡", "#b86b14");
+        } else if (obj.id === "solocorp") {
+          // 免學費一人公司
+          drawClaySphere(0, -22, 19, 19, "#ffe999", "#f9c440", "#b87a0e", true);
+          ctx.fillStyle = "#472905";
+          ctx.font = "900 11px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("1人公司", 0, -18);
+        }
+        ctx.restore();
+      }
+
+      function drawTagPill(x, y, text, bg) {
+        ctx.save();
+        ctx.font = "800 10px sans-serif";
+        const w = ctx.measureText(text).width + 12;
+        ctx.fillStyle = bg;
+        roundRect(x - w / 2, y - 9, w, 16, 8);
+        ctx.fill();
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "center";
+        ctx.fillText(text, x, y + 3);
+        ctx.restore();
+      }
+
+      /* -------------------- 終點金屬立柱與彈性絲滑紅線 -------------------- */
+      function drawFinishRibbon(finishScreenX, pullProgress = 0) {
+        if (finishScreenX > LOGICAL_W + 120 || finishScreenX < -120) return;
+        ctx.save();
+        // 金屬立柱（上與下）
+        const drawPost = (px, py) => {
+          const pg = ctx.createLinearGradient(px - 6, py - 58, px + 6, py);
+          pg.addColorStop(0, "#ffffff");
+          pg.addColorStop(0.5, "#bfc9d4");
+          pg.addColorStop(1, "#6c7885");
+          ctx.fillStyle = pg;
+          roundRect(px - 6, py - 58, 12, 60, 5);
+          ctx.fill();
+          drawClaySphere(px, py - 62, 10, 10, "#fff4b8", "#f9c440", "#b3730d", true);
+        };
+        drawPost(finishScreenX, 304);
+        drawPost(finishScreenX, 480);
+
+        // 彈性紅線（未觸碰時筆直飄動，衝破時拉出大弧度將兩者包在一起）
+        const stretch = pullProgress > 0 ? Math.sin(Math.min(1, pullProgress) * Math.PI) * 140 : Math.sin(worldTime * 5) * 6;
+        ctx.strokeStyle = "#e8322a";
+        ctx.lineWidth = 10;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(finishScreenX, 272);
+        ctx.quadraticCurveTo(finishScreenX + stretch, 376, finishScreenX, 450);
+        ctx.stroke();
+
+        // 紅線絲絨高光
+        ctx.strokeStyle = "rgba(255, 200, 200, 0.55)";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(finishScreenX, 272);
+        ctx.quadraticCurveTo(finishScreenX + stretch - 2, 376, finishScreenX, 450);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      /* -------------------- 聚光燈擁抱大合唱微縮舞台 -------------------- */
+      function drawChorusStage() {
+        drawBackgroundDiorama(cameraX, true);
+        drawDioramaTrack(cameraX);
+
+        // 溫馨劇院聚光燈光束
+        ctx.save();
+        const spot1 = ctx.createLinearGradient(LOGICAL_W * 0.5, 0, LOGICAL_W * 0.5, 470);
+        spot1.addColorStop(0, "rgba(255, 244, 190, 0.42)");
+        spot1.addColorStop(1, "rgba(255, 244, 190, 0.04)");
+        ctx.fillStyle = spot1;
+        ctx.beginPath();
+        ctx.moveTo(LOGICAL_W * 0.5 - 60, 0);
+        ctx.lineTo(LOGICAL_W * 0.5 + 60, 0);
+        ctx.lineTo(LOGICAL_W * 0.5 + 240, 475);
+        ctx.lineTo(LOGICAL_W * 0.5 - 240, 475);
+        ctx.closePath();
+        ctx.fill();
+
+        // 舞台地面暖光圓盤
+        const floorGlow = ctx.createRadialGradient(LOGICAL_W * 0.5, 405, 20, LOGICAL_W * 0.5, 405, 190);
+        floorGlow.addColorStop(0, "rgba(255, 232, 140, 0.55)");
+        floorGlow.addColorStop(1, "rgba(255, 232, 140, 0)");
+        ctx.fillStyle = floorGlow;
+        ctx.beginPath();
+        ctx.ellipse(LOGICAL_W * 0.5, 405, 190, 48, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // 所有小跟班圍成半圓一起搖擺歡呼！
+        const totalKids = 10;
+        for (let i = 0; i < totalKids; i++) {
+          const side = i < 5 ? -1 : 1;
+          const idx = i % 5;
+          const kx = LOGICAL_W * 0.5 + side * (125 + idx * 46);
+          const ky = 408 + Math.sin(idx * 0.9) * 18;
+          const hasGlasses = side === 1; // 右邊是 5% AI 創業墨鏡小跟班
+          drawMiniSidekick(kx, ky, SIDEKICK_TYPES[i % 3], i * 0.7, hasGlasses, 1.15);
+        }
+
+        // 舞台中央：黑熊與石虎緊緊相擁、軟 Q 彈跳！
+        const cx = LOGICAL_W * 0.5;
+        const cy = 406;
+        drawContactShadow(cx, cy + 6, 78, 18, 0.35);
+
+        const singCycle = worldTime * 7.5;
+        // 學霸熊面向右
+        drawScholarBear(cx - 24, cy, singCycle, bear.squash, 0, true);
+        // 創客虎翻轉面向左與黑熊相擁
+        drawMakerCat(cx + 24, cy, singCycle + 0.5, cat.squash, 0, true, true);
+
+        // 纏繞在兩人腰間的愛心紅線緞帶
+        ctx.save();
+        ctx.strokeStyle = "#ff3b30";
+        ctx.lineWidth = 7;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(cx - 52, cy - 26);
+        ctx.quadraticCurveTo(cx, cy - 12, cx + 52, cy - 26);
+        ctx.stroke();
+        // 中央立體紅蝴蝶結
+        drawHeart(cx, cy - 16, 13, "#ff4757", Math.sin(worldTime * 6) * 0.12);
+        ctx.restore();
+
+        // 繪製可點擊的立體亮面音符泡泡
+        for (const b of noteBubbles) {
+          ctx.save();
+          ctx.translate(b.x, b.y);
+          drawClaySphere(0, 0, b.r, b.r, "#ffffff", b.color, "#6b2238", true);
+          ctx.font = `900 ${Math.floor(b.r * 0.95)}px sans-serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(b.symbol, 0, 2);
+          ctx.restore();
+        }
+      }
+
+      /* -------------------- 賽跑進度條（畫布頂端微縮進度軌） -------------------- */
+      function drawProgressBar() {
+        const bx = 180, by = 16, bw = LOGICAL_W - 360, bh = 14;
+        ctx.save();
+        ctx.fillStyle = "rgba(38, 24, 14, 0.52)";
+        roundRect(bx, by, bw, bh, 7);
+        ctx.fill();
+
+        const bProg = Math.min(1, bear.dist / FINISH_DIST);
+        const cProg = Math.min(1, cat.dist / FINISH_DIST);
+
+        ctx.fillStyle = "#ff6b8b";
+        roundRect(bx + 2, by + 2, Math.max(8, (bw - 4) * Math.max(bProg, cProg)), bh - 4, 5);
+        ctx.fill();
+
+        // 終點紅線旗幟
+        ctx.font = "900 16px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("🎀", bx + bw + 14, by + 13);
+        ctx.fillText("🐻", bx + bProg * bw, by + 12);
+        ctx.fillText("🐆", bx + cProg * bw, by + 26);
+        ctx.restore();
+      }
+
+      /* ==========================================================================
+         九、總繪製管線 (Render Loop)
+         ========================================================================== */
+      function render() {
+        ctx.save();
+        ctx.scale(canvas.width / LOGICAL_W, canvas.height / LOGICAL_H);
+
+        if (phase === "chorus" || phase === "result") {
+          drawChorusStage();
+        } else {
+          // 背景與跑道
+          drawBackgroundDiorama(cameraX, false);
+          drawDioramaTrack(cameraX);
+
+          const leadDist = Math.max(bear.dist, cat.dist);
+          const distToScreenX = (d) => 335 + (d - leadDist) * 0.72;
+
+          // 年份立體拱門
+          for (const arch of arches) {
+            drawYearArch(arch, distToScreenX(arch.dist));
+          }
+
+          // 終點紅線
+          const finishX = distToScreenX(FINISH_DIST);
+          const pullProg = phase === "ribbon_pull" ? Math.min(1, ribbonPullTime / 2.2) : 0;
+          drawFinishRibbon(finishX, pullProg);
+
+          // 路障與道具
+          for (const obj of laneObjects) {
+            drawLaneObject(obj, distToScreenX(obj.dist));
+          }
+
+          // 計算雙主角畫面座標（衝破紅線時由紅線彈性拉到中央相擁！）
+          let bearX = phase === "menu" ? 290 : getRacerScreenX(bear);
+          let bearY = 344 - bear.y;
+          let catX = phase === "menu" ? 310 : getRacerScreenX(cat);
+          let catY = 438 - cat.y;
+
+          if (phase === "ribbon_pull") {
+            const ease = 1 - Math.pow(1 - pullProg, 3);
+            bearX = bearX + (LOGICAL_W * 0.5 - 24 - bearX) * ease;
+            bearY = bearY + (402 - bearY) * ease;
+            catX = catX + (LOGICAL_W * 0.5 + 24 - catX) * ease;
+            catY = catY + (402 - catY) * ease;
+          }
+
+          // 繪製黑熊跟班小動物群
+          for (let i = 0; i < bear.followers; i++) {
+            const fx = bearX - 46 - i * 24;
+            const fy = 344 + (i % 2 === 0 ? -5 : 6);
+            drawMiniSidekick(fx, fy, SIDEKICK_TYPES[i % 3], i, false, 0.92);
+          }
+
+          // 繪製學霸熊
+          drawContactShadow(bearX, 348, 28 * (1 - bear.y / 280), 8, 0.3);
+          drawScholarBear(bearX, bearY, bear.runCycle, bear.squash, bear.shieldTimer, phase === "ribbon_pull" && pullProg > 0.65);
+
+          // 繪製石虎跟班小動物群（全部戴酷炫墨鏡！）
+          for (let i = 0; i < cat.followers; i++) {
+            const fx = catX - 46 - i * 24;
+            const fy = 438 + (i % 2 === 0 ? -5 : 6);
+            drawMiniSidekick(fx, fy, SIDEKICK_TYPES[(i + 1) % 3], i + 2, true, 0.92);
+          }
+
+          // 繪製創客虎
+          drawContactShadow(catX, 442, 26 * (1 - cat.y / 280), 8, 0.3);
+          drawMakerCat(catX, catY, cat.runCycle, cat.squash, cat.shieldTimer, phase === "ribbon_pull" && pullProg > 0.65, phase === "ribbon_pull" && pullProg > 0.65);
+
+          // 繪製 5% 跳槽創業拋物線小跟班與搞笑氣泡
+          for (const jd of jumpingDefectors) {
+            const jx = jd.startX + (jd.endX - jd.startX) * jd.t;
+            const jy = jd.startY + (jd.endY - jd.startY) * jd.t - Math.sin(jd.t * Math.PI) * 130;
+            drawMiniSidekick(jx, jy, jd.tpl, jd.t * 10, jd.sunglassesOn, 1.15);
+
+            // 白色對話氣泡
+            ctx.save();
+            ctx.font = "900 13px sans-serif";
+            const tw = ctx.measureText(jd.quote).width + 22;
+            ctx.fillStyle = "#fffef9";
+            ctx.strokeStyle = "#3a2416";
+            ctx.lineWidth = 2.5;
+            roundRect(jx - tw / 2, jy - 54, tw, 26, 12);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = "#c93b2b";
+            ctx.textAlign = "center";
+            ctx.fillText(jd.quote, jx, jy - 36);
+            ctx.restore();
+          }
+
+          // 主角情緒小氣泡
+          [
+            { r: bear, x: bearX, y: bearY - 82 },
+            { r: cat, x: catX, y: catY - 82 }
+          ].forEach(({ r, x, y }) => {
+            if (r.emoteTimer > 0 && r.emoteText) {
+              drawTagPill(x, y, r.emoteText, r === bear ? "#3a2d28" : "#d98218");
+            }
+          });
+
+          if (phase === "racing") drawProgressBar();
+        }
+
+        // 共用前景粒子（灰塵、愛心、彩帶紙花）
+        for (const p of particles) {
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+          if (p.kind === "heart") {
+            drawHeart(p.x, p.y, p.size, p.color, p.rot);
+          } else if (p.kind === "confetti") {
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rot);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.size / 2, -p.size / 3, p.size, p.size * 0.65);
+          } else {
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        // 共用飄浮得分與事件文字
+        for (const ft of floatingTexts) {
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, ft.life / ft.maxLife);
+          ctx.font = "900 18px sans-serif";
+          ctx.textAlign = "center";
+          ctx.lineWidth = 4;
+          ctx.strokeStyle = "#3a2212";
+          ctx.strokeText(ft.text, ft.x, ft.y);
+          ctx.fillStyle = ft.color;
+          ctx.fillText(ft.text, ft.x, ft.y);
+          ctx.restore();
+        }
+
+        ctx.restore();
+      }
+
+      function gameLoop(ts) {
+        if (!lastTime) lastTime = ts;
+        const dt = Math.min(0.05, (ts - lastTime) / 1000);
+        lastTime = ts;
+        update(dt);
+        render();
+        requestAnimationFrame(gameLoop);
+      }
+
+      /* ==========================================================================
+         十、輸入事件綁定（鍵盤、滑鼠點擊、觸控按鈕）
+         ========================================================================== */
+      modeGrid.addEventListener("click", (e) => {
+        const chip = e.target.closest(".mode-chip");
+        if (!chip) return;
+        modeGrid.querySelectorAll(".mode-chip").forEach(c => c.classList.remove("selected"));
+        chip.classList.add("selected");
+        gameMode = chip.dataset.mode;
+        sound.playTone(520, 0.08, "triangle", 0.12);
+        updateControllerVisibility();
+      });
+
+      btnStartRace.addEventListener("click", startRace);
+      btnRaceAgain.addEventListener("click", startRace);
+      btnSingAgain.addEventListener("click", () => startChorusPhase(true));
+
+      btnMenu.addEventListener("click", () => {
+        sound.stopSong();
+        phase = "menu";
+        karaokeBar.classList.remove("active");
+        resultOverlay.classList.add("hidden");
+        menuOverlay.classList.remove("hidden");
+        updateControllerVisibility();
+      });
+
+      btnMute.addEventListener("click", () => {
+        const isMuted = sound.toggleMute();
+        btnMute.textContent = isMuted ? "🔇 靜音中" : "🔊 音效開";
+      });
+
+      // 輔助：實體按鍵視覺下壓回饋
+      function flashBtn(el) {
+        el.classList.add("pressed");
+        setTimeout(() => el.classList.remove("pressed"), 110);
+      }
+
+      btnBearJump.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        if (gameMode !== "p1_cat") triggerJump(bear);
+      });
+      btnBearBoost.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        if (gameMode !== "p1_cat") triggerBoost(bear);
+      });
+      btnCatJump.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        if (gameMode !== "p1_bear") triggerJump(cat);
+      });
+      btnCatBoost.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        if (gameMode !== "p1_bear") triggerBoost(cat);
+      });
+
+      btnChorusTap.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        triggerChorusBeat();
+      });
+
+      // 點擊畫布上的音符泡泡（合唱模式）
+      canvas.addEventListener("pointerdown", (e) => {
+        if (phase !== "chorus") return;
+        const rect = canvas.getBoundingClientRect();
+        const lx = ((e.clientX - rect.left) / rect.width) * LOGICAL_W;
+        const ly = ((e.clientY - rect.top) / rect.height) * LOGICAL_H;
+        triggerChorusBeat(lx, ly);
+      });
+
+      // 鍵盤控制
+      window.addEventListener("keydown", (e) => {
+        if (e.repeat) return;
+        const key = e.key.toLowerCase();
+
+        if (phase === "chorus" && (e.code === "Space" || key === " ")) {
+          e.preventDefault();
+          flashBtn(btnChorusTap);
+          triggerChorusBeat();
+          return;
+        }
+
+        if (phase !== "racing") return;
+
+        // 1P 學霸熊 (W / D)
+        if (gameMode !== "p1_cat") {
+          if (key === "w" || (gameMode === "p1_bear" && (e.code === "Space" || e.key === "ArrowUp"))) {
+            e.preventDefault();
+            flashBtn(btnBearJump);
+            triggerJump(bear);
+          } else if (key === "d" || (gameMode === "p1_bear" && e.key === "ArrowRight")) {
+            e.preventDefault();
+            flashBtn(btnBearBoost);
+            triggerBoost(bear);
+          }
+        }
+
+        // 2P 創客虎 (↑ / →)
+        if (gameMode !== "p1_bear") {
+          if (e.key === "ArrowUp" || (gameMode === "p1_cat" && (key === "w" || e.code === "Space"))) {
+            e.preventDefault();
+            flashBtn(btnCatJump);
+            triggerJump(cat);
+          } else if (e.key === "ArrowRight" || (gameMode === "p1_cat" && key === "d")) {
+            e.preventDefault();
+            flashBtn(btnCatBoost);
+            triggerBoost(cat);
+          }
+        }
+      });
+
+      // 啟動遊戲引擎
+      window.onload = () => {
+        resizeCanvas();
+        updateDashboardUI(false);
+        updateControllerVisibility();
+        requestAnimationFrame(gameLoop);
+      };
+    })();
+  </script>
+</body>
+</html>
