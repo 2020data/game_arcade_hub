@@ -1,0 +1,3656 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>少女上車舞・專屬加油影片生成器（9:16）</title>
+  <style>
+    /* =========================================================
+       夢幻少女系設計變數與全局樣式（零外部依賴）
+       ========================================================= */
+    :root {
+      --bg-cream: #fffaf7;
+      --bg-card: rgba(255, 255, 255, 0.9);
+      --pink-main: #ff7fa3;
+      --pink-deep: #f05a89;
+      --pink-soft: #ffe6ee;
+      --lavender: #b993ff;
+      --lavender-soft: #f2ebff;
+      --gold: #f0b954;
+      --gold-soft: #fff4d8;
+      --text-main: #4b3343;
+      --text-sub: #84687a;
+      --border-soft: rgba(255, 145, 178, 0.28);
+      --shadow-dream: 0 12px 32px rgba(240, 120, 160, 0.14);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --font-cute: "Hiragino Maru Gothic ProN", "PingFang TC", "Microsoft JhengHei", "Rounded Mplus 1c", system-ui, -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      font-family: var(--font-cute);
+      color: var(--text-main);
+      background:
+        radial-gradient(circle at 12% 10%, #ffe3ee 0%, transparent 38%),
+        radial-gradient(circle at 88% 12%, #ede3ff 0%, transparent 40%),
+        radial-gradient(circle at 50% 95%, #fff0d6 0%, transparent 45%),
+        var(--bg-cream);
+      overflow-x: hidden;
+    }
+
+    /* 頂部標題列 */
+    .app-header {
+      max-width: 1260px;
+      margin: 0 auto;
+      padding: 18px 20px 10px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-badge {
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #ff8ab0, #c89bff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 8px 18px rgba(255, 127, 163, 0.35);
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(1.12rem, 2.3vw, 1.48rem);
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      background: linear-gradient(90deg, #e74c83, #9b6dff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand p {
+      margin: 3px 0 0;
+      font-size: 0.82rem;
+      color: var(--text-sub);
+    }
+
+    .header-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill-tag {
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid var(--border-soft);
+      color: var(--pink-deep);
+      box-shadow: 0 4px 12px rgba(255, 145, 178, 0.1);
+    }
+
+    /* 主雙欄版面 */
+    .main-layout {
+      max-width: 1260px;
+      margin: 0 auto;
+      padding: 10px 18px 40px;
+      display: grid;
+      grid-template-columns: minmax(300px, 410px) minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+    }
+
+    /* =========================================================
+       左側（手機版上方）：9:16 夢幻舞台預覽區
+       ========================================================= */
+    .stage-column {
+      position: sticky;
+      top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    @media (max-width: 960px) {
+      .stage-column {
+        position: static;
+        max-width: 420px;
+        width: 100%;
+        margin: 0 auto;
+      }
+    }
+
+    .stage-card {
+      background: var(--bg-card);
+      border: 1.5px solid rgba(255, 175, 200, 0.45);
+      border-radius: var(--radius-xl);
+      padding: 14px;
+      box-shadow: var(--shadow-dream);
+      backdrop-filter: blur(12px);
+    }
+
+    .canvas-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 9 / 16;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #2b1d2e;
+      box-shadow: 0 10px 26px rgba(176, 98, 145, 0.24);
+      border: 2px solid rgba(255, 255, 255, 0.9);
+    }
+
+    #stageCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .rec-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(235, 52, 92, 0.92);
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 6px 12px;
+      border-radius: 999px;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(235, 52, 92, 0.45);
+      z-index: 5;
+    }
+
+    .rec-badge.active {
+      display: inline-flex;
+    }
+
+    .rec-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #fff;
+      animation: pulseDot 0.8s infinite alternate;
+    }
+
+    @keyframes pulseDot {
+      from { opacity: 1; transform: scale(1); }
+      to { opacity: 0.35; transform: scale(0.75); }
+    }
+
+    /* 播放控制列 */
+    .player-controls {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-sub);
+    }
+
+    .progress-slider {
+      flex: 1;
+      appearance: none;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #ffd6e5, #e6d7ff);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .progress-slider::-webkit-slider-thumb {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff709e, #a579ff);
+      border: 2.5px solid #fff;
+      box-shadow: 0 2px 8px rgba(240, 90, 137, 0.45);
+      cursor: pointer;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-family: inherit;
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
+      min-height: 42px;
+      user-select: none;
+    }
+
+    .btn:active {
+      transform: scale(0.96);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ff78a5, #ff99b8);
+      color: #fff;
+      box-shadow: 0 6px 16px rgba(255, 120, 165, 0.34);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.04);
+    }
+
+    .btn-record {
+      width: 100%;
+      background: linear-gradient(135deg, #ff5d94, #a970ff 55%, #f2b84b);
+      color: #fff;
+      font-size: 0.96rem;
+      padding: 13px 16px;
+      border-radius: 16px;
+      box-shadow: 0 10px 22px rgba(235, 95, 155, 0.35);
+    }
+
+    .btn-record:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+
+    .btn-record:disabled {
+      opacity: 0.68;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-soft {
+      background: var(--pink-soft);
+      color: var(--pink-deep);
+    }
+
+    .btn-soft:hover {
+      background: #ffd8e6;
+    }
+
+    .btn-lavender {
+      background: var(--lavender-soft);
+      color: #6b43c4;
+    }
+
+    .btn-lavender:hover {
+      background: #e6daff;
+    }
+
+    .btn-gold {
+      background: var(--gold-soft);
+      color: #9e6b14;
+    }
+
+    .btn-outline {
+      background: #fff;
+      color: var(--text-main);
+      border: 1.5px solid var(--border-soft);
+    }
+
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      min-height: 32px;
+      border-radius: 10px;
+    }
+
+    .btn-icon {
+      padding: 8px 11px;
+      min-width: 42px;
+    }
+
+    /* 錄製進度與匯出預覽卡片 */
+    .export-box {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #fff4f8, #f7f1ff);
+      border: 1.5px dashed rgba(255, 127, 163, 0.55);
+    }
+
+    .export-box.visible {
+      display: block;
+    }
+
+    .export-bar-bg {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.9);
+      overflow: hidden;
+      margin: 8px 0;
+    }
+
+    .export-bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #ff6d9f, #b17bff, #f5be58);
+      transition: width 0.12s linear;
+    }
+
+    .exported-video {
+      width: 100%;
+      max-height: 360px;
+      border-radius: 14px;
+      background: #1c1220;
+      margin: 8px 0;
+      display: none;
+    }
+
+    /* =========================================================
+       右側（手機版下方）：設定與腳本收集操作面板
+       ========================================================= */
+    .panel-column {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .panel-card {
+      background: var(--bg-card);
+      border: 1.5px solid rgba(255, 175, 200, 0.36);
+      border-radius: var(--radius-xl);
+      padding: 18px 20px;
+      box-shadow: var(--shadow-dream);
+      backdrop-filter: blur(10px);
+    }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 1.04rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-main);
+    }
+
+    .card-sub {
+      font-size: 0.78rem;
+      color: var(--text-sub);
+    }
+
+    /* 原曲參考區 */
+    .yt-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: linear-gradient(135deg, #fff0f5, #f8f2ff);
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 155, 185, 0.32);
+    }
+
+    .yt-link-text {
+      font-size: 0.82rem;
+      color: var(--text-sub);
+      word-break: break-all;
+    }
+
+    .yt-link-text a {
+      color: var(--pink-deep);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .yt-link-text a:hover {
+      text-decoration: underline;
+    }
+
+    .yt-embed-wrap {
+      margin-top: 12px;
+      display: none;
+      border-radius: 14px;
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+      background: #1b1220;
+      border: 2px solid #fff;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    }
+
+    .yt-embed-wrap.open {
+      display: block;
+    }
+
+    .yt-embed-wrap iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    /* 表單欄位 */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 12px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-sub);
+    }
+
+    .input, .select, .textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(255, 155, 185, 0.42);
+      background: #fff;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .input:focus, .select:focus, .textarea:focus {
+      border-color: var(--pink-main);
+      box-shadow: 0 0 0 3px rgba(255, 127, 163, 0.18);
+    }
+
+    /* 主題色系選擇按鈕 */
+    .theme-pills {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 520px) {
+      .theme-pills {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .theme-btn {
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      transition: all 0.16s ease;
+    }
+
+    .theme-btn.active {
+      border-color: var(--pink-deep);
+      background: #fff3f7;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(255, 120, 165, 0.22);
+    }
+
+    .swatch {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    /* 腳本收集卡片網格 */
+    .script-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    .script-card {
+      position: relative;
+      padding: 12px 13px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1.8px solid rgba(255, 175, 200, 0.32);
+      cursor: pointer;
+      transition: all 0.16s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .script-card:hover {
+      border-color: var(--pink-main);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(255, 127, 163, 0.14);
+    }
+
+    .script-card.selected {
+      background: linear-gradient(135deg, #fff2f7, #f6f0ff);
+      border-color: var(--pink-deep);
+      box-shadow: 0 8px 20px rgba(240, 90, 137, 0.18);
+    }
+
+    .script-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .script-name {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .script-check {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid #e7b8c9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .script-card.selected .script-check {
+      background: linear-gradient(135deg, #ff6c9e, #a577ff);
+      border-color: transparent;
+    }
+
+    .script-desc {
+      font-size: 0.76rem;
+      color: var(--text-sub);
+      line-height: 1.45;
+    }
+
+    .script-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+      padding-top: 4px;
+      font-size: 0.72rem;
+      color: #9e7d92;
+    }
+
+    /* 已串聯接合清單 */
+    .sequence-box {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #fff7fa, #f7f3ff);
+      border: 1.5px solid rgba(185, 147, 255, 0.35);
+    }
+
+    .sequence-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .seq-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: #fff;
+      padding: 9px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 165, 195, 0.35);
+      box-shadow: 0 3px 8px rgba(180, 120, 160, 0.08);
+    }
+
+    .seq-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .seq-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #ff82ab, #b88cff);
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .seq-title {
+      font-size: 0.86rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .seq-actions {
+      display: flex;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    /* 自訂腳本折疊區 */
+    .custom-drawer {
+      display: none;
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1.5px dashed rgba(255, 127, 163, 0.55);
+    }
+
+    .custom-drawer.open {
+      display: block;
+    }
+
+    .lines-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .line-input-row {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .beat-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--pink-deep);
+      background: var(--pink-soft);
+      padding: 6px 8px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    /* 分享按鈕列 */
+    .share-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 520px) {
+      .share-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* 配樂與語音控制台樣式 */
+    .bgm-mode-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .bgm-mode-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .mode-btn {
+      padding: 10px 10px;
+      border-radius: 14px;
+      border: 1.8px solid rgba(255, 160, 190, 0.38);
+      background: #fff;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      text-align: center;
+      transition: all 0.16s ease;
+    }
+
+    .mode-btn span.sub {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-sub);
+    }
+
+    .mode-btn.active {
+      background: linear-gradient(135deg, #fff0f6, #f3ebff);
+      border-color: var(--pink-deep);
+      color: var(--pink-deep);
+      box-shadow: 0 6px 14px rgba(240, 90, 137, 0.18);
+    }
+
+    .upload-audio-box {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #fff7e6, #fff0f6);
+      border: 1.5px dashed rgba(240, 145, 178, 0.65);
+      margin-bottom: 12px;
+    }
+
+    .upload-file-label {
+      font-size: 0.78rem;
+      color: var(--text-sub);
+      word-break: break-all;
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .upload-file-label strong {
+      color: var(--pink-deep);
+    }
+
+    .vol-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-sub);
+    }
+
+    .voice-style-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 520px) {
+      .voice-style-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .mic-option-box {
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255, 245, 250, 0.9);
+      border: 1px solid rgba(255, 145, 178, 0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .mic-check-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .mic-check-label input {
+      width: 17px;
+      height: 17px;
+      accent-color: var(--pink-deep);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .mic-tip {
+      font-size: 0.72rem;
+      color: var(--text-sub);
+      line-height: 1.45;
+      margin: 0;
+    }
+
+    /* Toast 提示訊息（取代 alert） */
+    .toast-container {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+      width: min(92vw, 420px);
+    }
+
+    .toast {
+      background: rgba(65, 38, 58, 0.94);
+      color: #fff;
+      padding: 11px 16px;
+      border-radius: 14px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      text-align: center;
+      box-shadow: 0 10px 24px rgba(55, 25, 45, 0.28);
+      animation: toastIn 0.25s ease;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <!-- 頂部品牌列 -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-badge">🎀</div>
+      <div>
+        <h1>少女上車舞・專屬加油影片生成器</h1>
+        <p>輸入名字 × 收集串聯多段上車劇情 × 生成 9:16 可愛動容應援影片</p>
+      </div>
+    </div>
+    <div class="header-pills">
+      <span class="pill-tag">📱 9:16 直式高畫質</span>
+      <span class="pill-tag">🎧 132 BPM 電音 DJ × 可愛語音</span>
+      <span class="pill-tag">🌸 5 位日系少女 + 黃帽彩蛋</span>
+    </div>
+  </header>
+
+  <!-- 主雙欄內容 -->
+  <main class="main-layout">
+    <!-- 左側（手機上方）：9:16 應援舞台預覽與影片錄製 -->
+    <section class="stage-column">
+      <div class="stage-card">
+        <div class="canvas-frame">
+          <canvas id="stageCanvas" width="720" height="1280"></canvas>
+          <div id="recBadge" class="rec-badge">
+            <span class="rec-dot"></span>
+            <span id="recBadgeText">錄製中 0%</span>
+          </div>
+        </div>
+
+        <div class="player-controls">
+          <div class="progress-wrap">
+            <span id="timeCurrent">00:00</span>
+            <input id="progressSlider" class="progress-slider" type="range" min="0" max="1000" value="0" />
+            <span id="timeTotal">00:00</span>
+          </div>
+
+          <div class="btn-row">
+            <button id="btnPlay" class="btn btn-primary" style="flex:1;">▶ 播放預覽</button>
+            <button id="btnRestart" class="btn btn-soft btn-icon" title="從頭播放">↺</button>
+            <button id="btnMute" class="btn btn-lavender btn-icon" title="開關應援配樂">🔊</button>
+            <button id="btnTTS" class="btn btn-soft btn-sm" title="開關中文語音唸出應援台詞">🗣 語音：開</button>
+          </div>
+
+          <div class="btn-row">
+            <button id="btnQuickBgm" class="btn btn-outline btn-sm" style="flex:1;">🔥 配樂：上車電音 DJ 版</button>
+            <button id="btnQuickTestVoice" class="btn btn-gold btn-sm">🔊 試聽語音</button>
+          </div>
+
+          <button id="btnRecord" class="btn btn-record">🎬 生成 9:16 加油影片（含配樂下載）</button>
+
+          <div class="mic-option-box">
+            <label class="mic-check-label">
+              <input id="chkRecordMic" type="checkbox" />
+              <span>🎙 錄影時開啟麥克風收音（可把擴音語音或自己配音一起錄進影片）</span>
+            </label>
+            <p class="mic-tip">💡 提醒：受限於瀏覽器隱私安全機制，系統語音無法直接寫入影片音軌；勾選此項並開大喇叭（或使用螢幕錄影），就能將「配樂＋可愛語音」一起錄進 9:16 影片！</p>
+          </div>
+
+          <!-- 錄製進度與匯出結果區 -->
+          <div id="exportBox" class="export-box">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+              <strong id="exportStatus" style="font-size:0.86rem;color:var(--pink-deep);">正在為你錄製專屬 9:16 加油影片…</strong>
+              <button id="btnCancelRec" class="btn btn-outline btn-sm">取消</button>
+            </div>
+            <div class="export-bar-bg">
+              <div id="exportBarFill" class="export-bar-fill"></div>
+            </div>
+            <video id="exportedVideo" class="exported-video" controls playsinline></video>
+            <div id="exportActions" style="display:none;gap:8px;flex-wrap:wrap;margin-top:8px;">
+              <a id="btnDownloadVideo" class="btn btn-primary" style="flex:1;text-decoration:none;" download="cheer_video.webm">⬇ 下載 9:16 影片分享</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 右側（手機下方）：原曲參考、主角設定、腳本收集串聯與分享 -->
+    <section class="panel-column">
+      <!-- 0. 配樂與語音控制台（新增） -->
+      <div class="panel-card">
+        <div class="card-head">
+          <h2 class="card-title">🎵 配樂與語音控制台</h2>
+          <span class="card-sub">內建 132 BPM 電音 DJ 節奏、原曲匯入與可愛中文語音</span>
+        </div>
+
+        <div class="bgm-mode-grid" id="bgmModeGrid">
+          <button class="mode-btn active" data-bgm="dj">
+            <span>🔥 上車電音 DJ 版</span>
+            <span class="sub">132 BPM 氣笛＋重拍</span>
+          </button>
+          <button class="mode-btn" data-bgm="idol">
+            <span>🌸 甜美少女偶像版</span>
+            <span class="sub">126 BPM 柔和王道和弦</span>
+          </button>
+          <button class="mode-btn" data-bgm="custom">
+            <span>📂 我的原曲檔</span>
+            <span class="sub">MP4 / MP3 / WAV</span>
+          </button>
+        </div>
+
+        <div class="upload-audio-box">
+          <div class="upload-file-label" id="customAudioStatus">
+            可直接匯入你提供的電音影片或音檔當作背景配樂（支援同步錄製進 9:16 影片）
+          </div>
+          <label for="inputAudioFile" class="btn btn-primary btn-sm" style="cursor:pointer;">📂 匯入這支影片／音檔當配樂</label>
+          <input id="inputAudioFile" type="file" accept="audio/*,video/*" style="display:none;" />
+        </div>
+
+        <div class="vol-row">
+          <span>🎚 配樂音量</span>
+          <input id="bgmVolumeSlider" class="progress-slider" type="range" min="0" max="100" value="80" />
+          <span id="bgmVolumeVal" style="min-width:36px;text-align:right;">80%</span>
+        </div>
+
+        <hr style="border:none;border-top:1px dashed rgba(255,155,185,0.35);margin:12px 0;" />
+
+        <div class="card-head" style="margin-bottom:10px;">
+          <strong style="font-size:0.9rem;color:var(--pink-deep);">🗣 可愛中文語音朗讀（說話時自動壓低配樂）</strong>
+          <button id="btnTestVoice" class="btn btn-gold btn-sm">🔊 試聽語音</button>
+        </div>
+
+        <div class="voice-style-row" id="voiceStyleRow">
+          <button class="mode-btn active" data-vstyle="cute">
+            <span>🎀 可愛少女</span>
+            <span class="sub">高音活力甜美</span>
+          </button>
+          <button class="mode-btn" data-vstyle="mc">
+            <span>⚡ 電音 MC</span>
+            <span class="sub">快節奏熱血帶動</span>
+          </button>
+          <button class="mode-btn" data-vstyle="soft">
+            <span>🧸 溫柔暖心</span>
+            <span class="sub">輕柔動容撫慰</span>
+          </button>
+        </div>
+
+        <div class="field">
+          <label for="selectVoice">選擇系統中文語音（自動挑選最適合的女聲）</label>
+          <select id="selectVoice" class="select">
+            <option value="">自動選擇最佳中文女聲</option>
+          </select>
+        </div>
+
+        <!-- 隱藏原曲音軌播放器 -->
+        <audio id="customAudioEl" loop playsinline crossorigin="anonymous" style="display:none;"></audio>
+      </div>
+
+      <!-- 1. 原曲參考區 -->
+      <div class="panel-card">
+        <div class="card-head">
+          <h2 class="card-title">🎬 原曲節奏參考</h2>
+          <span class="card-sub">《上車舞 - 各位寶寶，上課囉》靈感結構</span>
+        </div>
+        <div class="yt-bar">
+          <div class="yt-link-text">
+            原影片網址：<br />
+            <a href="https://www.youtube.com/watch?v=6dX6bJiQpig" target="_blank" rel="noopener noreferrer">
+              https://www.youtube.com/watch?v=6dX6bJiQpig
+            </a>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button id="btnToggleYT" class="btn btn-soft btn-sm">📺 展開內嵌預覽</button>
+            <a href="https://www.youtube.com/watch?v=6dX6bJiQpig" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="text-decoration:none;">↗ 外部開啟</a>
+          </div>
+        </div>
+        <div id="ytEmbedWrap" class="yt-embed-wrap"></div>
+      </div>
+
+      <!-- 2. 主角名字與舞台設定 -->
+      <div class="panel-card">
+        <div class="card-head">
+          <h2 class="card-title">💖 主角名字與專屬舞台</h2>
+          <span class="card-sub">即時套用至所有上車劇情與結尾加油卡</span>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="inputName">加油對象名字</label>
+            <input id="inputName" class="input" type="text" maxlength="12" value="小美" placeholder="例如：小美、阿明、心怡" />
+          </div>
+          <div class="field">
+            <label for="selectSuffix">可愛稱呼後綴</label>
+            <select id="selectSuffix" class="select">
+              <option value="寶寶">寶寶（例：小美寶寶）</option>
+              <option value="小可愛">小可愛（例：小美小可愛）</option>
+              <option value="大明星">大明星（例：小美大明星）</option>
+              <option value="">無（只顯示名字）</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="inputSender">加油者署名（結尾卡片）</label>
+            <input id="inputSender" class="input" type="text" maxlength="18" value="最挺你的好朋友" placeholder="例如：永遠挺你的小夥伴" />
+          </div>
+        </div>
+
+        <div class="theme-pills" id="themePills">
+          <button class="theme-btn active" data-theme="sakura">
+            <span class="swatch" style="background:linear-gradient(135deg,#ff8cb0,#ffd6e5);"></span>
+            🌸 粉櫻甜心
+          </button>
+          <button class="theme-btn" data-theme="lavender">
+            <span class="swatch" style="background:linear-gradient(135deg,#9f7bff,#e4d4ff);"></span>
+            ✨ 星光薰衣草
+          </button>
+          <button class="theme-btn" data-theme="peach">
+            <span class="swatch" style="background:linear-gradient(135deg,#ff9c70,#ffe2b5);"></span>
+            🍑 暖陽蜜桃
+          </button>
+        </div>
+      </div>
+
+      <!-- 3. 上車劇情腳本收集與串聯接合器 -->
+      <div class="panel-card">
+        <div class="card-head">
+          <div>
+            <h2 class="card-title">🚃 上車劇情腳本收集與串聯</h2>
+            <span class="card-sub">點選多段劇情卡片，將不同主題無縫接合成完整加油影片</span>
+          </div>
+          <button id="btnToggleCustom" class="btn btn-gold btn-sm">＋ 自訂新上車腳本</button>
+        </div>
+
+        <!-- 6 套內建 + 自訂腳本卡片 -->
+        <div id="scriptGrid" class="script-grid"></div>
+
+        <!-- 自訂腳本表單 -->
+        <div id="customDrawer" class="custom-drawer">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <strong style="font-size:0.92rem;color:var(--pink-deep);">✨ 收集我的專屬上車腳本（可使用 {name} 代入名字）</strong>
+            <button id="btnCloseCustom" class="btn btn-outline btn-sm">收合</button>
+          </div>
+          <div class="form-grid">
+            <div class="field">
+              <label for="customTitle">腳本名稱</label>
+              <input id="customTitle" class="input" type="text" maxlength="18" placeholder="例：減肥運動上車" />
+            </div>
+            <div class="field">
+              <label for="customEmoji">主題圖示 Emoji</label>
+              <input id="customEmoji" class="input" type="text" maxlength="4" value="🎀" />
+            </div>
+            <div class="field">
+              <label for="customMood">舞台氛圍</label>
+              <select id="customMood" class="select">
+                <option value="cheer">元氣歡樂（閃亮應援）</option>
+                <option value="comfort">暖心動容（淚光抱抱）</option>
+                <option value="party">派對慶祝（彩帶皇冠）</option>
+              </select>
+            </div>
+          </div>
+          <div class="lines-grid" id="customLinesGrid">
+            <div class="line-input-row"><span class="beat-label">1. 呼叫上車</span><input class="input custom-line" data-idx="0" value="來囉！我們來接 {name} 上車囉！" /></div>
+            <div class="line-input-row"><span class="beat-label">2. 來囉彩蛋</span><input class="input custom-line" data-idx="1" value="來囉來囉～黃帽小夥伴也來接你啦！" /></div>
+            <div class="line-input-row"><span class="beat-label">3. 快快動作</span><input class="input custom-line" data-idx="2" value="快快快，深呼吸把煩惱都甩掉！" /></div>
+            <div class="line-input-row"><span class="beat-label">4. 戴上皇冠</span><input class="input custom-line" data-idx="3" value="皇冠戴上！今天的主角就是 {name}！" /></div>
+            <div class="line-input-row"><span class="beat-label">5. 哇塞超棒</span><input class="input custom-line" data-idx="4" value="哇塞！{name} 真的太厲害太優秀啦！" /></div>
+            <div class="line-input-row"><span class="beat-label">6. 閃閃發光</span><input class="input custom-line" data-idx="5" value="閃閃發光惹人愛，全世界都在替你加油！" /></div>
+            <div class="line-input-row"><span class="beat-label">7. 掰掰下車</span><input class="input custom-line" data-idx="6" value="平安到達幸福站，{name} 掰掰下車囉！" /></div>
+          </div>
+          <div style="margin-top:12px;display:flex;justify-content:flex-end;gap:8px;">
+            <button id="btnSaveCustom" class="btn btn-primary">💾 儲存並加入串聯</button>
+          </div>
+        </div>
+
+        <!-- 已串聯順序管理 -->
+        <div class="sequence-box">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+            <strong style="font-size:0.88rem;color:#5c3a82;">🎞 已串聯的影片劇情順序（<span id="seqCount">0</span> 段・總長 <span id="seqDuration">0</span> 秒）</strong>
+            <span style="font-size:0.75rem;color:var(--text-sub);">自動接上結尾專屬加油卡片</span>
+          </div>
+          <div id="sequenceList" class="sequence-list"></div>
+        </div>
+      </div>
+
+      <!-- 4. 快速分享工具 -->
+      <div class="panel-card">
+        <div class="card-head">
+          <h2 class="card-title">💌 分享給親友加油</h2>
+          <span class="card-sub">搭配下載好的 9:16 影片傳到 LINE / IG Reels / Shorts</span>
+        </div>
+        <div class="share-grid">
+          <button id="btnCopyText" class="btn btn-soft">💌 複製專屬加油分享文案</button>
+          <button id="btnCopyLink" class="btn btn-lavender">🔗 複製帶參數分享連結</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast 容器 -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script>
+    /* =========================================================================
+       少女上車舞・專屬加油影片生成器（9:16）核心腳本
+       ========================================================================= */
+    (function () {
+      "use strict";
+
+      // -----------------------------------------------------------------------
+      // 1. 內建 6 套上車劇情腳本與配色主題
+      // -----------------------------------------------------------------------
+      const BEAT_ACTIONS = ["call", "cameo", "hurry", "crown", "wow", "shine", "bye"];
+      const TRANSITION_DURATION = 1.15; // 多段腳本之間的轉場秒數
+      const OUTRO_DURATION = 3.8; // 結尾專屬加油卡片秒數
+      const STORAGE_KEY = "shoujo_shangche_custom_scripts_v1";
+
+      const VOICE_PRESETS = {
+        cute: { label: "可愛少女", rate: 1.16, pitch: 1.38 },
+        mc:   { label: "電音 MC",  rate: 1.30, pitch: 1.18 },
+        soft: { label: "溫柔暖心", rate: 0.98, pitch: 1.12 }
+      };
+
+      function getActiveBPM() {
+        return state.bgmMode === "idol" ? 126 : 132;
+      }
+
+      const THEMES = {
+        sakura: {
+          name: "粉櫻甜心",
+          bgTop: "#2c1330",
+          bgMid: "#6b285c",
+          bgBottom: "#ff9bc0",
+          floorTop: "#4f1e47",
+          floorGlow: "#ff7fb3",
+          accent: "#ff6ea1",
+          accent2: "#ffd166",
+          particleColors: ["#ffb7d5", "#ffe4f0", "#fff3b0", "#e2baff"],
+          ringColor: "#ff85b3"
+        },
+        lavender: {
+          name: "星光薰衣草",
+          bgTop: "#1a1336",
+          bgMid: "#493185",
+          bgBottom: "#b695ff",
+          floorTop: "#31215c",
+          floorGlow: "#b48aff",
+          accent: "#a978ff",
+          accent2: "#ffd97d",
+          particleColors: ["#d8c2ff", "#ffe0f5", "#fff2a6", "#a8e6ff"],
+          ringColor: "#c29dff"
+        },
+        peach: {
+          name: "暖陽蜜桃",
+          bgTop: "#331722",
+          bgMid: "#873a4c",
+          bgBottom: "#ffb28a",
+          floorTop: "#5c2734",
+          floorGlow: "#ff9a76",
+          accent: "#ff7e67",
+          accent2: "#ffe07d",
+          particleColors: ["#ffd2b3", "#ffe8d6", "#fff1a8", "#ffb3c6"],
+          ringColor: "#ffa07a"
+        }
+      };
+
+      const BUILTIN_SCRIPTS = [
+        {
+          id: "cheer",
+          emoji: "🌟",
+          title: "元氣加油上車",
+          desc: "萬用鼓勵打氣，瞬間補滿元氣與微笑！",
+          mood: "cheer",
+          badgeColor: "#ff6ea1",
+          lines: [
+            "各位注意！我們來接 {name} 上車囉！",
+            "來囉來囉～小可愛專車準時出發！",
+            "快快快，伸個懶腰把壓力都丟掉！",
+            "閃亮小皇冠戴上，{name} 你最耀眼！",
+            "哇塞！每天努力的 {name} 超級棒！",
+            "閃閃發光惹人愛，好運全都向你飛來！",
+            "滿電出發！{name} 加油，掰掰下車囉！"
+          ]
+        },
+        {
+          id: "exam",
+          emoji: "📚",
+          title: "考試／面試歐趴上車",
+          desc: "金榜題名、面試錄取必勝應援專車！",
+          mood: "cheer",
+          badgeColor: "#8f6eff",
+          lines: [
+            "必勝專車！來接 {name} 歐趴上車囉！",
+            "來囉來囉～考神跟好運都一起上車！",
+            "快快快，把會寫的題目全都吸進腦袋！",
+            "學霸金皇冠戴上，{name} 穩穩過關！",
+            "哇塞！準備這麼久的 {name} 一定贏！",
+            "閃閃發光超自信，面試考試通通高分！",
+            "直達錄取站！{name} 必勝，掰掰下車囉！"
+          ]
+        },
+        {
+          id: "work",
+          emoji: "💼",
+          title: "職場加薪下班上車",
+          desc: "上班族舒壓必備，準時下班財源滾滾！",
+          mood: "party",
+          badgeColor: "#f29d38",
+          lines: [
+            "下班專車！來接 {name} 逃離加班囉！",
+            "來囉來囉～薪水翻倍好運馬上到！",
+            "快快快，打卡收包包把煩人需求甩開！",
+            "職場女王皇冠戴上，{name} 辛苦啦！",
+            "哇塞！{name} 撐過這週真的太強了！",
+            "閃閃發光惹人愛，升職加薪又準時下班！",
+            "直達放假站！{name} 好好休息，掰掰下車囉！"
+          ]
+        },
+        {
+          id: "comfort",
+          emoji: "🧸",
+          title: "委屈抱抱安慰上車",
+          desc: "暖心動容淚光特效，給疲憊的你一個大擁抱。",
+          mood: "comfort",
+          badgeColor: "#ec6fa5",
+          lines: [
+            "暖暖專車來囉，輕輕接 {name} 上車休息…",
+            "來囉來囉～不開心也沒關係，我們陪你！",
+            "快快快，把委屈跟眼淚交給我們保管！",
+            "溫柔小皇冠戴上，{name} 你已經很棒了！",
+            "哇塞…能撐到現在的 {name} 真的好勇敢！",
+            "你永遠閃閃發光惹人愛，值得被溫柔對待！",
+            "隨時都在你身邊，{name} 抱抱，慢慢下車囉！"
+          ]
+        },
+        {
+          id: "birthday",
+          emoji: "🎂",
+          title: "生日主角皇冠上車",
+          desc: "華麗派對慶祝，今天全世界都為你閃耀！",
+          mood: "party",
+          badgeColor: "#ff6b8b",
+          lines: [
+            "生日派對！來接壽星 {name} 上車囉！",
+            "來囉來囉～蛋糕煙火通通準備好啦！",
+            "快快快，閉上眼睛許下最甜的心願！",
+            "壽星大皇冠戴上，今天 {name} 最大！",
+            "哇塞！{name} 來到這世界真是太好了！",
+            "閃閃發光惹人愛，新的一歲天天都開心！",
+            "生日快樂！{name} 永遠幸福，掰掰下車囉！"
+          ]
+        },
+        {
+          id: "school",
+          emoji: "🏫",
+          title: "原版校園上課彩蛋",
+          desc: "致敬原影片《各位寶寶，上課囉》趣味互動感！",
+          mood: "cheer",
+          badgeColor: "#4fb4e8",
+          lines: [
+            "各位寶寶上課囉！我們來接 {name} 啦！",
+            "來囉來囉～黃帽同學已經衝到門口啦！",
+            "快快快，書包背好快動作不要遲到！",
+            "模範生小皇冠戴上，{name} 坐第一排！",
+            "哇塞！{name} 今天也太可愛太有精神！",
+            "閃閃發光惹人愛，老師同學都為你拍拍手！",
+            "叮噹叮噹下課啦！{name} 掰掰下車囉！"
+          ]
+        }
+      ];
+
+      // 5 位日系少女偶像設定
+      const IDOLS = [
+        { name: "Momo", x: 112, y: 805, scale: 0.78, hair: "#ff9b7a", hairStyle: "sidepony", dress: "#ffb399", accent: "#fff0b3", eye: "#c94c5b", phase: 0.4 },
+        { name: "Hina", x: 228, y: 840, scale: 0.88, hair: "#f6c86e", hairStyle: "bob", dress: "#ffe08a", accent: "#ff8ab5", eye: "#a66321", phase: 0.2 },
+        { name: "Sakura", x: 360, y: 868, scale: 1.0, hair: "#ff78a8", hairStyle: "twintail", dress: "#ff85b3", accent: "#fff4c2", eye: "#d93b7a", phase: 0.0 },
+        { name: "Yuki", x: 492, y: 840, scale: 0.88, hair: "#b68cff", hairStyle: "long", dress: "#c6a6ff", accent: "#ffe3f0", eye: "#6b43c4", phase: 0.2 },
+        { name: "Sora", x: 608, y: 805, scale: 0.78, hair: "#7cc8ff", hairStyle: "buns", dress: "#96d7ff", accent: "#ffd4e5", eye: "#2f78b8", phase: 0.4 }
+      ];
+
+      // -----------------------------------------------------------------------
+      // 2. 應用程式狀態
+      // -----------------------------------------------------------------------
+      let customScripts = loadCustomScripts();
+      const state = {
+        targetName: "小美",
+        suffix: "寶寶",
+        sender: "最挺你的好朋友",
+        theme: "sakura",
+        selectedIds: ["cheer", "comfort"],
+        bgmMode: "dj", // "dj" | "idol" | "custom"
+        bgmVolume: 0.8,
+        customAudioUrl: null,
+        customAudioName: "",
+        voiceStyle: "cute", // "cute" | "mc" | "soft"
+        selectedVoiceURI: "",
+        isPlaying: false,
+        isRecording: false,
+        isMuted: false,
+        ttsEnabled: true, // 預設開啟可愛中文語音！
+        currentTime: 0,
+        lastFrameTime: 0,
+        lastSpokenSegmentIdx: -1,
+        lastTransitionIdx: -1
+      };
+
+      let timeline = []; // 展開後的時間軸片段
+      let totalDuration = 0;
+
+      // 粒子系統（櫻花與星塵）
+      const particles = Array.from({ length: 48 }, (_, i) => ({
+        x: Math.random() * 720,
+        y: Math.random() * 1280,
+        size: 6 + Math.random() * 11,
+        speedY: 22 + Math.random() * 44,
+        speedX: -14 + Math.random() * 28,
+        rot: Math.random() * Math.PI * 2,
+        rotSpeed: -1.5 + Math.random() * 3,
+        type: i % 3 === 0 ? "star" : i % 3 === 1 ? "petal" : "heart",
+        colorIdx: i % 4,
+        phase: Math.random() * Math.PI * 2
+      }));
+
+      // -----------------------------------------------------------------------
+      // 3. DOM 元素參照
+      // -----------------------------------------------------------------------
+      const canvas = document.getElementById("stageCanvas");
+      const ctx = canvas.getContext("2d");
+      const btnPlay = document.getElementById("btnPlay");
+      const btnRestart = document.getElementById("btnRestart");
+      const btnMute = document.getElementById("btnMute");
+      const btnTTS = document.getElementById("btnTTS");
+      const btnQuickBgm = document.getElementById("btnQuickBgm");
+      const btnQuickTestVoice = document.getElementById("btnQuickTestVoice");
+      const btnRecord = document.getElementById("btnRecord");
+      const chkRecordMic = document.getElementById("chkRecordMic");
+      const progressSlider = document.getElementById("progressSlider");
+      const timeCurrentEl = document.getElementById("timeCurrent");
+      const timeTotalEl = document.getElementById("timeTotal");
+      const recBadge = document.getElementById("recBadge");
+      const recBadgeText = document.getElementById("recBadgeText");
+      const exportBox = document.getElementById("exportBox");
+      const exportStatus = document.getElementById("exportStatus");
+      const exportBarFill = document.getElementById("exportBarFill");
+      const exportedVideo = document.getElementById("exportedVideo");
+      const exportActions = document.getElementById("exportActions");
+      const btnDownloadVideo = document.getElementById("btnDownloadVideo");
+      const btnCancelRec = document.getElementById("btnCancelRec");
+
+      const inputName = document.getElementById("inputName");
+      const selectSuffix = document.getElementById("selectSuffix");
+      const inputSender = document.getElementById("inputSender");
+      const themePills = document.getElementById("themePills");
+      const scriptGrid = document.getElementById("scriptGrid");
+      const sequenceList = document.getElementById("sequenceList");
+      const seqCount = document.getElementById("seqCount");
+      const seqDuration = document.getElementById("seqDuration");
+
+      const btnToggleYT = document.getElementById("btnToggleYT");
+      const ytEmbedWrap = document.getElementById("ytEmbedWrap");
+      const btnToggleCustom = document.getElementById("btnToggleCustom");
+      const btnCloseCustom = document.getElementById("btnCloseCustom");
+      const customDrawer = document.getElementById("customDrawer");
+      const btnSaveCustom = document.getElementById("btnSaveCustom");
+      const btnCopyText = document.getElementById("btnCopyText");
+      const btnCopyLink = document.getElementById("btnCopyLink");
+      const toastContainer = document.getElementById("toastContainer");
+
+      const bgmModeGrid = document.getElementById("bgmModeGrid");
+      const inputAudioFile = document.getElementById("inputAudioFile");
+      const customAudioStatus = document.getElementById("customAudioStatus");
+      const customAudioEl = document.getElementById("customAudioEl");
+      const bgmVolumeSlider = document.getElementById("bgmVolumeSlider");
+      const bgmVolumeVal = document.getElementById("bgmVolumeVal");
+      const voiceStyleRow = document.getElementById("voiceStyleRow");
+      const selectVoice = document.getElementById("selectVoice");
+      const btnTestVoice = document.getElementById("btnTestVoice");
+
+      // -----------------------------------------------------------------------
+      // 4. 工具函式（Toast、複製、腳本存取、URL 參數）
+      // -----------------------------------------------------------------------
+      function showToast(msg) {
+        const el = document.createElement("div");
+        el.className = "toast";
+        el.textContent = msg;
+        toastContainer.appendChild(el);
+        setTimeout(() => {
+          el.style.opacity = "0";
+          el.style.transition = "opacity 0.25s";
+          setTimeout(() => el.remove(), 260);
+        }, 2500);
+      }
+
+      function copyTextFallback(text) {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        let ok = false;
+        try {
+          ok = document.execCommand("copy");
+        } catch (err) {
+          ok = false;
+        }
+        document.body.removeChild(ta);
+        return ok;
+      }
+
+      function loadCustomScripts() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return [];
+          const parsed = JSON.parse(raw);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function saveCustomScripts() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(customScripts));
+        } catch (e) {
+          // 忽略隱私模式儲存限制
+        }
+      }
+
+      function getAllScripts() {
+        return [...BUILTIN_SCRIPTS, ...customScripts];
+      }
+
+      function getScriptById(id) {
+        return getAllScripts().find((s) => s.id === id);
+      }
+
+      function getDisplayName() {
+        const base = (state.targetName || "小可愛").trim() || "小可愛";
+        return state.suffix ? `${base}${state.suffix}` : base;
+      }
+
+      function formatTime(sec) {
+        const s = Math.max(0, Math.floor(sec));
+        const m = Math.floor(s / 60);
+        const r = s % 60;
+        return `${String(m).padStart(2, "0")}:${String(r).padStart(2, "0")}`;
+      }
+
+      function applyQueryParams() {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          if (params.has("name")) state.targetName = params.get("name").slice(0, 12);
+          if (params.has("suffix")) state.suffix = params.get("suffix");
+          if (params.has("sender")) state.sender = params.get("sender").slice(0, 18);
+          if (params.has("theme") && THEMES[params.get("theme")]) state.theme = params.get("theme");
+          if (params.has("scripts")) {
+            const ids = params.get("scripts").split(",").filter((id) => Boolean(getScriptById(id)));
+            if (ids.length > 0) state.selectedIds = ids;
+          }
+        } catch (e) {
+          // 忽略參數解析異常
+        }
+        inputName.value = state.targetName;
+        selectSuffix.value = state.suffix;
+        inputSender.value = state.sender;
+        document.querySelectorAll(".theme-btn").forEach((b) => {
+          b.classList.toggle("active", b.dataset.theme === state.theme);
+        });
+      }
+
+      // -----------------------------------------------------------------------
+      // 5. 時間軸建立（多段上車腳本無縫串聯 + 結尾卡片）
+      // -----------------------------------------------------------------------
+      function rebuildTimeline() {
+        const activeBpm = getActiveBPM();
+        const barSec = (60 / activeBpm) * 4;
+        const lineDuration = barSec * 1.25; // 132 BPM 約 2.27 秒 / 126 BPM 約 2.38 秒
+
+        const displayName = getDisplayName();
+        const scripts = state.selectedIds.map(getScriptById).filter(Boolean);
+        if (scripts.length === 0) {
+          scripts.push(BUILTIN_SCRIPTS[0]);
+          state.selectedIds = [BUILTIN_SCRIPTS[0].id];
+        }
+
+        const segments = [];
+        let cursor = 0;
+
+        scripts.forEach((script, sIdx) => {
+          if (sIdx > 0) {
+            segments.push({
+              type: "transition",
+              start: cursor,
+              end: cursor + TRANSITION_DURATION,
+              duration: TRANSITION_DURATION,
+              script,
+              stationIndex: sIdx + 1,
+              totalStations: scripts.length
+            });
+            cursor += TRANSITION_DURATION;
+          }
+
+          script.lines.forEach((rawLine, lIdx) => {
+            const text = rawLine.replace(/\{name\}/g, displayName);
+            segments.push({
+              type: "line",
+              start: cursor,
+              end: cursor + lineDuration,
+              duration: lineDuration,
+              script,
+              stationIndex: sIdx + 1,
+              totalStations: scripts.length,
+              lineIndex: lIdx,
+              action: BEAT_ACTIONS[lIdx % BEAT_ACTIONS.length],
+              mood: script.mood || "cheer",
+              text,
+              highlightName: displayName
+            });
+            cursor += lineDuration;
+          });
+        });
+
+        // 結尾專屬加油卡片
+        segments.push({
+          type: "outro",
+          start: cursor,
+          end: cursor + OUTRO_DURATION,
+          duration: OUTRO_DURATION,
+          displayName,
+          sender: (state.sender || "最挺你的好朋友").trim(),
+          blessingText: `${displayName}，不管今天遇到什麼挑戰，你都超棒超耀眼！加油喔！`
+        });
+        cursor += OUTRO_DURATION;
+
+        timeline = segments;
+        totalDuration = cursor;
+
+        if (state.currentTime > totalDuration) {
+          state.currentTime = 0;
+        }
+        timeTotalEl.textContent = formatTime(totalDuration);
+        seqCount.textContent = String(scripts.length);
+        seqDuration.textContent = String(Math.round(totalDuration));
+        updateProgressUI();
+      }
+
+      function getSegmentAt(t) {
+        for (let i = 0; i < timeline.length; i++) {
+          if (t >= timeline[i].start && t < timeline[i].end) {
+            return { seg: timeline[i], index: i, localT: t - timeline[i].start };
+          }
+        }
+        const lastIdx = timeline.length - 1;
+        const last = timeline[lastIdx];
+        return { seg: last, index: lastIdx, localT: last ? last.duration : 0 };
+      }
+
+      // -----------------------------------------------------------------------
+      // 6. Web Audio API 電音 DJ（132 BPM）＋ 少女偶像（126 BPM）＋ 原曲音檔混音引擎
+      // -----------------------------------------------------------------------
+      const audioEngine = {
+        ctx: null,
+        bgmGain: null,
+        duckGain: null,
+        masterGain: null,
+        speakerGain: null,
+        mediaDest: null,
+        customMediaSource: null,
+        micStream: null,
+        micSource: null,
+        micGain: null,
+        schedulerId: null,
+        stepIndex: 0,
+        nextNoteTime: 0,
+        isRunning: false,
+        currentMood: "cheer",
+
+        init() {
+          if (this.ctx) {
+            if (this.ctx.state === "suspended") this.ctx.resume();
+            return;
+          }
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioCtx();
+
+          this.bgmGain = this.ctx.createGain();
+          this.bgmGain.gain.value = state.bgmVolume;
+
+          this.duckGain = this.ctx.createGain();
+          this.duckGain.gain.value = 1.0;
+
+          this.masterGain = this.ctx.createGain();
+          this.masterGain.gain.value = 0.8;
+
+          this.speakerGain = this.ctx.createGain();
+          this.speakerGain.gain.value = state.isMuted ? 0 : 1;
+
+          this.mediaDest = this.ctx.createMediaStreamDestination();
+
+          // 音訊串接：BGM -> bgmGain -> duckGain -> masterGain -> speakerGain & mediaDest
+          this.bgmGain.connect(this.duckGain);
+          this.duckGain.connect(this.masterGain);
+          this.masterGain.connect(this.speakerGain);
+          this.speakerGain.connect(this.ctx.destination);
+          this.masterGain.connect(this.mediaDest);
+
+          // 連接隱藏的原曲 <audio> 元素到 Web Audio 混音器
+          try {
+            if (!this.customMediaSource && customAudioEl) {
+              this.customMediaSource = this.ctx.createMediaElementSource(customAudioEl);
+              this.customMediaSource.connect(this.bgmGain);
+            }
+          } catch (e) {
+            // 忽略重複建立來源
+          }
+        },
+
+        setVolume(val) {
+          state.bgmVolume = Math.max(0, Math.min(1, val));
+          if (this.bgmGain && this.ctx) {
+            this.bgmGain.gain.setTargetAtTime(state.bgmVolume, this.ctx.currentTime, 0.03);
+          }
+        },
+
+        setDucking(isSpeaking) {
+          if (this.duckGain && this.ctx) {
+            const target = isSpeaking ? 0.42 : 1.0;
+            this.duckGain.gain.setTargetAtTime(target, this.ctx.currentTime, 0.08);
+          }
+        },
+
+        setMuted(muted) {
+          if (this.speakerGain && this.ctx) {
+            this.speakerGain.gain.setTargetAtTime(muted ? 0 : 1, this.ctx.currentTime, 0.03);
+          }
+        },
+
+        async attachMicForRecording() {
+          this.detachMic();
+          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            showToast("此裝置不支援麥克風收音，將僅錄製配樂");
+            return false;
+          }
+          try {
+            this.init();
+            this.micStream = await navigator.mediaDevices.getUserMedia({
+              audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: true }
+            });
+            this.micSource = this.ctx.createMediaStreamSource(this.micStream);
+            this.micGain = this.ctx.createGain();
+            this.micGain.gain.value = 1.0;
+            // 麥克風僅送往錄影音軌 mediaDest，避免喇叭回授嘯叫
+            this.micSource.connect(this.micGain);
+            this.micGain.connect(this.mediaDest);
+            return true;
+          } catch (err) {
+            showToast("未取得麥克風權限，將僅錄製配樂");
+            return false;
+          }
+        },
+
+        detachMic() {
+          try {
+            if (this.micSource) {
+              this.micSource.disconnect();
+              this.micSource = null;
+            }
+            if (this.micGain) {
+              this.micGain.disconnect();
+              this.micGain = null;
+            }
+            if (this.micStream) {
+              this.micStream.getTracks().forEach((tr) => tr.stop());
+              this.micStream = null;
+            }
+          } catch (e) {
+            // 忽略釋放例外
+          }
+        },
+
+        start(playIntroFX = true) {
+          this.init();
+          if (state.bgmMode === "custom" && state.customAudioUrl) {
+            this.stopSynthOnly();
+            this.isRunning = true;
+            try {
+              if (isFinite(customAudioEl.duration) && customAudioEl.duration > 0) {
+                customAudioEl.currentTime = state.currentTime % customAudioEl.duration;
+              }
+              const p = customAudioEl.play();
+              if (p && typeof p.catch === "function") p.catch(() => {});
+            } catch (e) {
+              // 忽略播放限制
+            }
+            return;
+          }
+
+          try { customAudioEl.pause(); } catch (e) {}
+          if (this.isRunning) return;
+          this.isRunning = true;
+          this.stepIndex = 0;
+          this.nextNoteTime = this.ctx.currentTime + 0.05;
+
+          if (playIntroFX && state.bgmMode === "dj") {
+            this.playAirhornDrop(this.ctx.currentTime + 0.02);
+          }
+          this.schedulerId = setInterval(() => this.schedule(), 25);
+        },
+
+        stopSynthOnly() {
+          if (this.schedulerId) {
+            clearInterval(this.schedulerId);
+            this.schedulerId = null;
+          }
+        },
+
+        stop() {
+          this.isRunning = false;
+          this.stopSynthOnly();
+          try { customAudioEl.pause(); } catch (e) {}
+        },
+
+        syncCustomAudioTime(t) {
+          if (state.bgmMode === "custom" && state.customAudioUrl && isFinite(customAudioEl.duration) && customAudioEl.duration > 0) {
+            try {
+              customAudioEl.currentTime = t % customAudioEl.duration;
+            } catch (e) {}
+          }
+        },
+
+        // MIDI 轉頻率
+        mtof(m) {
+          return 440 * Math.pow(2, (m - 69) / 12);
+        },
+
+        // 招牌電音舞曲氣笛聲（Airhorn：多層微調失諧鋸齒波 + 滑音）
+        playAirhornStab(time, dur = 0.24, vol = 0.16) {
+          if (!this.ctx) return;
+          const freqs = [440, 443.5, 554.37, 659.25, 880];
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = "bandpass";
+          filter.frequency.setValueAtTime(1600, time);
+          filter.Q.value = 1.2;
+
+          const env = this.ctx.createGain();
+          env.gain.setValueAtTime(0.001, time);
+          env.gain.linearRampToValueAtTime(vol, time + 0.015);
+          env.gain.setValueAtTime(vol * 0.88, time + dur * 0.65);
+          env.gain.exponentialRampToValueAtTime(0.001, time + dur);
+
+          filter.connect(env);
+          env.connect(this.bgmGain);
+
+          freqs.forEach((f) => {
+            const osc = this.ctx.createOscillator();
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(f * 1.03, time);
+            osc.frequency.exponentialRampToValueAtTime(f, time + 0.05);
+            osc.frequency.exponentialRampToValueAtTime(f * 0.96, time + dur);
+            osc.connect(filter);
+            osc.start(time);
+            osc.stop(time + dur + 0.03);
+          });
+        },
+
+        // DJ 黑膠刷碟音效（Vinyl Scratch）
+        playScratch(time) {
+          if (!this.ctx) return;
+          const dur = 0.19;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const filter = this.ctx.createBiquadFilter();
+          osc.type = "sawtooth";
+          osc.frequency.setValueAtTime(240, time);
+          osc.frequency.exponentialRampToValueAtTime(980, time + 0.07);
+          osc.frequency.exponentialRampToValueAtTime(180, time + 0.13);
+          osc.frequency.exponentialRampToValueAtTime(640, time + dur);
+
+          filter.type = "bandpass";
+          filter.frequency.value = 1400;
+          filter.Q.value = 2.5;
+
+          gain.gain.setValueAtTime(0.001, time);
+          gain.gain.linearRampToValueAtTime(0.22, time + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
+
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.bgmGain);
+          osc.start(time);
+          osc.stop(time + dur + 0.02);
+        },
+
+        // 開場 / 轉場三連氣笛 + 刷碟 Drop
+        playAirhornDrop(baseTime) {
+          if (!this.ctx) return;
+          this.playAirhornStab(baseTime, 0.14, 0.15);
+          this.playAirhornStab(baseTime + 0.18, 0.14, 0.15);
+          this.playAirhornStab(baseTime + 0.36, 0.34, 0.18);
+          this.playScratch(baseTime + 0.72);
+        },
+
+        playKick(time, punchy) {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(punchy ? 185 : 135, time);
+          osc.frequency.exponentialRampToValueAtTime(punchy ? 44 : 42, time + (punchy ? 0.12 : 0.14));
+          gain.gain.setValueAtTime(punchy ? 0.78 : 0.48, time);
+          gain.gain.exponentialRampToValueAtTime(0.001, time + 0.18);
+          osc.connect(gain);
+          gain.connect(this.bgmGain);
+          osc.start(time);
+          osc.stop(time + 0.19);
+        },
+
+        playClap(time, soft) {
+          const bufferSize = Math.floor(this.ctx.sampleRate * 0.09);
+          const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.32));
+          }
+          const src = this.ctx.createBufferSource();
+          src.buffer = buffer;
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = "bandpass";
+          filter.frequency.value = 1750;
+          const gain = this.ctx.createGain();
+          gain.gain.setValueAtTime(soft ? 0.16 : 0.34, time);
+          gain.gain.exponentialRampToValueAtTime(0.001, time + 0.09);
+          src.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.bgmGain);
+          src.start(time);
+        },
+
+        playHat(time, open) {
+          const dur = open ? 0.1 : 0.038;
+          const bufferSize = Math.floor(this.ctx.sampleRate * dur);
+          const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.38));
+          }
+          const src = this.ctx.createBufferSource();
+          src.buffer = buffer;
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = "highpass";
+          filter.frequency.value = 7200;
+          const gain = this.ctx.createGain();
+          gain.gain.setValueAtTime(open ? 0.16 : 0.11, time);
+          gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
+          src.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.bgmGain);
+          src.start(time);
+        },
+
+        // Melbourne Bounce 彈性反拍電音 Bass
+        playBounceBass(time, midi, dur) {
+          const osc = this.ctx.createOscillator();
+          const filter = this.ctx.createBiquadFilter();
+          const gain = this.ctx.createGain();
+
+          osc.type = "sawtooth";
+          osc.frequency.setValueAtTime(this.mtof(midi), time);
+
+          filter.type = "lowpass";
+          filter.frequency.setValueAtTime(1450, time);
+          filter.frequency.exponentialRampToValueAtTime(240, time + dur);
+          filter.Q.value = 4.2;
+
+          gain.gain.setValueAtTime(0.001, time);
+          gain.gain.linearRampToValueAtTime(0.32, time + 0.012);
+          gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
+
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.bgmGain);
+          osc.start(time);
+          osc.stop(time + dur + 0.02);
+        },
+
+        playTone(time, midi, dur, type, vol) {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(this.mtof(midi), time);
+          gain.gain.setValueAtTime(0.001, time);
+          gain.gain.linearRampToValueAtTime(vol, time + 0.012);
+          gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
+          osc.connect(gain);
+          gain.connect(this.bgmGain);
+          osc.start(time);
+          osc.stop(time + dur + 0.02);
+        },
+
+        playSparkle(time) {
+          const notes = [84, 88, 91, 96];
+          notes.forEach((n, idx) => {
+            this.playTone(time + idx * 0.045, n, 0.18, "sine", 0.11);
+          });
+        },
+
+        schedule() {
+          if (!this.isRunning || !this.ctx || state.bgmMode === "custom") return;
+          const activeBpm = getActiveBPM();
+          const stepDur = 60 / activeBpm / 4; // 16 分音符
+
+          if (state.bgmMode === "dj") {
+            // === 模式 A：🔥 132 BPM 上車電音 DJ Bounce 版 ===
+            const bounceBassRoots = [45, 45, 48, 43]; // A2 - A2 - C3 - G2
+            const partyLead = [
+              // Bar 1
+              69, 0, 72, 0, 76, 0, 72, 0, 79, 0, 76, 0, 72, 0, 74, 0,
+              // Bar 2
+              69, 0, 72, 0, 76, 0, 79, 0, 81, 0, 79, 76, 72, 0, 0, 0,
+              // Bar 3
+              72, 0, 76, 0, 79, 0, 76, 0, 81, 0, 79, 0, 76, 0, 72, 0,
+              // Bar 4
+              74, 0, 79, 0, 76, 0, 74, 0, 72, 74, 76, 0, 79, 0, 0, 0
+            ];
+
+            while (this.nextNoteTime < this.ctx.currentTime + 0.12) {
+              const step = this.stepIndex % 64;
+              const bar = Math.floor(step / 16);
+              const inBar = step % 16;
+              const t = this.nextNoteTime;
+
+              // 重拍 4-on-the-floor 大鼓
+              if (inBar % 4 === 0) {
+                this.playKick(t, true);
+              }
+              // 2、4 拍俐落掌聲
+              if (inBar === 4 || inBar === 12) {
+                this.playClap(t, false);
+              }
+              // 反拍清脆 Open Hi-Hat
+              if (inBar % 4 === 2) {
+                this.playHat(t, true);
+              } else if (inBar % 2 === 1) {
+                this.playHat(t, false);
+              }
+              // 招牌反拍電音 Bounce Bass
+              if (inBar % 4 === 2) {
+                this.playBounceBass(t, bounceBassRoots[bar], stepDur * 1.85);
+              }
+              // 高能派對 Lead Riff
+              const leadNote = partyLead[step];
+              if (leadNote > 0) {
+                this.playTone(t, leadNote, stepDur * 1.35, "sawtooth", 0.085);
+                this.playTone(t, leadNote + 12, stepDur * 1.2, "square", 0.045);
+              }
+              // 每 4 小節結尾過門：刷碟 + 氣笛點綴
+              if (step === 60) {
+                this.playScratch(t);
+              }
+              if (step === 62) {
+                this.playAirhornStab(t, 0.16, 0.12);
+              }
+
+              this.nextNoteTime += stepDur;
+              this.stepIndex++;
+            }
+          } else {
+            // === 模式 B：🌸 126 BPM 甜美少女偶像版 ===
+            const isComfort = this.currentMood === "comfort";
+            const bassRoots = [53, 55, 52, 57];
+            const chordNotes = [
+              [65, 69, 72],
+              [67, 71, 74],
+              [64, 67, 71],
+              [69, 72, 76]
+            ];
+            const melodyPattern = [
+              77, 0, 79, 0, 81, 0, 79, 77, 76, 0, 72, 0, 77, 0, 0, 0,
+              79, 0, 81, 0, 83, 0, 81, 79, 74, 0, 79, 0, 83, 0, 0, 0,
+              84, 0, 83, 0, 79, 0, 76, 0, 79, 0, 83, 0, 81, 0, 79, 0,
+              81, 0, 79, 0, 76, 0, 72, 0, 76, 79, 81, 0, 84, 0, 0, 0
+            ];
+
+            while (this.nextNoteTime < this.ctx.currentTime + 0.12) {
+              const step = this.stepIndex % 64;
+              const bar = Math.floor(step / 16);
+              const inBar = step % 16;
+              const t = this.nextNoteTime;
+
+              if (inBar % 4 === 0) this.playKick(t, !isComfort);
+              if (inBar === 4 || inBar === 12) this.playClap(t, isComfort);
+              if (!isComfort && inBar % 2 === 1) this.playHat(t, inBar === 15);
+
+              const root = bassRoots[bar];
+              if (inBar % 4 === 0 || (!isComfort && inBar % 4 === 2)) {
+                const bMidi = inBar % 4 === 2 ? root + 12 : root;
+                this.playTone(t, bMidi, stepDur * 1.6, "triangle", isComfort ? 0.15 : 0.22);
+              }
+              if (inBar === 0 || inBar === 8) {
+                chordNotes[bar].forEach((n) => {
+                  this.playTone(t, n, stepDur * 7.2, isComfort ? "sine" : "triangle", 0.075);
+                });
+              }
+              const mel = melodyPattern[step];
+              if (mel > 0) {
+                this.playTone(t, mel, stepDur * (isComfort ? 2.4 : 1.7), isComfort ? "sine" : "square", isComfort ? 0.14 : 0.085);
+              }
+              if (step === 60) this.playSparkle(t);
+
+              this.nextNoteTime += stepDur;
+              this.stepIndex++;
+            }
+          }
+        }
+      };
+
+      // -----------------------------------------------------------------------
+      // 6.5 可愛中文語音系統（自動選最佳中文女聲 + 智慧背景音 Ducking）
+      // -----------------------------------------------------------------------
+      let availableZhVoices = [];
+
+      function scoreVoice(v) {
+        let score = 0;
+        const lang = (v.lang || "").toLowerCase();
+        const name = (v.name || "").toLowerCase();
+        if (lang.includes("zh-tw") || lang.includes("zh_tw")) score += 50;
+        else if (lang.includes("zh-hk") || lang.includes("zh_hk")) score += 30;
+        else if (lang.includes("zh")) score += 20;
+        // 優先偏好常見自然女聲關鍵字
+        if (/hsiaochen|hsiaoyu|meijia|ting-ting|tingting|xiaoxiao|xiaoyi|yaoyao|female|女|美佳|曉臻|曉雨|雅婷|google 國語/.test(name)) {
+          score += 35;
+        }
+        return score;
+      }
+
+      function populateVoices() {
+        if (!("speechSynthesis" in window)) return;
+        const all = window.speechSynthesis.getVoices() || [];
+        availableZhVoices = all
+          .filter((v) => (v.lang || "").toLowerCase().includes("zh"))
+          .sort((a, b) => scoreVoice(b) - scoreVoice(a));
+
+        const prev = state.selectedVoiceURI;
+        selectVoice.innerHTML = `<option value="">自動選擇最佳中文女聲</option>`;
+        availableZhVoices.forEach((v) => {
+          const opt = document.createElement("option");
+          opt.value = v.voiceURI;
+          opt.textContent = `${v.name} (${v.lang})`;
+          selectVoice.appendChild(opt);
+        });
+        if (prev && availableZhVoices.some((v) => v.voiceURI === prev)) {
+          selectVoice.value = prev;
+        }
+      }
+
+      if ("speechSynthesis" in window) {
+        populateVoices();
+        window.speechSynthesis.onvoiceschanged = populateVoices;
+      }
+
+      function getChosenVoice() {
+        if (availableZhVoices.length === 0) populateVoices();
+        if (state.selectedVoiceURI) {
+          const found = availableZhVoices.find((v) => v.voiceURI === state.selectedVoiceURI);
+          if (found) return found;
+        }
+        return availableZhVoices[0] || null;
+      }
+
+      function speakLine(text, force = false) {
+        if ((!state.ttsEnabled && !force) || !("speechSynthesis" in window)) return;
+        try {
+          window.speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(text);
+          const preset = VOICE_PRESETS[state.voiceStyle] || VOICE_PRESETS.cute;
+          const voice = getChosenVoice();
+          if (voice) u.voice = voice;
+          u.lang = voice ? voice.lang : "zh-TW";
+          u.rate = preset.rate;
+          u.pitch = preset.pitch;
+          u.volume = 1.0;
+
+          u.onstart = () => audioEngine.setDucking(true);
+          u.onend = () => audioEngine.setDucking(false);
+          u.onerror = () => audioEngine.setDucking(false);
+
+          window.speechSynthesis.speak(u);
+        } catch (e) {
+          audioEngine.setDucking(false);
+        }
+      }
+
+      // -----------------------------------------------------------------------
+      // 7. 9:16 可愛日系少女唱跳舞台繪製引擎（Canvas 2D）
+      // -----------------------------------------------------------------------
+      function drawRoundedRect(c, x, y, w, h, r) {
+        const radius = Math.min(r, w / 2, h / 2);
+        c.beginPath();
+        c.moveTo(x + radius, y);
+        c.arcTo(x + w, y, x + w, y + h, radius);
+        c.arcTo(x + w, y + h, x, y + h, radius);
+        c.arcTo(x, y + h, x, y, radius);
+        c.arcTo(x, y, x + w, y, radius);
+        c.closePath();
+      }
+
+      function drawHeart(c, x, y, size, color, alpha = 1) {
+        c.save();
+        c.globalAlpha = alpha;
+        c.translate(x, y);
+        c.fillStyle = color;
+        c.beginPath();
+        c.moveTo(0, size * 0.32);
+        c.bezierCurveTo(-size, -size * 0.35, -size * 0.55, -size * 1.05, 0, -size * 0.42);
+        c.bezierCurveTo(size * 0.55, -size * 1.05, size, -size * 0.35, 0, size * 0.32);
+        c.closePath();
+        c.fill();
+        c.restore();
+      }
+
+      function drawStar(c, x, y, r, color, alpha = 1) {
+        c.save();
+        c.globalAlpha = alpha;
+        c.translate(x, y);
+        c.fillStyle = color;
+        c.beginPath();
+        for (let i = 0; i < 8; i++) {
+          const rad = i % 2 === 0 ? r : r * 0.36;
+          const ang = (i * Math.PI) / 4;
+          if (i === 0) c.moveTo(Math.cos(ang) * rad, Math.sin(ang) * rad);
+          else c.lineTo(Math.cos(ang) * rad, Math.sin(ang) * rad);
+        }
+        c.closePath();
+        c.fill();
+        c.restore();
+      }
+
+      function drawCrown(c, x, y, scale, glowAlpha) {
+        c.save();
+        c.translate(x, y);
+        c.scale(scale, scale);
+
+        // 金色光暈
+        const grad = c.createRadialGradient(0, -10, 4, 0, -10, 75);
+        grad.addColorStop(0, `rgba(255, 232, 130, ${0.75 * glowAlpha})`);
+        grad.addColorStop(1, "rgba(255, 232, 130, 0)");
+        c.fillStyle = grad;
+        c.beginPath();
+        c.arc(0, -10, 75, 0, Math.PI * 2);
+        c.fill();
+
+        // 皇冠本體
+        const cg = c.createLinearGradient(0, -40, 0, 18);
+        cg.addColorStop(0, "#fff5b8");
+        cg.addColorStop(0.5, "#ffd15c");
+        cg.addColorStop(1, "#e59a24");
+        c.fillStyle = cg;
+        c.strokeStyle = "#fff8dc";
+        c.lineWidth = 3.5;
+
+        c.beginPath();
+        c.moveTo(-42, 14);
+        c.lineTo(-48, -24);
+        c.lineTo(-20, -6);
+        c.lineTo(0, -36);
+        c.lineTo(20, -6);
+        c.lineTo(48, -24);
+        c.lineTo(42, 14);
+        c.closePath();
+        c.fill();
+        c.stroke();
+
+        // 寶石點綴
+        c.fillStyle = "#ff5d9e";
+        c.beginPath();
+        c.arc(0, -2, 7, 0, Math.PI * 2);
+        c.fill();
+        c.fillStyle = "#8ce4ff";
+        c.beginPath();
+        c.arc(-24, 1, 5, 0, Math.PI * 2);
+        c.arc(24, 1, 5, 0, Math.PI * 2);
+        c.fill();
+
+        // 頂端圓珠
+        c.fillStyle = "#fff9d6";
+        [[-48, -26], [0, -39], [48, -26]].forEach(([px, py]) => {
+          c.beginPath();
+          c.arc(px, py, 5.5, 0, Math.PI * 2);
+          c.fill();
+        });
+
+        c.restore();
+      }
+
+      // 繪製單一位可愛日系少女偶像
+      function drawShoujoIdol(c, idol, t, beatPulse, action, mood) {
+        const activeBpm = getActiveBPM();
+        const beatRad = (t * activeBpm / 60) * Math.PI + idol.phase * Math.PI * 2;
+        const bounce = Math.abs(Math.sin(beatRad)) * (action === "hurry" ? 18 : 11);
+        const sway = Math.sin(beatRad * 0.5) * (action === "hurry" ? 0.11 : 0.055);
+        const hairSwing = Math.sin(beatRad - 0.5) * 8;
+
+        // 自動眨眼（自然週期）
+        const blinkCycle = (t + idol.phase * 5.2) % 3.6;
+        const isBlink = blinkCycle > 3.44 && blinkCycle < 3.56;
+        const isHappyEye = action === "wow" || action === "bye" || action === "crown";
+        const isComfortTear = mood === "comfort" && (action === "shine" || action === "wow" || action === "crown");
+
+        c.save();
+        c.translate(idol.x, idol.y - bounce);
+        c.scale(idol.scale, idol.scale);
+        c.rotate(sway);
+
+        // 地面陰影
+        c.save();
+        c.rotate(-sway);
+        c.fillStyle = "rgba(45, 16, 48, 0.25)";
+        c.beginPath();
+        c.ellipse(0, 118 + bounce * 0.8, 44, 11, 0, 0, Math.PI * 2);
+        c.fill();
+        c.restore();
+
+        // 1. 後髮層
+        c.fillStyle = idol.hair;
+        if (idol.hairStyle === "twintail") {
+          // 雙馬尾
+          [-1, 1].forEach((dir) => {
+            c.beginPath();
+            c.moveTo(dir * 38, -78);
+            c.quadraticCurveTo(dir * (84 + hairSwing * dir), -48, dir * (74 + hairSwing), 28);
+            c.quadraticCurveTo(dir * 52, 16, dir * 44, -36);
+            c.closePath();
+            c.fill();
+            // 雙馬尾蝴蝶結
+            c.fillStyle = idol.accent;
+            c.beginPath();
+            c.ellipse(dir * 45, -76, 12, 7, dir * 0.4, 0, Math.PI * 2);
+            c.fill();
+            c.fillStyle = idol.hair;
+          });
+        } else if (idol.hairStyle === "long") {
+          c.beginPath();
+          c.moveTo(-48, -76);
+          c.quadraticCurveTo(-58 + hairSwing * 0.5, -6, -46 + hairSwing, 44);
+          c.lineTo(46 + hairSwing, 44);
+          c.quadraticCurveTo(58 + hairSwing * 0.5, -6, 48, -76);
+          c.closePath();
+          c.fill();
+        } else if (idol.hairStyle === "sidepony") {
+          c.beginPath();
+          c.moveTo(-36, -80);
+          c.quadraticCurveTo(-82, -55, -70 + hairSwing, 22);
+          c.quadraticCurveTo(-48, 12, -38, -40);
+          c.closePath();
+          c.fill();
+        } else if (idol.hairStyle === "buns") {
+          [-1, 1].forEach((dir) => {
+            c.beginPath();
+            c.arc(dir * 44, -92, 18, 0, Math.PI * 2);
+            c.fill();
+            c.strokeStyle = idol.accent;
+            c.lineWidth = 4;
+            c.stroke();
+          });
+        } else {
+          // 可愛鮑伯頭
+          c.beginPath();
+          c.arc(0, -62, 50, 0, Math.PI * 2);
+          c.fill();
+        }
+
+        // 2. 雙腿與可愛鞋襪
+        const legKick = Math.sin(beatRad) * (action === "hurry" ? 8 : 4);
+        [-15, 15].forEach((lx, idx) => {
+          const ly = idx === 0 ? legKick : -legKick;
+          c.fillStyle = "#ffe5da";
+          drawRoundedRect(c, lx - 7, 54, 14, 46 + ly * 0.4, 6);
+          c.fill();
+          // 白襪
+          c.fillStyle = "#ffffff";
+          drawRoundedRect(c, lx - 7.5, 80 + ly * 0.3, 15, 22, 5);
+          c.fill();
+          // 瑪莉珍鞋
+          c.fillStyle = idol.dress;
+          c.beginPath();
+          c.ellipse(lx, 106 + ly * 0.3, 11, 7, 0, 0, Math.PI * 2);
+          c.fill();
+        });
+
+        // 3. 手臂與動作（依 action 動態變化）
+        let leftArmAngle = -0.65 + Math.sin(beatRad) * 0.35;
+        let rightArmAngle = 0.65 - Math.sin(beatRad) * 0.35;
+        let holdGlowStick = false;
+
+        if (action === "call") {
+          leftArmAngle = -2.45 + Math.sin(beatRad * 2) * 0.28;
+          rightArmAngle = 2.45 - Math.sin(beatRad * 2) * 0.28;
+        } else if (action === "cameo") {
+          leftArmAngle = -0.7;
+          rightArmAngle = 2.15 + Math.sin(beatRad * 2) * 0.2;
+        } else if (action === "hurry") {
+          leftArmAngle = -2.3 + Math.sin(beatRad * 2) * 0.45;
+          rightArmAngle = 2.3 + Math.sin(beatRad * 2) * 0.45;
+          holdGlowStick = true;
+        } else if (action === "crown") {
+          leftArmAngle = -2.65;
+          rightArmAngle = 2.65;
+        } else if (action === "wow") {
+          leftArmAngle = -1.9 + Math.sin(beatRad) * 0.15;
+          rightArmAngle = 1.9 - Math.sin(beatRad) * 0.15;
+        } else if (action === "shine") {
+          leftArmAngle = mood === "comfort" ? -0.95 : -2.2 + Math.sin(beatRad) * 0.25;
+          rightArmAngle = mood === "comfort" ? 0.95 : 2.2 - Math.sin(beatRad) * 0.25;
+          holdGlowStick = mood !== "comfort";
+        } else if (action === "bye") {
+          leftArmAngle = -0.5;
+          rightArmAngle = 2.55 + Math.sin(beatRad * 2.2) * 0.35;
+        }
+
+        [[-26, leftArmAngle, -1], [26, rightArmAngle, 1]].forEach(([sx, ang, dir]) => {
+          c.save();
+          c.translate(sx, -2);
+          c.rotate(ang);
+          // 泡泡袖
+          c.fillStyle = "#ffffff";
+          c.beginPath();
+          c.arc(0, 6, 12, 0, Math.PI * 2);
+          c.fill();
+          // 手臂
+          c.fillStyle = "#ffe5da";
+          drawRoundedRect(c, -6, 6, 12, 34, 6);
+          c.fill();
+          // 發光應援棒
+          if (holdGlowStick) {
+            c.fillStyle = "#ffffff";
+            drawRoundedRect(c, -3.5, 34, 7, 12, 3);
+            c.fill();
+            c.shadowColor = idol.dress;
+            c.shadowBlur = 14;
+            c.fillStyle = idol.accent;
+            drawRoundedRect(c, -4.5, 44, 9, 28, 4.5);
+            c.fill();
+            c.shadowBlur = 0;
+          }
+          c.restore();
+        });
+
+        // 4. 澎澎偶像洋裝
+        // 裙擺下層荷葉邊
+        c.fillStyle = "#ffffff";
+        c.beginPath();
+        c.moveTo(-48, 66);
+        c.quadraticCurveTo(0, 78, 48, 66);
+        c.lineTo(34, 22);
+        c.lineTo(-34, 22);
+        c.closePath();
+        c.fill();
+
+        // 主裙身
+        const dressGrad = c.createLinearGradient(0, -14, 0, 64);
+        dressGrad.addColorStop(0, idol.dress);
+        dressGrad.addColorStop(1, "#ffffff");
+        c.fillStyle = idol.dress;
+        c.beginPath();
+        c.moveTo(-24, -12);
+        c.lineTo(24, -12);
+        c.lineTo(44, 60);
+        c.quadraticCurveTo(0, 72, -44, 60);
+        c.closePath();
+        c.fill();
+
+        // 可愛水手領與胸口蝴蝶結
+        c.fillStyle = "#ffffff";
+        c.beginPath();
+        c.moveTo(-22, -12);
+        c.lineTo(0, 10);
+        c.lineTo(22, -12);
+        c.closePath();
+        c.fill();
+
+        c.fillStyle = idol.accent;
+        c.beginPath();
+        c.ellipse(-8, 6, 9, 5, -0.25, 0, Math.PI * 2);
+        c.ellipse(8, 6, 9, 5, 0.25, 0, Math.PI * 2);
+        c.fill();
+        c.beginPath();
+        c.arc(0, 6, 4.5, 0, Math.PI * 2);
+        c.fill();
+
+        // 5. 頭部與精緻臉龐
+        // 脖子
+        c.fillStyle = "#fbd4c5";
+        drawRoundedRect(c, -7, -24, 14, 16, 5);
+        c.fill();
+
+        // 臉部輪廓
+        c.fillStyle = "#ffece3";
+        c.beginPath();
+        c.arc(0, -64, 42, 0, Math.PI * 2);
+        c.fill();
+
+        // 害羞紅暈腮紅
+        c.fillStyle = "rgba(255, 118, 156, 0.34)";
+        c.beginPath();
+        c.ellipse(-22, -52, 9.5, 5.5, 0, 0, Math.PI * 2);
+        c.ellipse(22, -52, 9.5, 5.5, 0, 0, Math.PI * 2);
+        c.fill();
+
+        // 大眼睛（星光高光 / 眨眼 / 笑眼 / 動容淚光）
+        [-16, 16].forEach((ex) => {
+          if (isBlink) {
+            c.strokeStyle = "#4b2c3b";
+            c.lineWidth = 3;
+            c.lineCap = "round";
+            c.beginPath();
+            c.moveTo(ex - 8, -62);
+            c.quadraticCurveTo(ex, -57, ex + 8, -62);
+            c.stroke();
+          } else if (isHappyEye && !isComfortTear) {
+            c.strokeStyle = "#4b2c3b";
+            c.lineWidth = 3.2;
+            c.lineCap = "round";
+            c.beginPath();
+            c.arc(ex, -58, 8.5, Math.PI * 1.12, Math.PI * 1.88);
+            c.stroke();
+          } else {
+            // 眼白
+            c.fillStyle = "#ffffff";
+            c.beginPath();
+            c.ellipse(ex, -63, 9.5, 11.5, 0, 0, Math.PI * 2);
+            c.fill();
+            // 虹膜
+            c.fillStyle = idol.eye;
+            c.beginPath();
+            c.ellipse(ex, -62, 7.6, 9.4, 0, 0, Math.PI * 2);
+            c.fill();
+            // 瞳孔深色
+            c.fillStyle = "#2d1828";
+            c.beginPath();
+            c.ellipse(ex, -62, 4.4, 5.6, 0, 0, Math.PI * 2);
+            c.fill();
+            // 上睫毛
+            c.strokeStyle = "#3c2130";
+            c.lineWidth = 3;
+            c.beginPath();
+            c.arc(ex, -64, 9.6, Math.PI * 1.12, Math.PI * 1.88);
+            c.stroke();
+            // 雙重星光高光
+            c.fillStyle = "#ffffff";
+            c.beginPath();
+            c.arc(ex - 3.2, -67, 3.2, 0, Math.PI * 2);
+            c.arc(ex + 3.2, -58, 1.8, 0, Math.PI * 2);
+            c.fill();
+            // 動容淚光特效
+            if (isComfortTear) {
+              c.fillStyle = "rgba(185, 238, 255, 0.92)";
+              c.beginPath();
+              c.ellipse(ex, -53, 6.5, 2.8, 0, 0, Math.PI * 2);
+              c.fill();
+            }
+          }
+        });
+
+        // 嘴巴（隨節拍歡快張合唱歌或溫柔微笑）
+        const mouthOpen = action === "bye" || isComfortTear ? 0 : Math.abs(Math.sin(beatRad * 1.5));
+        if (mouthOpen > 0.35) {
+          c.fillStyle = "#e85c82";
+          c.beginPath();
+          c.ellipse(0, -45, 6.5, 5 + mouthOpen * 3.5, 0, 0, Math.PI * 2);
+          c.fill();
+          c.fillStyle = "#ff9bb5";
+          c.beginPath();
+          c.ellipse(0, -42.5, 4, 2.2, 0, 0, Math.PI * 2);
+          c.fill();
+        } else {
+          c.strokeStyle = "#b54b6b";
+          c.lineWidth = 2.6;
+          c.lineCap = "round";
+          c.beginPath();
+          c.arc(0, -47, 6.5, 0.2 * Math.PI, 0.8 * Math.PI);
+          c.stroke();
+        }
+
+        // 6. 前瀏海與可愛頭飾
+        c.fillStyle = idol.hair;
+        c.beginPath();
+        c.arc(0, -68, 44, Math.PI * 0.95, Math.PI * 2.05);
+        c.lineTo(40, -66);
+        c.lineTo(26, -78);
+        c.lineTo(14, -66);
+        c.lineTo(0, -82);
+        c.lineTo(-14, -66);
+        c.lineTo(-26, -78);
+        c.lineTo(-40, -66);
+        c.closePath();
+        c.fill();
+
+        // 頭髮光澤天使光環
+        c.strokeStyle = "rgba(255, 255, 255, 0.48)";
+        c.lineWidth = 3.5;
+        c.lineCap = "round";
+        c.beginPath();
+        c.arc(0, -68, 33, Math.PI * 1.22, Math.PI * 1.78);
+        c.stroke();
+
+        // C 位粉櫻少女專屬頭頂愛心光點
+        if (idol.name === "Sakura" && beatPulse > 0.4) {
+          drawHeart(c, 0, -124 - beatPulse * 10, 11, "#ff7eb3", 0.9);
+        }
+
+        c.restore();
+      }
+
+      // 繪製「來囉來囉～」從右側蹦出的黃帽萌系彩蛋少女
+      function drawYellowHatCameo(c, progress, t) {
+        // progress: 0 -> 1
+        const easeIn = Math.min(1, progress * 3.2);
+        const easeOut = progress > 0.78 ? Math.max(0, 1 - (progress - 0.78) / 0.22) : 1;
+        const slide = easeIn * easeOut;
+        if (slide <= 0.01) return;
+
+        const x = 785 - slide * 168;
+        const y = 695 + Math.sin(t * 14) * 10;
+
+        c.save();
+        c.translate(x, y);
+        c.rotate(-0.18 + Math.sin(t * 12) * 0.08);
+
+        // 可愛揮手小臂
+        c.save();
+        c.translate(-34, 12);
+        c.rotate(-0.9 + Math.sin(t * 18) * 0.45);
+        c.fillStyle = "#ffece3";
+        drawRoundedRect(c, -8, -44, 16, 46, 8);
+        c.fill();
+        c.restore();
+
+        // 身體
+        c.fillStyle = "#ffd95e";
+        drawRoundedRect(c, -34, 8, 68, 72, 24);
+        c.fill();
+        c.fillStyle = "#ffffff";
+        c.beginPath();
+        c.arc(0, 16, 16, 0, Math.PI);
+        c.fill();
+
+        // 圓圓臉
+        c.fillStyle = "#ffece3";
+        c.beginPath();
+        c.arc(0, -28, 38, 0, Math.PI * 2);
+        c.fill();
+
+        // 腮紅與彎彎笑眼
+        c.fillStyle = "rgba(255, 110, 145, 0.4)";
+        c.beginPath();
+        c.ellipse(-20, -20, 8, 5, 0, 0, Math.PI * 2);
+        c.ellipse(20, -20, 8, 5, 0, 0, Math.PI * 2);
+        c.fill();
+
+        c.strokeStyle = "#4d2e3d";
+        c.lineWidth = 3.2;
+        c.lineCap = "round";
+        c.beginPath();
+        c.arc(-14, -27, 7, Math.PI * 1.1, Math.PI * 1.9);
+        c.stroke();
+        c.beginPath();
+        c.arc(14, -27, 7, Math.PI * 1.1, Math.PI * 1.9);
+        c.stroke();
+
+        // 開心張嘴
+        c.fillStyle = "#eb5e84";
+        c.beginPath();
+        c.arc(0, -15, 7, 0, Math.PI);
+        c.fill();
+
+        // 招牌亮黃色小學生帽！
+        c.fillStyle = "#ffd43b";
+        c.strokeStyle = "#fff5b8";
+        c.lineWidth = 3;
+        c.beginPath();
+        c.arc(0, -44, 39, Math.PI, Math.PI * 2);
+        c.closePath();
+        c.fill();
+        c.stroke();
+        // 帽簷
+        c.fillStyle = "#ffbe26";
+        c.beginPath();
+        c.ellipse(-6, -44, 48, 10, -0.05, 0, Math.PI * 2);
+        c.fill();
+
+        // 語氣對話泡泡
+        c.save();
+        c.rotate(0.18);
+        c.fillStyle = "#ffffff";
+        drawRoundedRect(c, -125, -108, 128, 44, 18);
+        c.fill();
+        c.strokeStyle = "#ff85b3";
+        c.lineWidth = 3;
+        c.stroke();
+        c.fillStyle = "#e84c88";
+        c.font = "800 22px " + getComputedStyle(document.body).fontFamily;
+        c.textAlign = "center";
+        c.textBaseline = "middle";
+        c.fillText("來囉來囉～", -61, -85);
+        c.restore();
+
+        c.restore();
+      }
+
+      // 繪製卡拉 OK 動態描邊大字幕（自動換行並高亮名字）
+      function drawKaraokeSubtitle(c, text, highlightName, progress, themeObj, mood) {
+        const boxW = 656;
+        const boxH = 192;
+        const boxX = (720 - boxW) / 2;
+        const boxY = 1022;
+
+        c.save();
+        // 夢幻半透明字幕背板
+        const bgGrad = c.createLinearGradient(boxX, boxY, boxX, boxY + boxH);
+        bgGrad.addColorStop(0, "rgba(42, 18, 48, 0.72)");
+        bgGrad.addColorStop(1, "rgba(74, 28, 68, 0.84)");
+        c.fillStyle = bgGrad;
+        drawRoundedRect(c, boxX, boxY, boxW, boxH, 30);
+        c.fill();
+
+        c.strokeStyle = mood === "comfort" ? "rgba(255, 200, 224, 0.85)" : "rgba(255, 224, 140, 0.85)";
+        c.lineWidth = 3.5;
+        c.stroke();
+
+        // 進度條底線
+        const barW = boxW - 60;
+        c.fillStyle = "rgba(255, 255, 255, 0.2)";
+        drawRoundedRect(c, boxX + 30, boxY + boxH - 22, barW, 8, 4);
+        c.fill();
+        c.fillStyle = themeObj.accent2;
+        drawRoundedRect(c, boxX + 30, boxY + boxH - 22, barW * Math.min(1, progress), 8, 4);
+        c.fill();
+
+        // 文字自動斷行（最多兩行）
+        c.font = "800 38px " + getComputedStyle(document.body).fontFamily;
+        c.textBaseline = "middle";
+
+        const maxLineW = boxW - 56;
+        const chars = Array.from(text);
+        const lines = [];
+        let cur = "";
+        for (let i = 0; i < chars.length; i++) {
+          const test = cur + chars[i];
+          if (c.measureText(test).width > maxLineW && cur.length > 0) {
+            lines.push(cur);
+            cur = chars[i];
+          } else {
+            cur = test;
+          }
+        }
+        if (cur) lines.push(cur);
+
+        const totalChars = chars.length;
+        const litCount = Math.floor(progress * (totalChars + 2));
+        let charGlobalIdx = 0;
+
+        const startY = lines.length === 1 ? boxY + 86 : boxY + 62;
+        const lineGap = 54;
+
+        lines.slice(0, 2).forEach((lineStr, lIdx) => {
+          const lineW = c.measureText(lineStr).width;
+          let drawX = 360 - lineW / 2;
+          const drawY = startY + lIdx * lineGap;
+          const nameStart = lineStr.indexOf(highlightName);
+          const nameEnd = nameStart >= 0 ? nameStart + highlightName.length : -1;
+
+          const lineChars = Array.from(lineStr);
+          lineChars.forEach((ch, cIdx) => {
+            const chW = c.measureText(ch).width;
+            const isLit = charGlobalIdx <= litCount;
+            const isNameChar = nameStart >= 0 && cIdx >= nameStart && cIdx < nameEnd;
+            const popY = charGlobalIdx === litCount ? -5 : 0;
+
+            c.lineWidth = 8;
+            c.lineJoin = "round";
+            c.strokeStyle = isNameChar ? "#a8245d" : "#3a163d";
+            c.strokeText(ch, drawX, drawY + popY);
+
+            if (isNameChar) {
+              c.fillStyle = "#ffe066";
+            } else if (isLit) {
+              c.fillStyle = "#ffffff";
+            } else {
+              c.fillStyle = "rgba(255, 224, 240, 0.62)";
+            }
+            c.fillText(ch, drawX, drawY + popY);
+
+            drawX += chW;
+            charGlobalIdx++;
+          });
+        });
+
+        c.restore();
+      }
+
+      // 繪製結尾專屬加油卡片
+      function drawOutroCard(c, seg, localT, themeObj) {
+        const p = Math.min(1, localT / 0.65);
+        const scale = 0.85 + 0.15 * Math.sin(p * Math.PI * 0.5);
+
+        c.save();
+        c.translate(360, 620);
+        c.scale(scale, scale);
+
+        // 卡片主體
+        const grad = c.createLinearGradient(-290, -340, 290, 340);
+        grad.addColorStop(0, "rgba(255, 250, 253, 0.96)");
+        grad.addColorStop(1, "rgba(255, 234, 244, 0.96)");
+        c.fillStyle = grad;
+        drawRoundedRect(c, -290, -320, 580, 640, 42);
+        c.fill();
+
+        c.strokeStyle = themeObj.accent2;
+        c.lineWidth = 6;
+        c.stroke();
+
+        // 內框裝飾
+        c.strokeStyle = "rgba(255, 127, 163, 0.35)";
+        c.lineWidth = 2.5;
+        drawRoundedRect(c, -268, -298, 536, 596, 32);
+        c.stroke();
+
+        // 頂部皇冠
+        drawCrown(c, 0, -210, 1.05, 1);
+
+        const font = getComputedStyle(document.body).fontFamily;
+        c.textAlign = "center";
+        c.textBaseline = "middle";
+
+        c.fillStyle = "#c94c84";
+        c.font = `800 32px ${font}`;
+        c.fillText("✨ 專屬應援加油卡 ✨", 0, -120);
+
+        // 主角名字大字
+        c.fillStyle = "#5c2447";
+        c.font = `900 62px ${font}`;
+        c.fillText(seg.displayName, 0, -35);
+
+        // 暖心祝福語
+        c.fillStyle = "#7a4d68";
+        c.font = `700 30px ${font}`;
+        c.fillText("不管今天遇到什麼挑戰", 0, 52);
+        c.fillText("都要記得你一直都很耀眼！", 0, 102);
+
+        // 漂浮愛心分隔線
+        drawHeart(c, -90, 165, 14, "#ff7ba9", 0.9);
+        drawHeart(c, 0, 165, 18, "#ff5c94", 1);
+        drawHeart(c, 90, 165, 14, "#b88cff", 0.9);
+
+        // 署名
+        c.fillStyle = "#9c6282";
+        c.font = `700 26px ${font}`;
+        c.fillText(`From：${seg.sender}`, 0, 232);
+
+        c.fillStyle = "rgba(160, 110, 140, 0.72)";
+        c.font = `700 20px ${font}`;
+        c.fillText("🎀 少女上車舞・為你加油應援 🎀", 0, 276);
+
+        c.restore();
+      }
+
+      // 主畫面渲染函式
+      function renderFrame(t) {
+        const activeBpm = getActiveBPM();
+        const themeObj = THEMES[state.theme] || THEMES.sakura;
+        const { seg, localT } = getSegmentAt(t);
+        const beatPhase = (t * activeBpm / 60) % 1;
+        const beatPulse = Math.pow(1 - beatPhase, 2.2);
+
+        // 更新配樂氛圍
+        if (seg && seg.mood) {
+          audioEngine.currentMood = seg.mood;
+        } else if (seg && seg.type === "outro") {
+          audioEngine.currentMood = "comfort";
+        }
+
+        // 1. 夢幻漸層天空背景
+        const bg = ctx.createLinearGradient(0, 0, 0, 1280);
+        bg.addColorStop(0, themeObj.bgTop);
+        bg.addColorStop(0.54, themeObj.bgMid);
+        bg.addColorStop(1, themeObj.bgBottom);
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, 720, 1280);
+
+        // 2. 旋轉舞台聚光燈光束
+        ctx.save();
+        ctx.translate(360, 210);
+        for (let i = 0; i < 6; i++) {
+          const ang = (i * Math.PI) / 3 + Math.sin(t * 0.7 + i) * 0.25;
+          ctx.save();
+          ctx.rotate(ang);
+          const beam = ctx.createLinearGradient(0, 0, 0, 960);
+          beam.addColorStop(0, "rgba(255, 240, 250, 0.16)");
+          beam.addColorStop(1, "rgba(255, 240, 250, 0)");
+          ctx.fillStyle = beam;
+          ctx.beginPath();
+          ctx.moveTo(-26, 0);
+          ctx.lineTo(26, 0);
+          ctx.lineTo(130, 960);
+          ctx.lineTo(-130, 960);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        }
+        ctx.restore();
+
+        // 3. 霓虹節拍光環（隨 BPM 律動）
+        ctx.save();
+        ctx.translate(360, 560);
+        const ringR = 210 + beatPulse * 34;
+        ctx.strokeStyle = themeObj.ringColor;
+        ctx.globalAlpha = 0.26 + beatPulse * 0.28;
+        ctx.lineWidth = 8 + beatPulse * 6;
+        ctx.beginPath();
+        ctx.arc(0, 0, ringR, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = "#fff5d6";
+        ctx.globalAlpha = 0.22 + beatPulse * 0.2;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, ringR + 28, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+
+        // 4. 閃耀舞台地板
+        const floorGrad = ctx.createLinearGradient(0, 820, 0, 1280);
+        floorGrad.addColorStop(0, themeObj.floorTop);
+        floorGrad.addColorStop(0.5, themeObj.bgMid);
+        floorGrad.addColorStop(1, themeObj.bgTop);
+        ctx.fillStyle = floorGrad;
+        ctx.beginPath();
+        ctx.ellipse(360, 1020, 490, 220, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 舞台邊緣發光線
+        ctx.strokeStyle = themeObj.floorGlow;
+        ctx.lineWidth = 5;
+        ctx.globalAlpha = 0.65;
+        ctx.beginPath();
+        ctx.ellipse(360, 1020, 490, 220, 0, Math.PI * 1.05, Math.PI * 1.95);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        // 5. 漂浮櫻花花瓣、星塵與愛心粒子
+        particles.forEach((p) => {
+          const py = (p.y + t * p.speedY) % 1340 - 30;
+          const px = (p.x + Math.sin(t * 1.3 + p.phase) * 32 + t * p.speedX + 720) % 720;
+          const col = themeObj.particleColors[p.colorIdx];
+          if (p.type === "star") {
+            drawStar(ctx, px, py, p.size * (0.7 + beatPulse * 0.3), col, 0.85);
+          } else if (p.type === "heart") {
+            drawHeart(ctx, px, py, p.size * 0.85, col, 0.72);
+          } else {
+            ctx.save();
+            ctx.translate(px, py);
+            ctx.rotate(p.rot + t * p.rotSpeed);
+            ctx.fillStyle = col;
+            ctx.globalAlpha = 0.82;
+            ctx.beginPath();
+            ctx.ellipse(0, 0, p.size, p.size * 0.55, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+        });
+
+        // 6. 依目前時間軸片段繪製對應舞台內容
+        if (seg && seg.type === "outro") {
+          // 結尾卡片時少女在後方開心微笑揮手
+          IDOLS.forEach((idol) => drawShoujoIdol(ctx, idol, t, beatPulse, "bye", "cheer"));
+          drawOutroCard(ctx, seg, localT, themeObj);
+          return;
+        }
+
+        const action = seg && seg.type === "line" ? seg.action : "call";
+        const mood = seg && seg.type === "line" ? seg.mood : "cheer";
+        const progress = seg ? Math.min(1, localT / seg.duration) : 0;
+        const displayName = getDisplayName();
+        const font = getComputedStyle(document.body).fontFamily;
+
+        // 安慰模式額外暖心波紋
+        if (mood === "comfort") {
+          ctx.save();
+          const rippleR = ((t * 110) % 280) + 80;
+          ctx.strokeStyle = "rgba(255, 198, 224, 0.35)";
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.arc(360, 520, rippleR, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // 頂部進度站點徽章
+        if (seg && seg.script) {
+          ctx.save();
+          ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+          drawRoundedRect(ctx, 130, 56, 460, 54, 27);
+          ctx.fill();
+          ctx.fillStyle = "#b83b72";
+          ctx.font = `800 24px ${font}`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(
+            `第 ${seg.stationIndex}/${seg.totalStations} 站・${seg.script.emoji} ${seg.script.title}`,
+            360,
+            84
+          );
+          ctx.restore();
+        }
+
+        // 中央主角發光名牌 + 皇冠動畫
+        ctx.save();
+        const nameY = 232 + Math.sin(t * 4) * 6;
+        const nameScale = action === "crown" || action === "wow" ? 1.06 + beatPulse * 0.08 : 1 + beatPulse * 0.04;
+        ctx.translate(360, nameY);
+        ctx.scale(nameScale, nameScale);
+
+        // 發光名牌底板
+        ctx.fillStyle = "rgba(255, 255, 255, 0.16)";
+        drawRoundedRect(ctx, -230, -56, 460, 112, 56);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255, 232, 165, 0.78)";
+        ctx.lineWidth = 3.5;
+        ctx.stroke();
+
+        // 名字發光描邊大字
+        ctx.font = `900 58px ${font}`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.lineWidth = 11;
+        ctx.lineJoin = "round";
+        ctx.strokeStyle = "#8a2256";
+        ctx.strokeText(displayName, 0, 4);
+        const nameGrad = ctx.createLinearGradient(0, -30, 0, 30);
+        nameGrad.addColorStop(0, "#fff8d6");
+        nameGrad.addColorStop(0.55, "#ffffff");
+        nameGrad.addColorStop(1, "#ffd2e8");
+        ctx.fillStyle = nameGrad;
+        ctx.fillText(displayName, 0, 4);
+
+        // 皇冠降落特效（crown / wow / shine 段落戴著閃耀皇冠）
+        if (action === "crown" || action === "wow" || action === "shine") {
+          const drop = action === "crown" ? Math.min(1, progress * 2.2) : 1;
+          const crownY = -125 + drop * 45;
+          drawCrown(ctx, 0, crownY, 0.92 + beatPulse * 0.08, drop);
+        }
+        ctx.restore();
+
+        // 繪製 5 位日系少女偶像（後排先畫、C位最後畫）
+        [IDOLS[0], IDOLS[4], IDOLS[1], IDOLS[3], IDOLS[2]].forEach((idol) => {
+          drawShoujoIdol(ctx, idol, t, beatPulse, action, mood);
+        });
+
+        // 「來囉來囉～」黃帽彩蛋少女蹦出
+        if (action === "cameo") {
+          drawYellowHatCameo(ctx, progress, t);
+        }
+
+        // 卡拉 OK 字幕或轉場提示
+        if (seg && seg.type === "line") {
+          drawKaraokeSubtitle(ctx, seg.text, seg.highlightName, progress, themeObj, mood);
+        } else if (seg && seg.type === "transition") {
+          // 下一站轉場絲帶光幕
+          const p = Math.sin(progress * Math.PI);
+          ctx.save();
+          ctx.fillStyle = `rgba(255, 240, 248, ${0.88 * p})`;
+          ctx.fillRect(0, 470, 720, 260);
+          ctx.fillStyle = "#c93b7b";
+          ctx.font = `900 42px ${font}`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(`🚃 下一站上車！`, 360, 565);
+          ctx.font = `800 34px ${font}`;
+          ctx.fillStyle = "#6c3fb5";
+          ctx.fillText(`${seg.script.emoji} ${seg.script.title}`, 360, 635);
+          ctx.restore();
+        }
+      }
+
+      // -----------------------------------------------------------------------
+      // 8. 動畫主迴圈與播放控制
+      // -----------------------------------------------------------------------
+      function updateProgressUI() {
+        const ratio = totalDuration > 0 ? state.currentTime / totalDuration : 0;
+        progressSlider.value = String(Math.round(ratio * 1000));
+        timeCurrentEl.textContent = formatTime(state.currentTime);
+      }
+
+      function animationLoop(now) {
+        if (!state.lastFrameTime) state.lastFrameTime = now;
+        const dt = Math.min(0.08, (now - state.lastFrameTime) / 1000);
+        state.lastFrameTime = now;
+
+        if (state.isPlaying) {
+          state.currentTime += dt;
+
+          // 觸發語音（每一句台詞＋結尾祝福語，錄影時也會持續發聲）
+          const { seg, index } = getSegmentAt(state.currentTime);
+          if (seg && index !== state.lastSpokenSegmentIdx) {
+            if (seg.type === "line") {
+              state.lastSpokenSegmentIdx = index;
+              speakLine(seg.text);
+            } else if (seg.type === "outro" && seg.blessingText) {
+              state.lastSpokenSegmentIdx = index;
+              speakLine(seg.blessingText);
+            } else if (seg.type === "transition" && index !== state.lastTransitionIdx) {
+              state.lastTransitionIdx = index;
+              if (state.bgmMode === "dj" && audioEngine.ctx) {
+                audioEngine.playAirhornDrop(audioEngine.ctx.currentTime + 0.02);
+              }
+            }
+          }
+
+          if (state.currentTime >= totalDuration) {
+            if (state.isRecording) {
+              state.currentTime = totalDuration;
+              renderFrame(state.currentTime);
+              finishRecording();
+            } else {
+              state.currentTime = 0;
+              state.lastSpokenSegmentIdx = -1;
+              state.lastTransitionIdx = -1;
+              audioEngine.syncCustomAudioTime(0);
+            }
+          }
+          updateProgressUI();
+
+          if (state.isRecording) {
+            const pct = Math.min(100, Math.round((state.currentTime / totalDuration) * 100));
+            recBadgeText.textContent = `錄製中 ${pct}%`;
+            exportBarFill.style.width = `${pct}%`;
+          }
+        }
+
+        renderFrame(state.currentTime);
+        requestAnimationFrame(animationLoop);
+      }
+
+      function setPlaying(play) {
+        state.isPlaying = play;
+        btnPlay.textContent = play ? "⏸ 暫停預覽" : "▶ 播放預覽";
+        if (play) {
+          audioEngine.start(state.currentTime < 0.25);
+          state.lastFrameTime = performance.now();
+        } else {
+          audioEngine.stop();
+          audioEngine.setDucking(false);
+          if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+        }
+      }
+
+      // -----------------------------------------------------------------------
+      // 9. 9:16 影片錄製與匯出（Canvas + Web Audio -> MediaRecorder）
+      // -----------------------------------------------------------------------
+      let mediaRecorder = null;
+      let recordedChunks = [];
+      let recordedBlobUrl = null;
+      let currentMimeExt = "webm";
+
+      function getSupportedMime() {
+        const candidates = [
+          { mime: "video/mp4;codecs=avc1,mp4a.40.2", ext: "mp4" },
+          { mime: "video/mp4", ext: "mp4" },
+          { mime: "video/webm;codecs=vp9,opus", ext: "webm" },
+          { mime: "video/webm;codecs=vp8,opus", ext: "webm" },
+          { mime: "video/webm", ext: "webm" }
+        ];
+        if (typeof MediaRecorder === "undefined") return null;
+        for (const item of candidates) {
+          if (MediaRecorder.isTypeSupported(item.mime)) return item;
+        }
+        return { mime: "", ext: "webm" };
+      }
+
+      async function startRecording() {
+        if (state.isRecording) return;
+        const support = getSupportedMime();
+        if (!support || typeof canvas.captureStream !== "function") {
+          showToast("目前瀏覽器不支援直接錄製影片，建議使用 Chrome、Edge 或 Safari 最新版！");
+          return;
+        }
+
+        rebuildTimeline();
+        audioEngine.init();
+
+        // 若勾選麥克風收音，先行連接至錄影音軌
+        if (chkRecordMic && chkRecordMic.checked) {
+          const ok = await audioEngine.attachMicForRecording();
+          if (ok) showToast("🎙 已開啟麥克風收音，將同步錄下配樂與語音！");
+        }
+
+        try {
+          const videoStream = canvas.captureStream(30);
+          const combinedTracks = [...videoStream.getVideoTracks()];
+          if (audioEngine.mediaDest && audioEngine.mediaDest.stream) {
+            audioEngine.mediaDest.stream.getAudioTracks().forEach((tr) => combinedTracks.push(tr));
+          }
+          const combinedStream = new MediaStream(combinedTracks);
+
+          const options = support.mime ? { mimeType: support.mime, videoBitsPerSecond: 4500000 } : {};
+          mediaRecorder = new MediaRecorder(combinedStream, options);
+          currentMimeExt = support.ext;
+          recordedChunks = [];
+
+          mediaRecorder.ondataavailable = (e) => {
+            if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+          };
+
+          mediaRecorder.onstop = () => {
+            if (recordedChunks.length === 0) return;
+            const blob = new Blob(recordedChunks, { type: support.mime || "video/webm" });
+            if (recordedBlobUrl) URL.revokeObjectURL(recordedBlobUrl);
+            recordedBlobUrl = URL.createObjectURL(blob);
+
+            exportedVideo.src = recordedBlobUrl;
+            exportedVideo.style.display = "block";
+            exportActions.style.display = "flex";
+            const safeName = getDisplayName().replace(/[\\/:*?"<>|]/g, "");
+            btnDownloadVideo.href = recordedBlobUrl;
+            btnDownloadVideo.download = `${safeName}_少女上車加油_9x16.${currentMimeExt}`;
+            exportStatus.textContent = `🎉 9:16 加油影片生成完成！（.${currentMimeExt.toUpperCase()}）`;
+            btnCancelRec.style.display = "none";
+            showToast("🎉 9:16 專屬加油影片已生成，點擊下方即可下載分享！");
+          };
+
+          // 切換至錄製狀態並從頭開始播放
+          state.isRecording = true;
+          state.currentTime = 0;
+          state.lastSpokenSegmentIdx = -1;
+          state.lastTransitionIdx = -1;
+          exportBox.classList.add("visible");
+          exportedVideo.style.display = "none";
+          exportActions.style.display = "none";
+          btnCancelRec.style.display = "inline-flex";
+          exportStatus.textContent = "🎬 正在錄製 9:16 可愛應援影片，請勿切換分頁…";
+          exportBarFill.style.width = "0%";
+          recBadge.classList.add("active");
+          btnRecord.disabled = true;
+
+          mediaRecorder.start(200);
+          setPlaying(true);
+        } catch (err) {
+          showToast("啟動錄影時發生問題：" + err.message);
+          cancelRecording();
+        }
+      }
+
+      function finishRecording() {
+        state.isRecording = false;
+        recBadge.classList.remove("active");
+        btnRecord.disabled = false;
+        setPlaying(false);
+        audioEngine.detachMic();
+        if (mediaRecorder && mediaRecorder.state !== "inactive") {
+          mediaRecorder.stop();
+        }
+      }
+
+      function cancelRecording() {
+        state.isRecording = false;
+        recBadge.classList.remove("active");
+        btnRecord.disabled = false;
+        setPlaying(false);
+        audioEngine.detachMic();
+        recordedChunks = [];
+        if (mediaRecorder && mediaRecorder.state !== "inactive") {
+          mediaRecorder.onstop = null;
+          mediaRecorder.stop();
+        }
+        exportBox.classList.remove("visible");
+        showToast("已取消錄製");
+      }
+
+      // -----------------------------------------------------------------------
+      // 10. UI 渲染（腳本庫、串聯順序清單）
+      // -----------------------------------------------------------------------
+      function renderScriptLibrary() {
+        const all = getAllScripts();
+        scriptGrid.innerHTML = "";
+
+        all.forEach((script) => {
+          const isSelected = state.selectedIds.includes(script.id);
+          const orderNum = state.selectedIds.indexOf(script.id) + 1;
+          const isCustom = !BUILTIN_SCRIPTS.some((b) => b.id === script.id);
+
+          const card = document.createElement("div");
+          card.className = `script-card ${isSelected ? "selected" : ""}`;
+          card.innerHTML = `
+            <div class="script-card-top">
+              <span class="script-name">${script.emoji} ${script.title}</span>
+              <span class="script-check">${isSelected ? orderNum : "+"}</span>
+            </div>
+            <div class="script-desc">${script.desc}</div>
+            <div class="script-meta">
+              <span>${script.mood === "comfort" ? "💧 暖心動容" : script.mood === "party" ? "🎉 派對慶祝" : "⚡ 元氣應援"}</span>
+              ${isCustom ? `<button class="btn btn-outline btn-sm del-custom-btn" data-id="${script.id}" style="padding:2px 7px;min-height:24px;">刪除</button>` : "<span>7 句完整節拍</span>"}
+            </div>
+          `;
+
+          card.addEventListener("click", (e) => {
+            if (e.target.classList.contains("del-custom-btn")) {
+              e.stopPropagation();
+              const delId = e.target.dataset.id;
+              customScripts = customScripts.filter((c) => c.id !== delId);
+              state.selectedIds = state.selectedIds.filter((id) => id !== delId);
+              if (state.selectedIds.length === 0) state.selectedIds = [BUILTIN_SCRIPTS[0].id];
+              saveCustomScripts();
+              rebuildTimeline();
+              renderScriptLibrary();
+              renderSequenceList();
+              showToast("已刪除自訂上車腳本");
+              return;
+            }
+
+            if (isSelected) {
+              if (state.selectedIds.length === 1) {
+                showToast("至少需要保留 1 段上車劇情喔！");
+                return;
+              }
+              state.selectedIds = state.selectedIds.filter((id) => id !== script.id);
+            } else {
+              state.selectedIds.push(script.id);
+            }
+            rebuildTimeline();
+            renderScriptLibrary();
+            renderSequenceList();
+          });
+
+          scriptGrid.appendChild(card);
+        });
+      }
+
+      function renderSequenceList() {
+        sequenceList.innerHTML = "";
+        state.selectedIds.forEach((id, idx) => {
+          const script = getScriptById(id);
+          if (!script) return;
+          const row = document.createElement("div");
+          row.className = "seq-item";
+          row.innerHTML = `
+            <div class="seq-left">
+              <span class="seq-num">${idx + 1}</span>
+              <span class="seq-title">${script.emoji} ${script.title}</span>
+            </div>
+            <div class="seq-actions">
+              <button class="btn btn-outline btn-sm" data-act="up" ${idx === 0 ? "disabled" : ""}>↑</button>
+              <button class="btn btn-outline btn-sm" data-act="down" ${idx === state.selectedIds.length - 1 ? "disabled" : ""}>↓</button>
+              <button class="btn btn-soft btn-sm" data-act="remove">✕</button>
+            </div>
+          `;
+
+          row.querySelector('[data-act="up"]').addEventListener("click", () => {
+            if (idx === 0) return;
+            [state.selectedIds[idx - 1], state.selectedIds[idx]] = [state.selectedIds[idx], state.selectedIds[idx - 1]];
+            rebuildTimeline();
+            renderScriptLibrary();
+            renderSequenceList();
+          });
+
+          row.querySelector('[data-act="down"]').addEventListener("click", () => {
+            if (idx === state.selectedIds.length - 1) return;
+            [state.selectedIds[idx + 1], state.selectedIds[idx]] = [state.selectedIds[idx], state.selectedIds[idx + 1]];
+            rebuildTimeline();
+            renderScriptLibrary();
+            renderSequenceList();
+          });
+
+          row.querySelector('[data-act="remove"]').addEventListener("click", () => {
+            if (state.selectedIds.length === 1) {
+              showToast("至少需要保留 1 段上車劇情喔！");
+              return;
+            }
+            state.selectedIds.splice(idx, 1);
+            rebuildTimeline();
+            renderScriptLibrary();
+            renderSequenceList();
+          });
+
+          sequenceList.appendChild(row);
+        });
+      }
+
+      // -----------------------------------------------------------------------
+      // 11. 事件綁定
+      // -----------------------------------------------------------------------
+      function updateBgmUI() {
+        bgmModeGrid.querySelectorAll(".mode-btn").forEach((b) => {
+          b.classList.toggle("active", b.dataset.bgm === state.bgmMode);
+        });
+        const labels = {
+          dj: "🔥 配樂：上車電音 DJ 版",
+          idol: "🌸 配樂：甜美少女偶像版",
+          custom: state.customAudioName ? `📂 配樂：${state.customAudioName.slice(0, 10)}` : "📂 配樂：我的原曲檔"
+        };
+        btnQuickBgm.textContent = labels[state.bgmMode] || labels.dj;
+      }
+
+      function switchBgmMode(mode) {
+        if (mode === "custom" && !state.customAudioUrl) {
+          showToast("請先點擊「📂 匯入這支影片／音檔當配樂」挑選檔案喔！");
+          inputAudioFile.click();
+          return;
+        }
+        state.bgmMode = mode;
+        updateBgmUI();
+        rebuildTimeline();
+        if (state.isPlaying) {
+          audioEngine.stop();
+          audioEngine.start(true);
+        }
+      }
+
+      bgmModeGrid.querySelectorAll(".mode-btn").forEach((btn) => {
+        btn.addEventListener("click", () => switchBgmMode(btn.dataset.bgm));
+      });
+
+      btnQuickBgm.addEventListener("click", () => {
+        const order = state.customAudioUrl ? ["dj", "idol", "custom"] : ["dj", "idol"];
+        const next = order[(order.indexOf(state.bgmMode) + 1) % order.length];
+        switchBgmMode(next);
+      });
+
+      inputAudioFile.addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        if (state.customAudioUrl) URL.revokeObjectURL(state.customAudioUrl);
+        state.customAudioUrl = URL.createObjectURL(file);
+        state.customAudioName = file.name;
+        customAudioEl.src = state.customAudioUrl;
+        customAudioEl.load();
+        customAudioStatus.innerHTML = `✅ 已載入原曲：<strong>${file.name}</strong>（可隨時切換回內建電音）`;
+        state.bgmMode = "custom";
+        updateBgmUI();
+        rebuildTimeline();
+        if (state.isPlaying) {
+          audioEngine.stop();
+          audioEngine.start(false);
+        }
+        showToast(`🎵 已套用原曲「${file.name}」，播放與錄影都會同步使用！`);
+      });
+
+      bgmVolumeSlider.addEventListener("input", () => {
+        const pct = Number(bgmVolumeSlider.value);
+        bgmVolumeVal.textContent = `${pct}%`;
+        audioEngine.setVolume(pct / 100);
+      });
+
+      voiceStyleRow.querySelectorAll(".mode-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.voiceStyle = btn.dataset.vstyle;
+          voiceStyleRow.querySelectorAll(".mode-btn").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          showToast(`🗣 語音風格切換為「${VOICE_PRESETS[state.voiceStyle].label}」`);
+        });
+      });
+
+      selectVoice.addEventListener("change", () => {
+        state.selectedVoiceURI = selectVoice.value;
+      });
+
+      function testVoiceSample() {
+        const name = getDisplayName();
+        speakLine(`來囉來囉！我們來接 ${name} 上車囉！今天也要閃閃發光加油喔！`, true);
+      }
+      btnTestVoice.addEventListener("click", testVoiceSample);
+      btnQuickTestVoice.addEventListener("click", testVoiceSample);
+
+      btnPlay.addEventListener("click", () => {
+        if (state.isRecording) return;
+        setPlaying(!state.isPlaying);
+      });
+
+      btnRestart.addEventListener("click", () => {
+        if (state.isRecording) return;
+        state.currentTime = 0;
+        state.lastSpokenSegmentIdx = -1;
+        state.lastTransitionIdx = -1;
+        audioEngine.syncCustomAudioTime(0);
+        updateProgressUI();
+        setPlaying(true);
+      });
+
+      btnMute.addEventListener("click", () => {
+        state.isMuted = !state.isMuted;
+        audioEngine.setMuted(state.isMuted);
+        btnMute.textContent = state.isMuted ? "🔇" : "🔊";
+        showToast(state.isMuted ? "已靜音（錄製影片仍會保留完整配樂）" : "已開啟應援配樂");
+      });
+
+      btnTTS.addEventListener("click", () => {
+        state.ttsEnabled = !state.ttsEnabled;
+        btnTTS.textContent = state.ttsEnabled ? "🗣 語音：開" : "🗣 語音：關";
+        btnTTS.className = state.ttsEnabled ? "btn btn-soft btn-sm" : "btn btn-outline btn-sm";
+        if (!state.ttsEnabled && "speechSynthesis" in window) {
+          window.speechSynthesis.cancel();
+          audioEngine.setDucking(false);
+        }
+        showToast(state.ttsEnabled ? "已開啟可愛中文語音朗讀" : "已關閉中文語音");
+      });
+
+      progressSlider.addEventListener("input", () => {
+        if (state.isRecording) return;
+        const ratio = Number(progressSlider.value) / 1000;
+        state.currentTime = ratio * totalDuration;
+        state.lastSpokenSegmentIdx = -1;
+        state.lastTransitionIdx = -1;
+        audioEngine.syncCustomAudioTime(state.currentTime);
+        timeCurrentEl.textContent = formatTime(state.currentTime);
+      });
+
+      btnRecord.addEventListener("click", startRecording);
+      btnCancelRec.addEventListener("click", cancelRecording);
+
+      // 主角名字與設定即時連動
+      inputName.addEventListener("input", () => {
+        state.targetName = inputName.value;
+        rebuildTimeline();
+      });
+      selectSuffix.addEventListener("change", () => {
+        state.suffix = selectSuffix.value;
+        rebuildTimeline();
+      });
+      inputSender.addEventListener("input", () => {
+        state.sender = inputSender.value;
+        rebuildTimeline();
+      });
+
+      // 主題切換
+      themePills.querySelectorAll(".theme-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.theme = btn.dataset.theme;
+          themePills.querySelectorAll(".theme-btn").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+        });
+      });
+
+      // YouTube 原曲內嵌展開/收合
+      let ytLoaded = false;
+      btnToggleYT.addEventListener("click", () => {
+        const isOpen = ytEmbedWrap.classList.toggle("open");
+        btnToggleYT.textContent = isOpen ? "📺 收合內嵌預覽" : "📺 展開內嵌預覽";
+        if (isOpen && !ytLoaded) {
+          ytEmbedWrap.innerHTML = `<iframe src="https://www.youtube.com/embed/6dX6bJiQpig" title="上車舞原曲參考" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+          ytLoaded = true;
+        }
+      });
+
+      // 自訂上車腳本開合與儲存
+      btnToggleCustom.addEventListener("click", () => {
+        customDrawer.classList.toggle("open");
+      });
+      btnCloseCustom.addEventListener("click", () => {
+        customDrawer.classList.remove("open");
+      });
+
+      btnSaveCustom.addEventListener("click", () => {
+        const title = document.getElementById("customTitle").value.trim();
+        const emoji = document.getElementById("customEmoji").value.trim() || "🎀";
+        const mood = document.getElementById("customMood").value;
+        const lines = Array.from(document.querySelectorAll(".custom-line")).map((el) => el.value.trim() || "加油加油 {name}！");
+
+        if (!title) {
+          showToast("請幫這個專屬上車腳本取一個名稱喔！");
+          return;
+        }
+
+        const newScript = {
+          id: "custom_" + Date.now(),
+          emoji,
+          title,
+          desc: "你專屬收集的自訂上車應援劇情！",
+          mood,
+          badgeColor: "#ff7fa3",
+          lines
+        };
+
+        customScripts.push(newScript);
+        saveCustomScripts();
+        state.selectedIds.push(newScript.id);
+        document.getElementById("customTitle").value = "";
+        customDrawer.classList.remove("open");
+
+        rebuildTimeline();
+        renderScriptLibrary();
+        renderSequenceList();
+        showToast(`✨ 已收藏「${title}」並加入影片串聯！`);
+      });
+
+      // 複製分享文案
+      btnCopyText.addEventListener("click", () => {
+        const name = getDisplayName();
+        const sender = (state.sender || "最挺你的好朋友").trim();
+        const titles = state.selectedIds.map((id) => {
+          const s = getScriptById(id);
+          return s ? `${s.emoji}${s.title}` : "";
+        }).filter(Boolean).join(" → ");
+
+        const shareText = `🎀 專屬給【${name}】的少女上車加油影片來囉！\n這次幫你接了：${titles}\n不管今天累不累，記得你一直都閃閃發光惹人愛 ✨\n點開影片領取你的專屬小皇冠吧！👑\n—— ${sender} 幫你打氣 💖`;
+        if (copyTextFallback(shareText)) {
+          showToast("💌 已複製專屬加油文案，快貼給好友吧！");
+        } else {
+          showToast("無法自動複製，請手動選取分享");
+        }
+      });
+
+      // 複製帶參數分享連結
+      btnCopyLink.addEventListener("click", () => {
+        const url = new URL(window.location.href);
+        url.searchParams.set("name", state.targetName || "小美");
+        url.searchParams.set("suffix", state.suffix);
+        url.searchParams.set("sender", state.sender || "最挺你的好朋友");
+        url.searchParams.set("theme", state.theme);
+        // 僅帶入內建腳本 ID 以確保對方開啟可還原
+        const shareableIds = state.selectedIds.filter((id) => BUILTIN_SCRIPTS.some((b) => b.id === id));
+        if (shareableIds.length > 0) {
+          url.searchParams.set("scripts", shareableIds.join(","));
+        }
+        if (copyTextFallback(url.toString())) {
+          showToast("🔗 已複製專屬參數連結！對方打開就會直接看到為他準備的舞台");
+        } else {
+          showToast("無法自動複製連結");
+        }
+      });
+
+      // -----------------------------------------------------------------------
+      // 12. 啟動初始化
+      // -----------------------------------------------------------------------
+      window.onload = function () {
+        applyQueryParams();
+        updateBgmUI();
+        populateVoices();
+        rebuildTimeline();
+        renderScriptLibrary();
+        renderSequenceList();
+        renderFrame(0);
+        requestAnimationFrame(animationLoop);
+      };
+    })();
+  </script>
+</body>
+</html>
