@@ -1008,97 +1008,106 @@
          1. 預設作品資料（10 款完整收錄，皆配有專屬 artKey）
          ======================================================================== */
       const DEFAULT_GAMES = [
-        {
-          id: "invoice-king",
-          title: "銷單王者歸來",
-          category: "藝術冒險",
-          subTag: "鎏金浮世繪",
-          path: "invoice_king_returns.html",
-          desc: "三關討伐魔王、蝸牛闖山林、女王核銷一吼，親手拔起金光「銷單王」神劍並下載專屬照片姓名證書。",
-          artKey: "invoice_king"
-        },
-        {
-          id: "luminance-ch1",
-          title: "《空明・見性》",
-          category: "禪意靜心",
-          subTag: "水墨冥想",
-          path: "luminance_chapter1.html",
-          desc: "如來",
-          artKey: "zen_ch1"
-        },
-        {
-          id: "chair-moon",
-          title: "無椅的沉默：宇宙級嘴硬遠征",
-          category: "荒誕喜劇",
-          subTag: "四關小遊戲",
-          path: "chair_moon_adventure.html",
-          desc: "從辦公桌沒椅子、路人老虎演講、和平鴿投椅入海，到月球開直播照亮太陽獲得「靈芝草一隻」與結業證書。",
-          artKey: "chair_moon"
-        },
-        {
-          id: "daily-five",
-          title: "每日五題成長小徑",
-          category: "成長練習",
-          subTag: "40 天打卡",
-          path: "daily_five_growth.html",
-          desc: "40 天由淺入深每日五題練習、錯題統計儀表板，支援跨裝置登入與 Google 試算表紀錄。",
-          artKey: "daily_five"
-        },
-        {
-          id: "custom-1795403620313",
-          title: "山景教室：刷新三觀大作戰",
-          category: "藝術冒險",
-          subTag: "互動新作",
-          path: "mountain_classroom_game.html",
-          desc: "三段式晴空山景落地窗、精緻手寫粉筆綠黑板、12 課桌椅自由換位與 NPC 助攻系統、三關進階搗蛋猴子（含吃香蕉誘餌、全班齊射 Fever 與第三關分身大亂鬥）",
-          artKey: "mountain_classroom"
-        },
-        {
-          id: "custom-1795424546777",
-          title: "蔚藍名流・美國夢豪華遠征",
-          category: "藝術冒險",
-          subTag: "互動新作",
-          path: "azure_american_dream.html",
-          desc: "US$100,000 揪團集資與高級禮儀樂團祝賀演出、加州舉重競技場對決洋妞 Jessica、五大美國名企粉絲見面會集花束",
-          artKey: "azure_american_dream"
-        },
-        {
-          id: "custom-1795424679657",
-          title: "翡翠算力帝國：顯卡、獸吼與高訂洞洞",
-          category: "荒誕喜劇",
-          subTag: "AI世界",
-          path: "tiffany_gpu_empire.html",
-          desc: "全球出貨與豺狼虎豹批鬥」、「會發出怒吼與蟲鳴鳥叫的軟體之王」以及「戳破顯卡追求高訂質感而華麗下台」三大關卡；每過一關皆會觸發 ±20%～30% 的即時隨機盤勢震盪（起始 50,000 點），並於通關後繪製完整股市走勢圖，支援上傳個人照片與切換幽默標語，即時合成 1080×1520 高畫質 PNG 榮譽證書。",
-          artKey: "tiffany_gpu_empire"
-        },
-        {
-          id: "custom-1795424787013",
-          title: "粉紅泡泡沙龍：氣質彈珠台",
-          category: "成長練習",
-          subTag: "古典遊戲",
-          path: "pink_bubble_pinball.html",
-          desc: "以柔和珍珠粉白、乾燥玫瑰粉與香檳玫瑰金營造法式沙龍高級質感，完整還原 15 排經典台灣彈珠台的發射軌道、頂部排數禮讚銘牌、交錯玫瑰金珍珠釘陣與第 1／15 排加贈彈珠機制；每點亮一排皆會綻放即時讚美泡泡，結算時依點亮排數獻上專屬氣質稱號與暖心金句，並即時合成內含個人照片、15 排成果點陣圖與玫瑰金火漆印章的 1080×1520 高訂榮譽證書供一鍵下載與手機長按保存。",
-          artKey: "pink_bubble_pinball"
-        },
-        {
-          id: "custom-1795424839957",
-          title: "幸運小瑪莉：2的次方讚賞機",
-          category: "成長練習",
-          subTag: "古典遊戲",
-          path: "little_mary_power2.html",
-          desc: "皇家絲絨酒紅與香檳金 LED 燈框的經典 24 格小瑪莉機台，完整實作初始 100 元、1 單位以上自由投注、即時「2 的次方（2^n）」與「賺錢比例」雙重分類、歸零暖心鼓勵補給、超過 2,000 元自動止盈終止並綻放金色紙花，以及可客製化送出、複製文字與下載 1080×1350 高畫質 PNG 讚賞榮譽卡的完整體驗。",
-          artKey: "little_mary_power2"
-        },
-        {
-          id: "custom-1795434270604",
-          title: "紅線大合唱：少子化 × AI 動物大賽跑",
-          category: "荒誕喜劇",
-          subTag: "競技型遊戲",
-          path: "redline_chorus_race.html",
-          desc: "遊戲將包含實體翻牌式台灣數據儀表板、雙主角（學霸黑熊與創客石虎）立體公仔與跟班小動物群、2025～2030 立體年份拱門與「5% 戴墨鏡跳槽創業」拋物線動畫、雙人同機與單人 AI 對戰、實體按壓回饋按鈕，以及衝破彈性紅線後的聚光燈擁抱大合唱舞台、Web Audio API 即時合成雙聲部主題曲、卡拉 OK 歌詞跑馬燈與互動音符煙火結算獎牌。",
-          artKey: "redline_chorus_race"
-        }
-      ];
+  {
+    "id": "invoice-king",
+    "title": "銷單王者歸來",
+    "category": "藝術冒險",
+    "subTag": "鎏金浮世繪",
+    "path": "invoice_king_returns.html",
+    "desc": "三關討伐魔王、蝸牛闖山林、女王核銷一吼，親手拔起金光「銷單王」神劍並下載專屬照片姓名證書。",
+    "artKey": "invoice_king"
+  },
+  {
+    "id": "luminance-ch1",
+    "title": "《空明・見性》",
+    "category": "禪意靜心",
+    "subTag": "水墨冥想",
+    "path": "luminance_chapter1.html",
+    "desc": "如來",
+    "artKey": "zen_ch1"
+  },
+  {
+    "id": "chair-moon",
+    "title": "無椅的沉默：宇宙級嘴硬遠征",
+    "category": "荒誕喜劇",
+    "subTag": "四關小遊戲",
+    "path": "chair_moon_adventure.html",
+    "desc": "從辦公桌沒椅子、路人老虎演講、和平鴿投椅入海，到月球開直播照亮太陽獲得「靈芝草一隻」與結業證書。",
+    "artKey": "chair_moon"
+  },
+  {
+    "id": "daily-five",
+    "title": "每日五題成長小徑",
+    "category": "成長練習",
+    "subTag": "40 天打卡",
+    "path": "daily_five_growth.html",
+    "desc": "40 天由淺入深每日五題練習、錯題統計儀表板，支援跨裝置登入與 Google 試算表紀錄。",
+    "artKey": "daily_five"
+  },
+  {
+    "id": "custom-1795403620313",
+    "title": "山景教室：刷新三觀大作戰",
+    "category": "藝術冒險",
+    "subTag": "互動新作",
+    "path": "mountain_classroom_game.html",
+    "desc": "三段式晴空山景落地窗、精緻手寫粉筆綠黑板、12 課桌椅自由換位與 NPC 助攻系統、三關進階搗蛋猴子（含吃香蕉誘餌、全班齊射 Fever 與第三關分身大亂鬥）",
+    "artKey": "mountain_classroom"
+  },
+  {
+    "id": "custom-1795424546777",
+    "title": "蔚藍名流・美國夢豪華遠征",
+    "category": "藝術冒險",
+    "subTag": "互動新作",
+    "path": "azure_american_dream.html",
+    "desc": "US$100,000 揪團集資與高級禮儀樂團祝賀演出、加州舉重競技場對決洋妞 Jessica、五大美國名企粉絲見面會集花束",
+    "artKey": "azure_american_dream"
+  },
+  {
+    "id": "custom-1795424679657",
+    "title": "翡翠算力帝國：顯卡、獸吼與高訂洞洞",
+    "category": "荒誕喜劇",
+    "subTag": "AI世界",
+    "path": "tiffany_gpu_empire.html",
+    "desc": "全球出貨與豺狼虎豹批鬥」、「會發出怒吼與蟲鳴鳥叫的軟體之王」以及「戳破顯卡追求高訂質感而華麗下台」三大關卡；每過一關皆會觸發 ±20%～30% 的即時隨機盤勢震盪（起始 50,000 點），並於通關後繪製完整股市走勢圖，支援上傳個人照片與切換幽默標語，即時合成 1080×1520 高畫質 PNG 榮譽證書。",
+    "artKey": "tiffany_gpu_empire"
+  },
+  {
+    "id": "custom-1795424787013",
+    "title": "粉紅泡泡沙龍：氣質彈珠台",
+    "category": "成長練習",
+    "subTag": "古典遊戲",
+    "path": "pink_bubble_pinball.html",
+    "desc": "以柔和珍珠粉白、乾燥玫瑰粉與香檳玫瑰金營造法式沙龍高級質感，完整還原 15 排經典台灣彈珠台的發射軌道、頂部排數禮讚銘牌、交錯玫瑰金珍珠釘陣與第 1／15 排加贈彈珠機制；每點亮一排皆會綻放即時讚美泡泡，結算時依點亮排數獻上專屬氣質稱號與暖心金句，並即時合成內含個人照片、15 排成果點陣圖與玫瑰金火漆印章的 1080×1520 高訂榮譽證書供一鍵下載與手機長按保存。",
+    "artKey": "pink_bubble_pinball"
+  },
+  {
+    "id": "custom-1795424839957",
+    "title": "幸運小瑪莉：2的次方讚賞機",
+    "category": "成長練習",
+    "subTag": "古典遊戲",
+    "path": "little_mary_power2.html",
+    "desc": "皇家絲絨酒紅與香檳金 LED 燈框的經典 24 格小瑪莉機台，完整實作初始 100 元、1 單位以上自由投注、即時「2 的次方（2^n）」與「賺錢比例」雙重分類、歸零暖心鼓勵補給、超過 2,000 元自動止盈終止並綻放金色紙花，以及可客製化送出、複製文字與下載 1080×1350 高畫質 PNG 讚賞榮譽卡的完整體驗。",
+    "artKey": "little_mary_power2"
+  },
+  {
+    "id": "custom-1795434270604",
+    "title": "紅線大合唱：少子化 × AI 動物大賽跑",
+    "category": "荒誕喜劇",
+    "subTag": "競技型遊戲",
+    "path": "redline_chorus_race.html",
+    "desc": "遊戲將包含實體翻牌式台灣數據儀表板、雙主角（學霸黑熊與創客石虎）立體公仔與跟班小動物群、2025～2030 立體年份拱門與「5% 戴墨鏡跳槽創業」拋物線動畫、雙人同機與單人 AI 對戰、實體按壓回饋按鈕，以及衝破彈性紅線後的聚光燈擁抱大合唱舞台、Web Audio API 即時合成雙聲部主題曲、卡拉 OK 歌詞跑馬燈與互動音符煙火結算獎牌。",
+    "artKey": "redline_chorus_race"
+  },
+  {
+    "id": "custom-1795591262730",
+    "title": "少女上車舞・專屬加油影片生成器",
+    "category": "荒誕喜劇",
+    "subTag": "加油生成器",
+    "path": "shangche_cheer_studio.html",
+    "desc": "三種配樂模式自由切換＋原曲匯入：\n\n🔥 上車電音 DJ 版（預設，132 BPM）：開場與站點轉場自動播放招牌三連氣笛（Airhorn）與 DJ 刷碟過門，搭配重拍四拍大鼓、反拍 Melbourne Bounce Bass 與高能派對合成器旋律，5 位少女的舞步也會自動同步至 132 BPM！\n\n🌸 甜美少女偶像版（126 BPM）：保留原本柔和的日系偶像王道和弦，適合暖心安慰劇情。\n\n📂 匯入這支影片／音檔當配樂：可直接挑選你手上的 MP4 / MP3 / WAV 原曲檔，自動透過 Web Audio 混音播放，並且會完整錄製進匯出的 9:16 影片中。\n\n預設開啟可愛中文語音＋智慧壓低配樂（Audio Ducking）：\n\n預設開啟語音朗讀，按下「▶ 播放預覽」就會自動用中文女聲唸出每一句客製化名字的上車台詞與結尾祝福，且說話時背景電音會自動柔和壓低至 42%，確保人聲清晰不打架。\n\n提供 🎀 可愛少女、⚡ 電音 MC、🧸 溫柔暖心 三種語調預設、系統中文語音選單與「🔊 試聽語音」按鈕。\n\n錄影麥克風收音選項：\n\n錄製 9:16 影片時語音仍會同步唸出；若勾選「🎙 錄影時開啟麥克風收音」，可將喇叭播出的語音（或你親口配音的加油聲）與電音配樂一起混音錄進最終下載的 9:16 影片中。",
+    "artKey": "custom"
+  }
+];
 
       const STORAGE_KEY = 'original_game_arcade_hub_v1';
       const CATEGORIES = ['藝術冒險', '禪意靜心', '荒誕喜劇', '成長練習'];
