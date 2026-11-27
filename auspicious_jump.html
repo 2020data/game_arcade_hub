@@ -1,0 +1,2199 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>步步高升・吉祥大跳躍</title>
+  <style>
+    :root {
+      --gold-light: #fff3c4;
+      --gold-main: #f5b942;
+      --gold-deep: #c97d10;
+      --red-festive: #e53955;
+      --pink-soft: #ff85b3;
+      --pink-light: #ffe4ef;
+      --cream-bg: #fff8ee;
+      --text-dark: #4a2418;
+      --shadow-warm: 0 12px 32px rgba(176, 62, 74, 0.24);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 18% 15%, rgba(255, 214, 232, 0.7), transparent 42%),
+        radial-gradient(circle at 85% 20%, rgba(255, 231, 168, 0.75), transparent 44%),
+        radial-gradient(circle at 50% 90%, rgba(255, 184, 198, 0.55), transparent 48%),
+        linear-gradient(160deg, #fff5e8 0%, #ffe9f0 52%, #fff3d6 100%);
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 9:16 居中遊戲舞台容器 */
+    .game-shell {
+      position: relative;
+      width: min(100vw, calc(100vh * 9 / 16));
+      height: min(100vh, calc(100vw * 16 / 9));
+      max-width: 480px;
+      max-height: 854px;
+      border-radius: 26px;
+      overflow: hidden;
+      box-shadow: 0 18px 48px rgba(145, 48, 62, 0.28), 0 0 0 4px rgba(255, 236, 184, 0.9);
+      background: #fdf2e3;
+    }
+
+    @media (max-width: 500px) {
+      .game-shell {
+        width: 100vw;
+        height: 100vh;
+        max-width: none;
+        max-height: none;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+
+    #gameCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+
+    /* 頂部 HUD */
+    .hud-top {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .hud-pill {
+      background: rgba(255, 250, 240, 0.88);
+      backdrop-filter: blur(8px);
+      border: 1.5px solid rgba(245, 185, 66, 0.75);
+      border-radius: 16px;
+      padding: 6px 11px;
+      box-shadow: 0 4px 12px rgba(158, 72, 42, 0.14);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .hud-height {
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: #c82848;
+      line-height: 1.1;
+    }
+
+    .hud-sub {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #8b4a26;
+    }
+
+    .hud-realm {
+      flex: 1;
+      text-align: center;
+      background: linear-gradient(135deg, rgba(255, 245, 210, 0.92), rgba(255, 224, 236, 0.92));
+      border: 1.5px solid rgba(245, 175, 58, 0.85);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #9e233b;
+      box-shadow: 0 4px 12px rgba(229, 57, 85, 0.14);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: transform 0.25s ease;
+    }
+
+    .hud-realm.pop {
+      transform: scale(1.1);
+    }
+
+    .btn-mute {
+      pointer-events: auto;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(245, 185, 66, 0.85);
+      background: rgba(255, 250, 240, 0.92);
+      font-size: 1.05rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(158, 72, 42, 0.16);
+      flex-shrink: 0;
+    }
+
+    .btn-mute:active {
+      transform: scale(0.92);
+    }
+
+    /* 覆蓋層（首頁選角 / 結算賀卡） */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 14px;
+      background: linear-gradient(180deg, rgba(255, 245, 230, 0.92) 0%, rgba(255, 228, 238, 0.94) 100%);
+      backdrop-filter: blur(8px);
+      overflow-y: auto;
+      transition: opacity 0.28s ease;
+    }
+
+    .overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .title-badge {
+      background: linear-gradient(135deg, #e83b56, #f59b2a);
+      color: #fff;
+      font-size: 0.74rem;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 999px;
+      letter-spacing: 0.08em;
+      box-shadow: 0 4px 12px rgba(232, 59, 86, 0.3);
+      margin-bottom: 6px;
+    }
+
+    .game-title {
+      margin: 0;
+      font-size: clamp(1.45rem, 5.2vw, 1.85rem);
+      font-weight: 900;
+      text-align: center;
+      background: linear-gradient(180deg, #d62445 0%, #b85d00 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.04em;
+    }
+
+    .game-subtitle {
+      margin: 4px 0 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #8c4a32;
+      text-align: center;
+    }
+
+    /* 角色選擇網格 */
+    .char-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .char-card {
+      background: rgba(255, 255, 255, 0.88);
+      border: 2px solid rgba(245, 185, 66, 0.38);
+      border-radius: 16px;
+      padding: 8px 6px 7px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.16s ease;
+      position: relative;
+    }
+
+    .char-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--pink-soft);
+    }
+
+    .char-card.selected {
+      background: linear-gradient(160deg, #fff7db, #ffe6f0);
+      border-color: #e53955;
+      box-shadow: 0 6px 16px rgba(229, 57, 85, 0.22);
+      transform: translateY(-2px);
+    }
+
+    .char-card.selected::after {
+      content: "✓";
+      position: absolute;
+      top: 5px;
+      right: 6px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #e53955;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .char-avatar-canvas {
+      width: 54px;
+      height: 54px;
+      display: block;
+    }
+
+    .char-name {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: #5c261b;
+      margin-top: 2px;
+    }
+
+    .char-perk {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #b5485d;
+      text-align: center;
+      line-height: 1.2;
+      margin-top: 2px;
+    }
+
+    /* 換臉工具列 */
+    .face-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.82);
+      border: 1.5px dashed rgba(229, 57, 85, 0.45);
+      border-radius: 14px;
+      padding: 7px 10px;
+      margin-bottom: 10px;
+    }
+
+    .face-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #7d3626;
+    }
+
+    .face-thumb {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #f5b942;
+      display: none;
+    }
+
+    .face-thumb.show {
+      display: block;
+    }
+
+    /* 按鈕樣式 */
+    .btn {
+      border: none;
+      border-radius: 16px;
+      font-family: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.14s ease, filter 0.14s ease, box-shadow 0.14s ease;
+    }
+
+    .btn:active {
+      transform: scale(0.96);
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 13px 18px;
+      font-size: 1.02rem;
+      color: #fff;
+      background: linear-gradient(135deg, #ff4f73 0%, #f59a23 100%);
+      box-shadow: 0 8px 20px rgba(235, 76, 102, 0.36);
+    }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 11px 16px;
+      font-size: 0.92rem;
+      color: #9e233b;
+      background: linear-gradient(135deg, #fff2c6, #ffd9e8);
+      border: 1.5px solid rgba(235, 92, 118, 0.45);
+      box-shadow: 0 5px 14px rgba(229, 57, 85, 0.16);
+    }
+
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 0.74rem;
+      border-radius: 10px;
+      background: #ffe4ee;
+      color: #b82548;
+      border: 1px solid rgba(229, 57, 85, 0.3);
+    }
+
+    .btn-clear {
+      padding: 6px 9px;
+      font-size: 0.72rem;
+      border-radius: 10px;
+      background: #f5ece6;
+      color: #7d5342;
+      display: none;
+    }
+
+    .btn-clear.show {
+      display: inline-flex;
+    }
+
+    .how-to-tip {
+      margin-top: 8px;
+      font-size: 0.73rem;
+      color: #8a4e36;
+      text-align: center;
+      line-height: 1.45;
+      background: rgba(255, 255, 255, 0.65);
+      padding: 6px 10px;
+      border-radius: 12px;
+      width: 100%;
+    }
+
+    /* 結算畫面卡片 */
+    .result-card {
+      width: 100%;
+      background: rgba(255, 252, 245, 0.95);
+      border: 2px solid rgba(245, 185, 66, 0.85);
+      border-radius: 22px;
+      padding: 14px 14px 12px;
+      box-shadow: var(--shadow-warm);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .result-snapshot {
+      width: 132px;
+      height: 132px;
+      border-radius: 20px;
+      border: 3px solid #f5b942;
+      background: linear-gradient(180deg, #ffe5f0, #fff4d2);
+      margin-bottom: 8px;
+      box-shadow: 0 6px 16px rgba(245, 165, 50, 0.25);
+    }
+
+    .result-realm-badge {
+      background: linear-gradient(135deg, #e53955, #f29d26);
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: 900;
+      padding: 4px 14px;
+      border-radius: 999px;
+      margin-bottom: 6px;
+    }
+
+    .result-stats {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin: 6px 0 8px;
+    }
+
+    .stat-box {
+      background: #fff5e6;
+      border: 1px solid rgba(245, 185, 66, 0.45);
+      border-radius: 12px;
+      padding: 6px 4px;
+    }
+
+    .stat-val {
+      font-size: 1rem;
+      font-weight: 900;
+      color: #c82848;
+    }
+
+    .stat-lbl {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #8c4a32;
+    }
+
+    .result-blessing {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #7d2c28;
+      background: #fff0f5;
+      border-radius: 12px;
+      padding: 7px 10px;
+      width: 100%;
+      line-height: 1.4;
+    }
+
+    .result-actions {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .result-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    /* Toast 提示 */
+    .toast {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(74, 36, 24, 0.92);
+      color: #fff6db;
+      padding: 9px 16px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 40;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* 隱藏檔案輸入 */
+    #faceInput {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-shell">
+    <!-- 主遊戲畫布 -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- 遊戲中頂部 HUD -->
+    <div id="hudTop" class="hud-top" style="display:none;">
+      <div class="hud-pill">
+        <div id="hudHeight" class="hud-height">0 m</div>
+        <div id="hudScore" class="hud-sub">福氣 0</div>
+      </div>
+      <div id="hudRealm" class="hud-realm">🌱 起步安康</div>
+      <button id="btnMute" class="btn-mute" title="開關音效">🔊</button>
+    </div>
+
+    <!-- 首頁選角覆蓋層 -->
+    <div id="menuOverlay" class="overlay">
+      <div class="title-badge">✨ 跳越高・越吉祥如意和平富貴 ✨</div>
+      <h1 class="game-title">步步高升・吉祥大跳躍</h1>
+      <p class="game-subtitle">眾星拱月蓄力起飛，直衝雲霄迎富貴！</p>
+
+      <div id="charGrid" class="char-grid"></div>
+
+      <div class="face-bar">
+        <div class="face-info">
+          <img id="faceThumb" class="face-thumb" alt="自訂頭像" />
+          <span id="faceStatus">📸 可上傳照片換臉一起跳！</span>
+        </div>
+        <div style="display:flex;gap:5px;">
+          <button id="btnUploadFace" class="btn btn-sm">上傳換臉</button>
+          <button id="btnClearFace" class="btn btn-clear">還原</button>
+        </div>
+        <input id="faceInput" type="file" accept="image/*" />
+      </div>
+
+      <button id="btnStartGame" class="btn btn-primary">🚀 開始吉祥大跳躍！</button>
+
+      <div class="how-to-tip">
+        <b>玩法：</b>① 長按畫面或空白鍵「蓄力」放開一飛沖天<br />
+        ② 升空後左右拖曳 / 方向鍵 / A・D 踩祥雲接福物！
+      </div>
+    </div>
+
+    <!-- 結算高空定格賀卡覆蓋層 -->
+    <div id="resultOverlay" class="overlay hidden">
+      <div class="title-badge">🎊 高空定格・吉祥紀念 🎊</div>
+      <div class="result-card">
+        <canvas id="snapshotCanvas" class="result-snapshot" width="240" height="240"></canvas>
+        <div id="resRealmBadge" class="result-realm-badge">✨ 吉祥如意 ✨</div>
+        <div class="result-stats">
+          <div class="stat-box">
+            <div id="resHeight" class="stat-val">0 m</div>
+            <div class="stat-lbl">最高高度</div>
+          </div>
+          <div class="stat-box">
+            <div id="resItems" class="stat-val">0 個</div>
+            <div class="stat-lbl">收集福物</div>
+          </div>
+          <div class="stat-box">
+            <div id="resScore" class="stat-val">0</div>
+            <div class="stat-lbl">吉祥總分</div>
+          </div>
+        </div>
+        <div id="resBlessing" class="result-blessing">祝您步步高升、吉祥如意、和平富貴！</div>
+      </div>
+
+      <div class="result-actions">
+        <button id="btnDownloadCard" class="btn btn-primary">📸 下載吉祥如意賀卡</button>
+        <div class="result-row">
+          <button id="btnPlayAgain" class="btn btn-secondary">🔄 再跳一次</button>
+          <button id="btnSwitchChar" class="btn btn-secondary">🎭 切換角色</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast 提示訊息 -->
+    <div id="toast" class="toast"></div>
+  </div>
+
+  <script>
+    /* =========================================================================
+       《步步高升・吉祥大跳躍》核心程式
+       純原生 HTML5 Canvas + Web Audio API（零外部依賴）
+       ========================================================================= */
+
+    // 遊戲邏輯畫布尺寸（9:16）
+    const W = 450;
+    const H = 800;
+
+    // 8 大吉祥境界設定
+    const REALMS = [
+      { minH: 0,    name: "起步安康", icon: "🌱", color: "#4e9a51", danmaku: "起步安康，好運起航！" },
+      { minH: 50,   name: "平安順心", icon: "🕊️", color: "#2d89c8", danmaku: "平安順心，事事順遂！" },
+      { minH: 150,  name: "吉祥如意", icon: "🎀", color: "#d94f7a", danmaku: "吉祥如意，喜事連連！" },
+      { minH: 300,  name: "和平喜樂", icon: "🌸", color: "#b648b8", danmaku: "和平喜樂，萬事和美！" },
+      { minH: 500,  name: "招財進寶", icon: "💰", color: "#d98218", danmaku: "招財進寶，財源滾滾來！" },
+      { minH: 800,  name: "富貴滿堂", icon: "🏮", color: "#d93043", danmaku: "富貴滿堂，金玉滿屋！" },
+      { minH: 1200, name: "飛龍在天・大吉大利", icon: "🐉", color: "#b5225c", danmaku: "飛龍在天！大吉大利鴻運當頭！" },
+      { minH: 1800, name: "宇宙級吉祥和平富貴大圓滿", icon: "👑", color: "#9c46d4", danmaku: "宇宙級吉祥和平富貴大圓滿！" }
+    ];
+
+    // 6 位原創角色設定
+    const CHARACTERS = [
+      {
+        id: "prof",
+        name: "元氣教授",
+        perk: "起跳愛心蝴蝶結",
+        jumpMult: 1.02,
+        gravityMult: 1.0,
+        chargeMult: 1.08,
+        scoreMult: 1.0,
+        magnet: 0,
+        blessing: "元氣滿滿一飛沖天！祝你平安順心、桃李滿天下、愛與歡笑常相伴！"
+      },
+      {
+        id: "caishen",
+        name: "財神爺",
+        perk: "福物分數 +40%",
+        jumpMult: 1.0,
+        gravityMult: 1.0,
+        chargeMult: 1.0,
+        scoreMult: 1.4,
+        magnet: 12,
+        blessing: "財神駕到金銀滿屋！祝你招財進寶、富貴滿堂、好運擋不住！"
+      },
+      {
+        id: "dove",
+        name: "和平白鴿",
+        perk: "輕盈飄浮好操控",
+        jumpMult: 1.0,
+        gravityMult: 0.84,
+        chargeMult: 1.0,
+        scoreMult: 1.05,
+        magnet: 0,
+        blessing: "白鴿展翅帶來寧靜！祝你和平喜樂、身心自在、歲歲平安！"
+      },
+      {
+        id: "cat",
+        name: "招財貓仙",
+        perk: "自帶吸金磁力",
+        jumpMult: 1.02,
+        gravityMult: 0.96,
+        chargeMult: 1.0,
+        scoreMult: 1.15,
+        magnet: 85,
+        blessing: "左手招福右手招財！祝你日進斗金、貴人相助、吉祥如意！"
+      },
+      {
+        id: "koi",
+        name: "錦鯉福神",
+        perk: "超高彈跳力",
+        jumpMult: 1.14,
+        gravityMult: 0.98,
+        chargeMult: 1.04,
+        scoreMult: 1.1,
+        magnet: 0,
+        blessing: "錦鯉躍龍門！祝你逢考必過、心想事成、好運連連大吉大利！"
+      },
+      {
+        id: "lion",
+        name: "舞獅小將",
+        perk: "蓄力爆發最強",
+        jumpMult: 1.05,
+        gravityMult: 1.0,
+        chargeMult: 1.32,
+        scoreMult: 1.1,
+        magnet: 0,
+        blessing: "祥獅獻瑞步步高升！祝你氣勢如虹、萬事勝意、富貴安康！"
+      }
+    ];
+
+    // 可收集福物類型
+    const ITEM_TYPES = [
+      { id: "ingot",  label: "金元寶", score: 80,  boost: 0,    color: "#ffca28" },
+      { id: "dove",   label: "和平鴿", score: 90,  boost: -180, color: "#ffffff" },
+      { id: "ruyi",   label: "玉如意", score: 120, boost: -220, color: "#6ee7b7" },
+      { id: "fu",     label: "福字",   score: 100, boost: 0,    color: "#ef4444" },
+      { id: "heart",  label: "粉紅愛心", score: 70, boost: -140, color: "#ff6699" }
+    ];
+
+    // 8 位舞台左右歡呼夥伴外觀設定
+    const CHEERLEADERS = [
+      { x: 42,  y: 676, shirt: "#2c3440", pants: "#575a5e", hair: "#222", gender: "m", scale: 0.96 },
+      { x: 86,  y: 660, shirt: "#8d9aa8", pants: "#3b4c63", hair: "#2a2422", gender: "m", scale: 0.92 },
+      { x: 128, y: 682, shirt: "#f2ece1", pants: "#5c6f82", hair: "#1e1e1e", gender: "m", scale: 1.0  },
+      { x: 168, y: 656, shirt: "#222429", pants: "#313640", hair: "#2b221e", gender: "m", scale: 0.9  },
+      { x: 282, y: 656, shirt: "#7f848c", pants: "#2b3240", hair: "#231f20", gender: "m", scale: 0.9  },
+      { x: 322, y: 680, shirt: "#1f2229", pants: "#63798c", hair: "#4a3022", gender: "f", scale: 0.96 },
+      { x: 364, y: 660, shirt: "#282c34", pants: "#3d4654", hair: "#2a201b", gender: "m", scale: 0.92 },
+      { x: 408, y: 678, shirt: "#c4b2c7", pants: "#5c7ca3", hair: "#5a3928", gender: "f", scale: 0.98 }
+    ];
+
+    // =========================================================================
+    // Web Audio API 喜慶五聲音階音效引擎
+    // =========================================================================
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+        this.penta = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1174.66]; // C5 D5 E5 G5 A5 C6 D6
+      }
+
+      ensure() {
+        if (this.muted) return null;
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+        if (this.ctx && this.ctx.state === "suspended") {
+          this.ctx.resume();
+        }
+        return this.ctx;
+      }
+
+      playTone(freq, duration = 0.14, type = "sine", vol = 0.15, slideTo = null) {
+        const ctx = this.ensure();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+        if (slideTo) {
+          osc.frequency.exponentialRampToValueAtTime(slideTo, now + duration);
+        }
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(vol, now + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + duration + 0.02);
+      }
+
+      chargeTick(ratio) {
+        const freq = 260 + ratio * 420;
+        this.playTone(freq, 0.07, "triangle", 0.08);
+      }
+
+      launch(isPerfect) {
+        this.playTone(280, 0.36, "triangle", 0.2, 980);
+        if (isPerfect) {
+          setTimeout(() => this.playTone(783.99, 0.18, "sine", 0.16), 80);
+          setTimeout(() => this.playTone(1046.5, 0.28, "sine", 0.18), 160);
+        }
+      }
+
+      bounce(type = "cloud") {
+        if (type === "lotus") {
+          this.playTone(523.25, 0.14, "sine", 0.16, 1046.5);
+          setTimeout(() => this.playTone(783.99, 0.18, "triangle", 0.14), 60);
+        } else if (type === "spring") {
+          this.playTone(392, 0.16, "triangle", 0.16, 880);
+        } else {
+          const note = this.penta[Math.floor(Math.random() * 5)];
+          this.playTone(note, 0.12, "sine", 0.12, note * 1.15);
+        }
+      }
+
+      collect() {
+        this.playTone(880, 0.09, "sine", 0.14);
+        setTimeout(() => this.playTone(1174.66, 0.16, "sine", 0.15), 55);
+      }
+
+      realmUp() {
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        notes.forEach((n, i) => {
+          setTimeout(() => this.playTone(n, 0.26, "triangle", 0.15), i * 80);
+        });
+      }
+
+      gameOver() {
+        const notes = [659.25, 587.33, 523.25, 392.0];
+        notes.forEach((n, i) => {
+          setTimeout(() => this.playTone(n, 0.2, "sine", 0.12), i * 95);
+        });
+      }
+    }
+
+    const sound = new SoundEngine();
+
+    // =========================================================================
+    // 遊戲全域狀態
+    // =========================================================================
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const hudTop = document.getElementById("hudTop");
+    const hudHeight = document.getElementById("hudHeight");
+    const hudScore = document.getElementById("hudScore");
+    const hudRealm = document.getElementById("hudRealm");
+    const btnMute = document.getElementById("btnMute");
+    const menuOverlay = document.getElementById("menuOverlay");
+    const resultOverlay = document.getElementById("resultOverlay");
+    const charGrid = document.getElementById("charGrid");
+    const faceInput = document.getElementById("faceInput");
+    const faceThumb = document.getElementById("faceThumb");
+    const faceStatus = document.getElementById("faceStatus");
+    const btnClearFace = document.getElementById("btnClearFace");
+    const toastEl = document.getElementById("toast");
+
+    let selectedCharId = "prof";
+    let customFaceImg = null; // 裁切後圓形頭像 Canvas
+
+    // 狀態：menu | stage1_ready | stage1_charge | stage1_launch | playing | gameover
+    let gameState = "menu";
+
+    let player = {
+      x: W / 2,
+      y: 660,
+      vx: 0,
+      vy: 0,
+      w: 50,
+      h: 68,
+      facing: 1,
+      armsUp: false,
+      squash: 1,
+      trailTimer: 0
+    };
+
+    let cameraY = 0;          // 世界攝影機 Y（往上為負值）
+    let maxHeightM = 0;       // 最高高度（公尺）
+    let score = 0;
+    let itemsCollected = 0;
+    let currentRealmIdx = 0;
+
+    // 階段一蓄力變數
+    let chargeVal = 0;        // 0 ~ 1
+    let chargeDir = 1;
+    let chargeTickTimer = 0;
+    let crowdCheerProgress = 0; // 0: 站立, 1: 蹲下歡呼
+
+    // 平台、福物、粒子、彈幕
+    let platforms = [];
+    let items = [];
+    let particles = [];
+    let danmakus = [];
+    let highestPlatformY = 600;
+
+    // 輸入控制
+    const keys = { left: false, right: false, space: false };
+    let pointerActive = false;
+    let pointerTargetX = W / 2;
+
+    // 輔助：顯示 Toast
+    let toastTimer = null;
+    function showToast(msg) {
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl.classList.remove("show"), 2200);
+    }
+
+    function getChar() {
+      return CHARACTERS.find(c => c.id === selectedCharId) || CHARACTERS[0];
+    }
+
+    function getRealmByHeight(h) {
+      let idx = 0;
+      for (let i = 0; i < REALMS.length; i++) {
+        if (h >= REALMS[i].minH) idx = i;
+      }
+      return idx;
+    }
+
+    // =========================================================================
+    // Canvas 尺寸自適應
+    // =========================================================================
+    function resizeCanvas() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    // =========================================================================
+    // 繪製 6 位原創手繪可愛角色（共用至遊戲舞台、選角卡片與賀卡）
+    // =========================================================================
+    function drawCharacter(c, charId, x, y, opts = {}) {
+      const scale = opts.scale ?? 1;
+      const armsUp = opts.armsUp ?? false;
+      const squash = opts.squash ?? 1;
+      const showAura = opts.showAura ?? 0; // 0~1 隨高度增強光環
+      const time = opts.time ?? performance.now() * 0.001;
+
+      c.save();
+      c.translate(x, y);
+      c.scale(scale * (2 - squash), scale * squash);
+
+      // 高空吉祥光環
+      if (showAura > 0.05) {
+        const auraR = 38 + showAura * 22 + Math.sin(time * 5) * 4;
+        const grad = c.createRadialGradient(0, -10, 8, 0, -10, auraR);
+        grad.addColorStop(0, `rgba(255, 236, 150, ${0.42 * showAura})`);
+        grad.addColorStop(0.6, `rgba(255, 148, 194, ${0.24 * showAura})`);
+        grad.addColorStop(1, "rgba(255, 255, 255, 0)");
+        c.fillStyle = grad;
+        c.beginPath();
+        c.arc(0, -10, auraR, 0, Math.PI * 2);
+        c.fill();
+      }
+
+      // 依角色繪製身體、四肢與頭部
+      if (charId === "prof") {
+        // (1) 元氣教授：淺藍 Polo 衫、深藍長褲、眼鏡
+        // 腿
+        c.fillStyle = "#2b3b5c";
+        roundRect(c, -13, 8, 10, 22, 4);
+        roundRect(c, 3, 8, 10, 22, 4);
+        // 鞋子
+        c.fillStyle = "#1e2430";
+        c.beginPath(); c.ellipse(-8, 30, 7, 4, 0, 0, Math.PI * 2); c.fill();
+        c.beginPath(); c.ellipse(8, 30, 7, 4, 0, 0, Math.PI * 2); c.fill();
+        // 淺藍 Polo 衫身體
+        c.fillStyle = "#b8d0e0";
+        roundRect(c, -17, -14, 34, 26, 8);
+        // 衣領與扣子
+        c.fillStyle = "#95b7cc";
+        c.beginPath(); c.moveTo(-7, -14); c.lineTo(0, -5); c.lineTo(7, -14); c.closePath(); c.fill();
+        // 手臂
+        c.strokeStyle = "#f7cfb6";
+        c.lineWidth = 7;
+        c.lineCap = "round";
+        c.beginPath();
+        if (armsUp) {
+          c.moveTo(-15, -8); c.lineTo(-24, -36);
+          c.moveTo(15, -8); c.lineTo(24, -36);
+        } else {
+          c.moveTo(-15, -8); c.lineTo(-22, 8);
+          c.moveTo(15, -8); c.lineTo(22, 8);
+        }
+        c.stroke();
+        // 短袖
+        c.strokeStyle = "#b8d0e0";
+        c.lineWidth = 9;
+        c.beginPath();
+        if (armsUp) {
+          c.moveTo(-14, -9); c.lineTo(-19, -21);
+          c.moveTo(14, -9); c.lineTo(19, -21);
+        } else {
+          c.moveTo(-14, -9); c.lineTo(-19, -1);
+          c.moveTo(14, -9); c.lineTo(19, -1);
+        }
+        c.stroke();
+        // 頭部
+        drawHeadOrCustom(c, 0, -29, 16, () => {
+          c.fillStyle = "#fbd5bd";
+          c.beginPath(); c.arc(0, -29, 15, 0, Math.PI * 2); c.fill();
+          // 側邊頭髮
+          c.fillStyle = "#5b514c";
+          c.beginPath(); c.arc(-13, -31, 4, 0, Math.PI * 2); c.arc(13, -31, 4, 0, Math.PI * 2); c.fill();
+          // 眼鏡
+          c.strokeStyle = "#3b3532";
+          c.lineWidth = 1.8;
+          c.strokeRect(-11, -33, 9, 6);
+          c.strokeRect(2, -33, 9, 6);
+          c.beginPath(); c.moveTo(-2, -30); c.lineTo(2, -30); c.stroke();
+          // 笑眼與開心大笑
+          c.fillStyle = "#2c221e";
+          c.beginPath(); c.arc(-6.5, -30, 1.5, 0, Math.PI * 2); c.arc(6.5, -30, 1.5, 0, Math.PI * 2); c.fill();
+          c.strokeStyle = "#c94c4c";
+          c.lineWidth = 2;
+          c.beginPath(); c.arc(0, -25, 5, 0.15 * Math.PI, 0.85 * Math.PI); c.stroke();
+        });
+        // 高舉雙手時頭頂粉紅蝴蝶結與愛心（致敬影片）
+        if (armsUp) {
+          drawPinkBow(c, 0, -49, 0.9);
+          drawMiniHeart(c, -22, -46, 6, "#ff5c93");
+          drawMiniHeart(c, 22, -46, 6, "#ff5c93");
+        }
+      } else if (charId === "caishen") {
+        // (2) 財神爺：紅金官袍、烏紗官帽、金元寶
+        // 紅袍
+        c.fillStyle = "#d92638";
+        roundRect(c, -19, -14, 38, 42, 10);
+        // 金色衣襟與腰帶
+        c.fillStyle = "#f7c948";
+        c.fillRect(-4, -14, 8, 42);
+        c.fillRect(-19, 6, 38, 6);
+        // 手臂
+        c.strokeStyle = "#d92638";
+        c.lineWidth = 9;
+        c.lineCap = "round";
+        c.beginPath();
+        if (armsUp) {
+          c.moveTo(-16, -6); c.lineTo(-26, -30);
+          c.moveTo(16, -6); c.lineTo(26, -30);
+        } else {
+          c.moveTo(-16, -6); c.lineTo(-10, 4);
+          c.moveTo(16, -6); c.lineTo(10, 4);
+        }
+        c.stroke();
+        // 手捧小金元寶
+        drawIngot(c, 0, armsUp ? -46 : 4, armsUp ? 0.85 : 0.7);
+        // 頭部
+        drawHeadOrCustom(c, 0, -28, 15, () => {
+          c.fillStyle = "#fbd5bd";
+          c.beginPath(); c.arc(0, -28, 14, 0, Math.PI * 2); c.fill();
+          // 笑咪咪眼睛
+          c.strokeStyle = "#3a2018"; c.lineWidth = 2;
+          c.beginPath(); c.arc(-5, -29, 3, Math.PI, 0); c.stroke();
+          c.beginPath(); c.arc(5, -29, 3, Math.PI, 0); c.stroke();
+          // 鬍鬚
+          c.fillStyle = "#2b2525";
+          c.beginPath(); c.moveTo(-8, -22); c.quadraticCurveTo(0, -10, 8, -22); c.closePath(); c.fill();
+        });
+        // 財神官帽
+        c.fillStyle = "#d92638";
+        roundRect(c, -15, -48, 30, 12, 4);
+        c.fillStyle = "#f7c948";
+        c.fillRect(-26, -44, 11, 5);
+        c.fillRect(15, -44, 11, 5);
+        c.beginPath(); c.arc(0, -42, 4, 0, Math.PI * 2); c.fill();
+      } else if (charId === "dove") {
+        // (3) 和平白鴿：潔白圓潤羽毛、展翅、橄欖枝
+        // 翅膀
+        c.fillStyle = "#eef6ff";
+        c.strokeStyle = "#b8d4f0";
+        c.lineWidth = 2;
+        c.beginPath();
+        if (armsUp) {
+          c.ellipse(-22, -16, 15, 8, -0.7, 0, Math.PI * 2);
+          c.ellipse(22, -16, 15, 8, 0.7, 0, Math.PI * 2);
+        } else {
+          c.ellipse(-20, -2, 14, 7, -0.2, 0, Math.PI * 2);
+          c.ellipse(20, -2, 14, 7, 0.2, 0, Math.PI * 2);
+        }
+        c.fill(); c.stroke();
+        // 身體
+        c.fillStyle = "#ffffff";
+        c.beginPath(); c.ellipse(0, 2, 18, 22, 0, 0, Math.PI * 2); c.fill();
+        c.stroke();
+        // 小腳
+        c.strokeStyle = "#f59e0b"; c.lineWidth = 2.5;
+        c.beginPath(); c.moveTo(-6, 22); c.lineTo(-6, 29); c.moveTo(6, 22); c.lineTo(6, 29); c.stroke();
+        // 頭
+        drawHeadOrCustom(c, 0, -24, 15, () => {
+          c.fillStyle = "#ffffff";
+          c.beginPath(); c.arc(0, -24, 14, 0, Math.PI * 2); c.fill();
+          c.strokeStyle = "#b8d4f0"; c.lineWidth = 1.5; c.stroke();
+          c.fillStyle = "#222";
+          c.beginPath(); c.arc(-5, -26, 2.2, 0, Math.PI * 2); c.arc(5, -26, 2.2, 0, Math.PI * 2); c.fill();
+          // 嘴喙
+          c.fillStyle = "#f59e0b";
+          c.beginPath(); c.moveTo(-4, -22); c.lineTo(4, -22); c.lineTo(0, -17); c.closePath(); c.fill();
+          // 橄欖枝
+          c.strokeStyle = "#22c55e"; c.lineWidth = 2;
+          c.beginPath(); c.moveTo(2, -19); c.quadraticCurveTo(12, -17, 18, -23); c.stroke();
+          c.fillStyle = "#4ade80";
+          c.beginPath(); c.ellipse(12, -20, 4, 2, -0.4, 0, Math.PI * 2); c.fill();
+        });
+      } else if (charId === "cat") {
+        // (4) 招財貓仙：雪白圓貓、紅項圈金鈴鐺
+        // 身體
+        c.fillStyle = "#fffaf2";
+        c.strokeStyle = "#e8c8a0"; c.lineWidth = 2;
+        roundRect(c, -17, -12, 34, 38, 15);
+        c.stroke();
+        // 招財小手
+        c.fillStyle = "#fffaf2";
+        c.beginPath();
+        if (armsUp) {
+          c.ellipse(-20, -24, 7, 11, -0.35, 0, Math.PI * 2);
+          c.ellipse(20, -24, 7, 11, 0.35, 0, Math.PI * 2);
+        } else {
+          c.ellipse(-19, -4, 7, 10, -0.2, 0, Math.PI * 2);
+          c.ellipse(19, -4, 7, 10, 0.2, 0, Math.PI * 2);
+        }
+        c.fill(); c.stroke();
+        // 紅項圈 + 金鈴鐺
+        c.fillStyle = "#e53955";
+        roundRect(c, -15, -13, 30, 6, 3);
+        c.fillStyle = "#facc15";
+        c.beginPath(); c.arc(0, -7, 5, 0, Math.PI * 2); c.fill();
+        // 貓耳
+        c.fillStyle = "#fffaf2";
+        c.beginPath(); c.moveTo(-14, -36); c.lineTo(-17, -49); c.lineTo(-4, -40); c.closePath(); c.fill(); c.stroke();
+        c.beginPath(); c.moveTo(14, -36); c.lineTo(17, -49); c.lineTo(4, -40); c.closePath(); c.fill(); c.stroke();
+        c.fillStyle = "#ff99b8";
+        c.beginPath(); c.moveTo(-13, -38); c.lineTo(-14, -45); c.lineTo(-7, -40); c.closePath(); c.fill();
+        c.beginPath(); c.moveTo(13, -38); c.lineTo(14, -45); c.lineTo(7, -40); c.closePath(); c.fill();
+        // 頭
+        drawHeadOrCustom(c, 0, -27, 15, () => {
+          c.fillStyle = "#fffaf2";
+          c.beginPath(); c.arc(0, -27, 15, 0, Math.PI * 2); c.fill(); c.stroke();
+          // 笑眼與腮紅
+          c.strokeStyle = "#3a2018"; c.lineWidth = 2;
+          c.beginPath(); c.arc(-5.5, -28, 3, Math.PI, 0); c.stroke();
+          c.beginPath(); c.arc(5.5, -28, 3, Math.PI, 0); c.stroke();
+          c.fillStyle = "rgba(255, 130, 165, 0.55)";
+          c.beginPath(); c.arc(-9, -24, 3, 0, Math.PI * 2); c.arc(9, -24, 3, 0, Math.PI * 2); c.fill();
+          c.fillStyle = "#ff6b8b";
+          c.beginPath(); c.arc(0, -24, 2, 0, Math.PI * 2); c.fill();
+        });
+      } else if (charId === "koi") {
+        // (5) 錦鯉福神：紅金錦鯉造型
+        // 尾鰭
+        c.fillStyle = "#ff8c42";
+        c.beginPath(); c.moveTo(0, 18); c.lineTo(-15, 33); c.lineTo(0, 26); c.lineTo(15, 33); c.closePath(); c.fill();
+        // 胸鰭
+        c.fillStyle = "#ffd166";
+        c.beginPath();
+        if (armsUp) {
+          c.ellipse(-20, -14, 12, 6, -0.8, 0, Math.PI * 2);
+          c.ellipse(20, -14, 12, 6, 0.8, 0, Math.PI * 2);
+        } else {
+          c.ellipse(-19, 2, 11, 5, -0.3, 0, Math.PI * 2);
+          c.ellipse(19, 2, 11, 5, 0.3, 0, Math.PI * 2);
+        }
+        c.fill();
+        // 紅白錦鯉身體
+        c.fillStyle = "#fff7ed";
+        c.beginPath(); c.ellipse(0, 0, 17, 24, 0, 0, Math.PI * 2); c.fill();
+        c.fillStyle = "#ef4444";
+        c.beginPath(); c.ellipse(-5, -2, 9, 10, 0.3, 0, Math.PI * 2); c.fill();
+        c.beginPath(); c.ellipse(7, 8, 7, 8, -0.2, 0, Math.PI * 2); c.fill();
+        // 頭部
+        drawHeadOrCustom(c, 0, -24, 15, () => {
+          c.fillStyle = "#ff5a36";
+          c.beginPath(); c.arc(0, -24, 14, 0, Math.PI * 2); c.fill();
+          c.fillStyle = "#ffd166";
+          c.beginPath(); c.arc(0, -33, 5, 0, Math.PI * 2); c.fill();
+          c.fillStyle = "#222";
+          c.beginPath(); c.arc(-6, -24, 2.5, 0, Math.PI * 2); c.arc(6, -24, 2.5, 0, Math.PI * 2); c.fill();
+          c.fillStyle = "#fff";
+          c.beginPath(); c.arc(-5.3, -24.7, 1, 0, Math.PI * 2); c.arc(6.7, -24.7, 1, 0, Math.PI * 2); c.fill();
+        });
+      } else if (charId === "lion") {
+        // (6) 舞獅小將：喜慶紅金獅頭
+        // 身體
+        c.fillStyle = "#e11d48";
+        roundRect(c, -16, -10, 32, 34, 10);
+        c.fillStyle = "#facc15";
+        c.fillRect(-16, 16, 32, 6);
+        // 手臂
+        c.strokeStyle = "#e11d48"; c.lineWidth = 8; c.lineCap = "round";
+        c.beginPath();
+        if (armsUp) {
+          c.moveTo(-15, -4); c.lineTo(-24, -30);
+          c.moveTo(15, -4); c.lineTo(24, -30);
+        } else {
+          c.moveTo(-15, -4); c.lineTo(-22, 10);
+          c.moveTo(15, -4); c.lineTo(22, 10);
+        }
+        c.stroke();
+        // 獅頭毛邊
+        c.fillStyle = "#fef08a";
+        for (let i = 0; i < 10; i++) {
+          const a = (i / 10) * Math.PI * 2;
+          c.beginPath();
+          c.arc(Math.cos(a) * 17, -27 + Math.sin(a) * 16, 5.5, 0, Math.PI * 2);
+          c.fill();
+        }
+        // 頭
+        drawHeadOrCustom(c, 0, -27, 15, () => {
+          c.fillStyle = "#e11d48";
+          c.beginPath(); c.arc(0, -27, 15, 0, Math.PI * 2); c.fill();
+          // 額頭金角
+          c.fillStyle = "#facc15";
+          c.beginPath(); c.arc(0, -37, 4.5, 0, Math.PI * 2); c.fill();
+          // 大眼
+          c.fillStyle = "#fff";
+          c.beginPath(); c.arc(-6, -28, 4.5, 0, Math.PI * 2); c.arc(6, -28, 4.5, 0, Math.PI * 2); c.fill();
+          c.fillStyle = "#111";
+          c.beginPath(); c.arc(-6, -28, 2.2, 0, Math.PI * 2); c.arc(6, -28, 2.2, 0, Math.PI * 2); c.fill();
+          // 微笑嘴
+          c.fillStyle = "#fef08a";
+          c.beginPath(); c.arc(0, -20, 6, 0, Math.PI); c.fill();
+        });
+      }
+
+      c.restore();
+    }
+
+    // 繪製頭部或自訂換臉圓形頭像
+    function drawHeadOrCustom(c, cx, cy, r, defaultDrawFn) {
+      if (customFaceImg) {
+        c.save();
+        c.beginPath();
+        c.arc(cx, cy, r + 2, 0, Math.PI * 2);
+        c.closePath();
+        c.clip();
+        c.drawImage(customFaceImg, cx - (r + 2), cy - (r + 2), (r + 2) * 2, (r + 2) * 2);
+        c.restore();
+        c.strokeStyle = "#f5b942";
+        c.lineWidth = 2;
+        c.beginPath();
+        c.arc(cx, cy, r + 2, 0, Math.PI * 2);
+        c.stroke();
+      } else {
+        defaultDrawFn();
+      }
+    }
+
+    function roundRect(c, x, y, w, h, r) {
+      c.beginPath();
+      c.moveTo(x + r, y);
+      c.arcTo(x + w, y, x + w, y + h, r);
+      c.arcTo(x + w, y + h, x, y + h, r);
+      c.arcTo(x, y + h, x, y, r);
+      c.arcTo(x, y, x + w, y, r);
+      c.closePath();
+      c.fill();
+    }
+
+    function drawPinkBow(c, x, y, s = 1) {
+      c.save();
+      c.translate(x, y);
+      c.scale(s, s);
+      c.fillStyle = "#ff669e";
+      c.beginPath(); c.ellipse(-8, 0, 8, 5, -0.25, 0, Math.PI * 2); c.fill();
+      c.beginPath(); c.ellipse(8, 0, 8, 5, 0.25, 0, Math.PI * 2); c.fill();
+      c.fillStyle = "#ff3b82";
+      c.beginPath(); c.arc(0, 0, 4, 0, Math.PI * 2); c.fill();
+      c.restore();
+    }
+
+    function drawMiniHeart(c, x, y, size, color) {
+      c.save();
+      c.translate(x, y);
+      c.fillStyle = color;
+      c.beginPath();
+      c.moveTo(0, size * 0.4);
+      c.bezierCurveTo(-size, -size * 0.4, -size * 0.5, -size * 1.1, 0, -size * 0.4);
+      c.bezierCurveTo(size * 0.5, -size * 1.1, size, -size * 0.4, 0, size * 0.4);
+      c.fill();
+      c.restore();
+    }
+
+    function drawIngot(c, x, y, s = 1) {
+      c.save();
+      c.translate(x, y);
+      c.scale(s, s);
+      c.fillStyle = "#f59e0b";
+      c.beginPath();
+      c.moveTo(-14, 0); c.quadraticCurveTo(0, 12, 14, 0);
+      c.lineTo(10, -5); c.lineTo(-10, -5); c.closePath();
+      c.fill();
+      c.fillStyle = "#fde047";
+      c.beginPath(); c.ellipse(0, -5, 8, 5, 0, Math.PI, 0); c.fill();
+      c.restore();
+    }
+
+    // =========================================================================
+    // 建立選角介面卡片
+    // =========================================================================
+    function renderCharCards() {
+      charGrid.innerHTML = "";
+      CHARACTERS.forEach(ch => {
+        const card = document.createElement("div");
+        card.className = "char-card" + (ch.id === selectedCharId ? " selected" : "");
+        card.innerHTML = `
+          <canvas class="char-avatar-canvas" width="108" height="108"></canvas>
+          <div class="char-name">${ch.name}</div>
+          <div class="char-perk">${ch.perk}</div>
+        `;
+        const avCanvas = card.querySelector("canvas");
+        const avCtx = avCanvas.getContext("2d");
+        drawCharacter(avCtx, ch.id, 54, 68, { scale: 1.05, armsUp: false });
+
+        card.addEventListener("click", () => {
+          selectedCharId = ch.id;
+          sound.playTone(659.25, 0.08, "sine", 0.1);
+          renderCharCards();
+        });
+        charGrid.appendChild(card);
+      });
+    }
+
+    // 上傳照片換臉
+    document.getElementById("btnUploadFace").addEventListener("click", () => faceInput.click());
+    faceInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          // 裁切成正方形圓形頭像
+          const size = 128;
+          const off = document.createElement("canvas");
+          off.width = size;
+          off.height = size;
+          const octx = off.getContext("2d");
+          const minSide = Math.min(img.width, img.height);
+          const sx = (img.width - minSide) / 2;
+          const sy = (img.height - minSide) / 2;
+          octx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
+          customFaceImg = off;
+          faceThumb.src = off.toDataURL("image/png");
+          faceThumb.classList.add("show");
+          faceStatus.textContent = "✨ 換臉完成！帶著自己起飛吧";
+          btnClearFace.classList.add("show");
+          renderCharCards();
+          showToast("📸 照片換臉成功！");
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    btnClearFace.addEventListener("click", () => {
+      customFaceImg = null;
+      faceInput.value = "";
+      faceThumb.classList.remove("show");
+      faceStatus.textContent = "📸 可上傳照片換臉一起跳！";
+      btnClearFace.classList.remove("show");
+      renderCharCards();
+      showToast("已還原角色原貌");
+    });
+
+    // =========================================================================
+    // 平台與福物生成
+    // =========================================================================
+    function createPlatform(y) {
+      const hMeters = Math.max(0, Math.floor((660 - y) / 14));
+      const rand = Math.random();
+      let type = "cloud";
+      if (rand < 0.14) type = "lotus";       // 金蓮花（超高彈跳）
+      else if (rand < 0.28) type = "spring"; // 金元寶彈簧
+      else if (rand < 0.42 + Math.min(0.25, hMeters / 2500)) type = "moving"; // 移動彩雲
+
+      const pw = type === "lotus" ? 76 : (type === "spring" ? 74 : 84);
+      const px = 24 + Math.random() * (W - pw - 48);
+      const speed = type === "moving" ? (1.1 + Math.random() * 1.1) * (Math.random() < 0.5 ? 1 : -1) : 0;
+
+      const plat = { x: px, y, w: pw, h: 18, type, vx: speed, bounceAnim: 0 };
+      platforms.push(plat);
+
+      // 38% 機率在平台上方生成吉祥福物
+      if (Math.random() < 0.38) {
+        const it = ITEM_TYPES[Math.floor(Math.random() * ITEM_TYPES.length)];
+        items.push({
+          x: px + pw / 2,
+          y: y - 34,
+          type: it,
+          collected: false,
+          bobOffset: Math.random() * Math.PI * 2
+        });
+      }
+    }
+
+    function initWorld() {
+      player.x = W / 2;
+      player.y = 678;
+      player.vx = 0;
+      player.vy = 0;
+      player.armsUp = false;
+      player.squash = 1;
+
+      cameraY = 0;
+      maxHeightM = 0;
+      score = 0;
+      itemsCollected = 0;
+      currentRealmIdx = 0;
+      chargeVal = 0;
+      chargeDir = 1;
+      crowdCheerProgress = 0;
+
+      platforms = [];
+      items = [];
+      particles = [];
+      danmakus = [];
+
+      // 從舞台上方開始鋪設祥雲
+      highestPlatformY = 540;
+      for (let i = 0; i < 18; i++) {
+        createPlatform(highestPlatformY);
+        highestPlatformY -= 68 + Math.random() * 26;
+      }
+
+      updateHUD();
+    }
+
+    function updateHUD() {
+      hudHeight.textContent = `${maxHeightM} m`;
+      hudScore.textContent = `福氣 ${score}`;
+      const r = REALMS[currentRealmIdx];
+      hudRealm.textContent = `${r.icon} ${r.name}`;
+    }
+
+    // =========================================================================
+    // 粒子與彈幕特效
+    // =========================================================================
+    function spawnParticles(x, y, count, kind = "spark") {
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const spd = 1.2 + Math.random() * 4.2;
+        particles.push({
+          x, y,
+          vx: Math.cos(angle) * spd,
+          vy: Math.sin(angle) * spd - 1.5,
+          life: 1,
+          decay: 0.018 + Math.random() * 0.02,
+          size: 4 + Math.random() * 6,
+          kind,
+          color: ["#ffd166", "#ff6699", "#ff9f1c", "#ffffff", "#f472b6"][Math.floor(Math.random() * 5)]
+        });
+      }
+    }
+
+    function spawnDanmaku(text, color = "#d62445") {
+      danmakus.push({
+        text,
+        x: W + 20,
+        y: 86 + Math.random() * 140,
+        vx: -2.2 - Math.random() * 0.8,
+        color
+      });
+    }
+
+    // =========================================================================
+    // 開始與切換狀態
+    // =========================================================================
+    function startGame() {
+      sound.ensure();
+      initWorld();
+      menuOverlay.classList.add("hidden");
+      resultOverlay.classList.add("hidden");
+      hudTop.style.display = "flex";
+      gameState = "stage1_ready";
+      spawnDanmaku("長按蓄力，準備一飛沖天！", "#c95812");
+    }
+
+    function triggerLaunch() {
+      if (gameState !== "stage1_charge") return;
+      const ch = getChar();
+      const isPerfect = chargeVal >= 0.72 && chargeVal <= 0.94;
+      const power = (16.5 + chargeVal * 11.5) * ch.chargeMult * (isPerfect ? 1.18 : 1.0);
+
+      player.vy = -power;
+      player.armsUp = true;
+      player.squash = 1.28;
+      gameState = "stage1_launch";
+      sound.launch(isPerfect);
+
+      // 爆出大量愛心與金星
+      spawnParticles(player.x, player.y - 20, isPerfect ? 36 : 22, "heart");
+      spawnParticles(player.x, player.y, 24, "spark");
+      spawnDanmaku(isPerfect ? "🌟 完美蓄力！眾星拱月一飛沖天！" : "🚀 一飛沖天！步步高升！", "#e53955");
+
+      setTimeout(() => {
+        if (gameState === "stage1_launch") gameState = "playing";
+      }, 450);
+    }
+
+    function triggerGameOver() {
+      gameState = "gameover";
+      sound.gameOver();
+      hudTop.style.display = "none";
+
+      const ch = getChar();
+      const r = REALMS[currentRealmIdx];
+      document.getElementById("resRealmBadge").textContent = `${r.icon} ${r.name} ${r.icon}`;
+      document.getElementById("resHeight").textContent = `${maxHeightM} m`;
+      document.getElementById("resItems").textContent = `${itemsCollected} 個`;
+      document.getElementById("resScore").textContent = `${score}`;
+      document.getElementById("resBlessing").textContent = ch.blessing;
+
+      // 繪製高空定格紀念頭像
+      const snap = document.getElementById("snapshotCanvas");
+      const sctx = snap.getContext("2d");
+      drawSnapshotScene(sctx, snap.width, snap.height);
+
+      resultOverlay.classList.remove("hidden");
+    }
+
+    function drawSnapshotScene(c, w, h) {
+      const grad = c.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, "#ffd4e5");
+      grad.addColorStop(0.5, "#fff2cc");
+      grad.addColorStop(1, "#ffe0b5");
+      c.fillStyle = grad;
+      c.fillRect(0, 0, w, h);
+
+      // 閃亮光芒
+      c.save();
+      c.translate(w / 2, h / 2 + 10);
+      for (let i = 0; i < 12; i++) {
+        c.rotate(Math.PI / 6);
+        c.fillStyle = "rgba(255, 255, 255, 0.32)";
+        c.beginPath();
+        c.moveTo(0, 0);
+        c.lineTo(-10, -w);
+        c.lineTo(10, -w);
+        c.closePath();
+        c.fill();
+      }
+      c.restore();
+
+      // 主角雙手高舉定格
+      drawCharacter(c, selectedCharId, w / 2, h / 2 + 28, { scale: 1.85, armsUp: true, showAura: 0.9 });
+
+      // 周圍愛心與蝴蝶結裝飾
+      drawPinkBow(c, w / 2, 34, 1.3);
+      drawMiniHeart(c, 42, 62, 12, "#ff5c93");
+      drawMiniHeart(c, w - 42, 62, 12, "#ff5c93");
+      drawMiniHeart(c, 34, h - 46, 9, "#f59e0b");
+      drawMiniHeart(c, w - 34, h - 46, 9, "#f59e0b");
+    }
+
+    // =========================================================================
+    // 生成並下載 720x1280 吉祥如意直式賀卡 PNG
+    // =========================================================================
+    function downloadGreetingCard() {
+      const card = document.createElement("canvas");
+      card.width = 720;
+      card.height = 1280;
+      const c = card.getContext("2d");
+
+      const ch = getChar();
+      const r = REALMS[currentRealmIdx];
+
+      // 背景喜慶暖金粉漸層
+      const bg = c.createLinearGradient(0, 0, 0, 1280);
+      bg.addColorStop(0, "#d92b4b");
+      bg.addColorStop(0.35, "#ff789e");
+      bg.addColorStop(0.7, "#ffe4b5");
+      bg.addColorStop(1, "#fff6df");
+      c.fillStyle = bg;
+      c.fillRect(0, 0, 720, 1280);
+
+      // 金色邊框
+      c.strokeStyle = "#f7c948";
+      c.lineWidth = 14;
+      c.strokeRect(24, 24, 672, 1232);
+      c.lineWidth = 4;
+      c.strokeRect(42, 42, 636, 1196);
+
+      // 頂部標題
+      c.fillStyle = "#fff8dc";
+      c.font = "900 48px 'Noto Sans TC', sans-serif";
+      c.textAlign = "center";
+      c.fillText("步步高升・吉祥大跳躍", 360, 130);
+
+      c.fillStyle = "#ffe58f";
+      c.font = "700 28px 'Noto Sans TC', sans-serif";
+      c.fillText("✨ 高空定格・吉祥如意紀念賀卡 ✨", 360, 182);
+
+      // 中央主角圓框定格
+      c.save();
+      c.beginPath();
+      c.arc(360, 450, 200, 0, Math.PI * 2);
+      c.clip();
+      drawSnapshotScene(c, 720, 900);
+      c.restore();
+
+      c.strokeStyle = "#f7c948";
+      c.lineWidth = 10;
+      c.beginPath();
+      c.arc(360, 450, 200, 0, Math.PI * 2);
+      c.stroke();
+
+      // 境界徽章
+      c.fillStyle = "#d92638";
+      roundRect(c, 110, 685, 500, 76, 38);
+      c.fillStyle = "#fff8dc";
+      c.font = "900 34px 'Noto Sans TC', sans-serif";
+      c.fillText(`${r.icon} ${r.name}`, 360, 735);
+
+      // 數據卡片
+      c.fillStyle = "rgba(255, 255, 255, 0.9)";
+      roundRect(c, 74, 795, 572, 165, 26);
+
+      c.fillStyle = "#c82848";
+      c.font = "900 44px 'Noto Sans TC', sans-serif";
+      c.fillText(`${maxHeightM} m`, 185, 875);
+      c.fillText(`${itemsCollected} 個`, 360, 875);
+      c.fillText(`${score}`, 535, 875);
+
+      c.fillStyle = "#8c4a32";
+      c.font = "700 24px 'Noto Sans TC', sans-serif";
+      c.fillText("最高高度", 185, 925);
+      c.fillText("收集福物", 360, 925);
+      c.fillText("吉祥總分", 535, 925);
+
+      // 祝福語自動換行
+      c.fillStyle = "#6e221b";
+      c.font = "800 30px 'Noto Sans TC', sans-serif";
+      wrapText(c, ch.blessing, 360, 1035, 560, 46);
+
+      // 底部落款
+      c.fillStyle = "#a34a28";
+      c.font = "700 22px 'Noto Sans TC', sans-serif";
+      c.fillText(`使用角色：${ch.name} ｜ 祝您和平富貴・大吉大利`, 360, 1205);
+
+      const link = document.createElement("a");
+      link.download = `吉祥大跳躍_${maxHeightM}m賀卡.png`;
+      link.href = card.toDataURL("image/png");
+      link.click();
+      showToast("📸 吉祥如意賀卡已下載！");
+    }
+
+    function wrapText(c, text, x, y, maxW, lineH) {
+      let line = "";
+      let cy = y;
+      for (let i = 0; i < text.length; i++) {
+        const test = line + text[i];
+        if (c.measureText(test).width > maxW && i > 0) {
+          c.fillText(line, x, cy);
+          line = text[i];
+          cy += lineH;
+        } else {
+          line = test;
+        }
+      }
+      c.fillText(line, x, cy);
+    }
+
+    // =========================================================================
+    // 繪製背景（隨高度平順漸層切換）與舞台
+    // =========================================================================
+    function lerpColor(a, b, t) {
+      const ah = parseInt(a.replace("#", ""), 16);
+      const bh = parseInt(b.replace("#", ""), 16);
+      const ar = (ah >> 16) & 255, ag = (ah >> 8) & 255, ab = ah & 255;
+      const br = (bh >> 16) & 255, bg = (bh >> 8) & 255, bb = bh & 255;
+      const rr = Math.round(ar + (br - ar) * t);
+      const rg = Math.round(ag + (bg - ag) * t);
+      const rb = Math.round(ab + (bb - ab) * t);
+      return `rgb(${rr},${rg},${rb})`;
+    }
+
+    function drawSkyBackground() {
+      // 依高度決定天空漸層色
+      const stops = [
+        { h: 0,    top: "#a8dcff", bot: "#fff3e0" },
+        { h: 150,  top: "#ff9ec4", bot: "#ffe8b6" },
+        { h: 450,  top: "#9d6bff", bot: "#ffc2d9" },
+        { h: 900,  top: "#4c1d95", bot: "#f59e0b" },
+        { h: 1500, top: "#1e1038", bot: "#7c2d6e" }
+      ];
+      let s0 = stops[0], s1 = stops[stops.length - 1], t = 0;
+      for (let i = 0; i < stops.length - 1; i++) {
+        if (maxHeightM >= stops[i].h && maxHeightM <= stops[i + 1].h) {
+          s0 = stops[i];
+          s1 = stops[i + 1];
+          t = (maxHeightM - s0.h) / (s1.h - s0.h);
+          break;
+        }
+      }
+      if (maxHeightM > stops[stops.length - 1].h) {
+        s0 = s1 = stops[stops.length - 1];
+        t = 0;
+      }
+
+      const grad = ctx.createLinearGradient(0, 0, 0, H);
+      grad.addColorStop(0, lerpColor(s0.top, s1.top, t));
+      grad.addColorStop(1, lerpColor(s0.bot, s1.bot, t));
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+
+      // 高空星海與金色瑞氣
+      if (maxHeightM > 350) {
+        const alpha = Math.min(0.85, (maxHeightM - 350) / 800);
+        ctx.fillStyle = `rgba(255, 245, 195, ${alpha})`;
+        for (let i = 0; i < 28; i++) {
+          const sx = (i * 97) % W;
+          const sy = ((i * 151 - cameraY * 0.15) % H + H) % H;
+          const sr = (i % 3) + 1;
+          ctx.beginPath();
+          ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    function drawStageScene() {
+      // 舞台僅在 cameraY 接近 0 時可見
+      const stageOffsetY = -cameraY;
+      if (stageOffsetY > H + 120) return;
+
+      ctx.save();
+      ctx.translate(0, stageOffsetY);
+
+      // 米色窗簾背景（致敬影片）
+      ctx.fillStyle = "#e6d5bf";
+      ctx.fillRect(0, 120, W, 560);
+      for (let x = 0; x < W; x += 28) {
+        ctx.fillStyle = x % 56 === 0 ? "rgba(186, 158, 126, 0.35)" : "rgba(255, 248, 236, 0.25)";
+        ctx.fillRect(x, 120, 14, 560);
+      }
+
+      // 頂部暖黃燈槽天花板
+      ctx.fillStyle = "#f7eedc";
+      ctx.fillRect(0, 0, W, 130);
+      ctx.fillStyle = "#fff9e6";
+      for (let lx = 55; lx < W; lx += 110) {
+        roundRect(ctx, lx, 24, 48, 8, 4);
+      }
+
+      // 溫馨木質地板
+      const floorGrad = ctx.createLinearGradient(0, 660, 0, H);
+      floorGrad.addColorStop(0, "#dfd2c3");
+      floorGrad.addColorStop(1, "#c7b6a3");
+      ctx.fillStyle = floorGrad;
+      ctx.fillRect(0, 660, W, H - 660);
+
+      // 8 位歡呼夥伴
+      CHEERLEADERS.forEach(p => {
+        drawCheerleader(ctx, p, crowdCheerProgress);
+      });
+
+      ctx.restore();
+    }
+
+    function drawCheerleader(c, p, cheer) {
+      c.save();
+      c.translate(p.x, p.y + cheer * 22); // 歡呼時蹲下
+      c.scale(p.scale, p.scale);
+
+      // 褲子（蹲下時變短）
+      c.fillStyle = p.pants;
+      roundRect(c, -9, 6, 7, 22 - cheer * 10, 3);
+      roundRect(c, 2, 6, 7, 22 - cheer * 10, 3);
+
+      // 上衣
+      c.fillStyle = p.shirt;
+      roundRect(c, -12, -14, 24, 22, 6);
+
+      // 手臂：站立時自然下垂，歡呼時朝中央主角高舉仰望
+      const dirToCenter = p.x < W / 2 ? 1 : -1;
+      c.strokeStyle = p.shirt;
+      c.lineWidth = 6;
+      c.lineCap = "round";
+      c.beginPath();
+      if (cheer > 0.3) {
+        c.moveTo(-10, -8); c.lineTo(-10 + dirToCenter * 14, -26);
+        c.moveTo(10, -8);  c.lineTo(10 + dirToCenter * 16, -28);
+      } else {
+        c.moveTo(-11, -8); c.lineTo(-14, 6);
+        c.moveTo(11, -8);  c.lineTo(14, 6);
+      }
+      c.stroke();
+
+      // 頭部
+      c.fillStyle = "#f7cfb6";
+      c.beginPath(); c.arc(0, -24, 10, 0, Math.PI * 2); c.fill();
+      c.fillStyle = p.hair;
+      c.beginPath(); c.arc(0, -27, 10, Math.PI, 0); c.fill();
+      if (p.gender === "f") {
+        c.fillRect(-10, -26, 4, 14);
+        c.fillRect(6, -26, 4, 14);
+      }
+      c.restore();
+    }
+
+    // 繪製祥雲 / 金蓮花 / 彈簧平台
+    function drawPlatform(p) {
+      const sy = p.y - cameraY + p.bounceAnim * 6;
+      if (sy < -40 || sy > H + 40) return;
+
+      ctx.save();
+      ctx.translate(p.x + p.w / 2, sy);
+
+      if (p.type === "lotus") {
+        // 金蓮花（超高彈跳）
+        ctx.fillStyle = "#ff85b3";
+        for (let i = -2; i <= 2; i++) {
+          ctx.beginPath();
+          ctx.ellipse(i * 12, 2, 12, 8, i * 0.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.fillStyle = "#fde047";
+        ctx.beginPath(); ctx.ellipse(0, 0, 18, 7, 0, 0, Math.PI * 2); ctx.fill();
+      } else if (p.type === "spring") {
+        // 金元寶彈簧
+        ctx.fillStyle = "#fff7ed";
+        ctx.beginPath();
+        ctx.arc(-22, 6, 12, 0, Math.PI * 2);
+        ctx.arc(0, 4, 16, 0, Math.PI * 2);
+        ctx.arc(22, 6, 12, 0, Math.PI * 2);
+        ctx.fill();
+        drawIngot(ctx, 0, -4, 0.95);
+      } else {
+        // 祥雲 / 移動彩雲
+        ctx.fillStyle = p.type === "moving" ? "#ffe0f0" : "#ffffff";
+        ctx.shadowColor = "rgba(245, 185, 66, 0.35)";
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(-24, 5, 13, 0, Math.PI * 2);
+        ctx.arc(-6, 1, 17, 0, Math.PI * 2);
+        ctx.arc(14, 2, 15, 0, Math.PI * 2);
+        ctx.arc(28, 6, 11, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        // 金色祥雲底線
+        ctx.strokeStyle = p.type === "moving" ? "#ff75a0" : "#f5c242";
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(-30, 12); ctx.lineTo(30, 12);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    // 繪製空中吉祥福物
+    function drawItem(it, time) {
+      if (it.collected) return;
+      const sy = it.y - cameraY + Math.sin(time * 4 + it.bobOffset) * 5;
+      if (sy < -40 || sy > H + 40) return;
+
+      ctx.save();
+      ctx.translate(it.x, sy);
+
+      // 柔和金光底
+      ctx.fillStyle = "rgba(255, 240, 180, 0.45)";
+      ctx.beginPath(); ctx.arc(0, 0, 18, 0, Math.PI * 2); ctx.fill();
+
+      const t = it.type.id;
+      if (t === "ingot") {
+        drawIngot(ctx, 0, 3, 1.0);
+      } else if (t === "heart") {
+        drawMiniHeart(ctx, 0, 4, 12, "#ff4d88");
+      } else if (t === "fu") {
+        ctx.rotate(Math.PI / 4);
+        ctx.fillStyle = "#e11d48";
+        ctx.fillRect(-11, -11, 22, 22);
+        ctx.strokeStyle = "#fde047";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-11, -11, 22, 22);
+        ctx.rotate(-Math.PI / 4);
+        ctx.fillStyle = "#fde047";
+        ctx.font = "900 14px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("福", 0, 5);
+      } else if (t === "ruyi") {
+        ctx.strokeStyle = "#10b981";
+        ctx.lineWidth = 5;
+        ctx.lineCap = "round";
+        ctx.beginPath(); ctx.moveTo(-10, 8); ctx.quadraticCurveTo(0, 0, 10, -8); ctx.stroke();
+        ctx.fillStyle = "#34d399";
+        ctx.beginPath(); ctx.arc(10, -8, 6, 0, Math.PI * 2); ctx.fill();
+      } else {
+        // 和平鴿小圖示
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath(); ctx.ellipse(0, 0, 11, 7, -0.2, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#f59e0b";
+        ctx.beginPath(); ctx.moveTo(9, -2); ctx.lineTo(14, 0); ctx.lineTo(9, 2); ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    // 階段一蓄力條 UI
+    function drawChargeBar() {
+      if (gameState !== "stage1_ready" && gameState !== "stage1_charge") return;
+
+      const barW = 280, barH = 22;
+      const bx = (W - barW) / 2, by = H - 72;
+
+      // 提示文字
+      ctx.fillStyle = "rgba(74, 36, 24, 0.88)";
+      ctx.font = "800 16px 'Noto Sans TC', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(
+        gameState === "stage1_charge" ? "🔥 放開瞬間一飛沖天！" : "👇 長按畫面或空白鍵開始蓄力 👇",
+        W / 2, by - 14
+      );
+
+      // 蓄力條外框
+      ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+      roundRect(ctx, bx, by, barW, barH, 11);
+
+      // 金色完美區間 (72% ~ 94%)
+      ctx.fillStyle = "rgba(250, 204, 21, 0.45)";
+      ctx.fillRect(bx + barW * 0.72, by + 2, barW * 0.22, barH - 4);
+
+      // 當前蓄力進度
+      if (chargeVal > 0) {
+        const g = ctx.createLinearGradient(bx, 0, bx + barW, 0);
+        g.addColorStop(0, "#ff85b3");
+        g.addColorStop(0.7, "#f59e0b");
+        g.addColorStop(1, "#e11d48");
+        ctx.fillStyle = g;
+        roundRect(ctx, bx + 2, by + 2, (barW - 4) * chargeVal, barH - 4, 9);
+      }
+
+      ctx.strokeStyle = "#d97706";
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.roundRect ? ctx.roundRect(bx, by, barW, barH, 11) : ctx.rect(bx, by, barW, barH);
+      ctx.stroke();
+    }
+
+    // =========================================================================
+    // 主遊戲更新迴圈
+    // =========================================================================
+    function update(dt) {
+      const ch = getChar();
+
+      // 回復角色彈性
+      player.squash += (1 - player.squash) * 0.16;
+
+      if (gameState === "stage1_charge") {
+        chargeVal += chargeDir * dt * 1.35;
+        if (chargeVal >= 1) { chargeVal = 1; chargeDir = -1; }
+        if (chargeVal <= 0.05) { chargeVal = 0.05; chargeDir = 1; }
+        player.squash = 1 - chargeVal * 0.22; // 蓄力下蹲感
+
+        chargeTickTimer += dt;
+        if (chargeTickTimer > 0.09) {
+          chargeTickTimer = 0;
+          sound.chargeTick(chargeVal);
+        }
+      }
+
+      if (gameState === "stage1_launch" || gameState === "playing") {
+        // 夥伴蹲下歡呼動畫
+        crowdCheerProgress = Math.min(1, crowdCheerProgress + dt * 5);
+
+        // 左右操控
+        if (gameState === "playing") {
+          let moveSpeed = 7.2;
+          if (keys.left) player.vx = -moveSpeed;
+          else if (keys.right) player.vx = moveSpeed;
+          else if (pointerActive) {
+            const diff = pointerTargetX - player.x;
+            player.vx = Math.max(-10, Math.min(10, diff * 0.18));
+          } else {
+            player.vx *= 0.85;
+          }
+          player.x += player.vx;
+
+          // 左右穿牆
+          if (player.x < -20) player.x = W + 20;
+          if (player.x > W + 20) player.x = -20;
+        }
+
+        // 重力（下落時套用角色輕盈係數）
+        const grav = player.vy > 0 ? 0.48 * ch.gravityMult : 0.48;
+        player.vy += grav;
+        player.y += player.vy;
+
+        // 上升時雙手高舉
+        player.armsUp = player.vy < 2;
+
+        // 攝影機跟隨向上
+        const targetCamY = player.y - H * 0.42;
+        if (targetCamY < cameraY) {
+          cameraY = targetCamY;
+        }
+
+        // 計算高度與境界晉升
+        const hNow = Math.max(0, Math.floor((678 - player.y) / 14));
+        if (hNow > maxHeightM) {
+          score += (hNow - maxHeightM) * 2;
+          maxHeightM = hNow;
+          const newRealm = getRealmByHeight(maxHeightM);
+          if (newRealm > currentRealmIdx) {
+            currentRealmIdx = newRealm;
+            const r = REALMS[currentRealmIdx];
+            sound.realmUp();
+            hudRealm.classList.add("pop");
+            setTimeout(() => hudRealm.classList.remove("pop"), 320);
+            spawnParticles(player.x, player.y - 20, 26, "heart");
+            spawnDanmaku(`${r.icon} 晉升【${r.name}】！${r.danmaku}`, r.color);
+          }
+          updateHUD();
+        }
+
+        // 高空粒子尾跡（高度越高越華麗）
+        player.trailTimer += dt;
+        const trailRate = Math.max(0.03, 0.16 - currentRealmIdx * 0.018);
+        if (player.trailTimer > trailRate && player.vy < 0) {
+          player.trailTimer = 0;
+          spawnParticles(player.x, player.y + 18, 1 + Math.floor(currentRealmIdx / 2), currentRealmIdx >= 2 ? "heart" : "spark");
+        }
+
+        // 移動平台與踩踏判定
+        platforms.forEach(p => {
+          if (p.vx !== 0) {
+            p.x += p.vx;
+            if (p.x < 12 || p.x + p.w > W - 12) p.vx *= -1;
+          }
+          if (p.bounceAnim > 0) p.bounceAnim = Math.max(0, p.bounceAnim - dt * 5);
+
+          // 僅在下落時踩踏
+          if (
+            player.vy > 0 &&
+            player.x + 16 > p.x &&
+            player.x - 16 < p.x + p.w &&
+            player.y + 30 >= p.y &&
+            player.y + 30 <= p.y + 22
+          ) {
+            let jumpPower = 13.8 * ch.jumpMult;
+            if (p.type === "lotus") jumpPower *= 1.62;
+            else if (p.type === "spring") jumpPower *= 1.42;
+
+            player.vy = -jumpPower;
+            player.squash = 1.24;
+            p.bounceAnim = 1;
+            sound.bounce(p.type);
+            spawnParticles(player.x, p.y, p.type === "lotus" ? 18 : 8, p.type === "lotus" ? "heart" : "spark");
+          }
+        });
+
+        // 收集福物（含招財貓磁力）
+        items.forEach(it => {
+          if (it.collected) return;
+          const dx = player.x - it.x;
+          const dy = player.y - it.y;
+          const dist = Math.hypot(dx, dy);
+
+          if (ch.magnet > 0 && dist < ch.magnet + 40) {
+            it.x += (dx / dist) * 5.2;
+            it.y += (dy / dist) * 5.2;
+          }
+
+          if (dist < 36) {
+            it.collected = true;
+            itemsCollected++;
+            score += Math.round(it.type.score * ch.scoreMult);
+            if (it.type.boost < 0) {
+              player.vy = Math.min(player.vy, -15.5);
+            }
+            sound.collect();
+            spawnParticles(it.x, it.y, 12, "spark");
+            updateHUD();
+          }
+        });
+
+        // 動態生成更高處的平台並清理下方
+        while (highestPlatformY > cameraY - 120) {
+          createPlatform(highestPlatformY);
+          highestPlatformY -= 68 + Math.random() * 28;
+        }
+        platforms = platforms.filter(p => p.y < cameraY + H + 100);
+        items = items.filter(it => !it.collected && it.y < cameraY + H + 100);
+
+        // 掉落判定
+        if (player.y - cameraY > H + 65) {
+          triggerGameOver();
+        }
+      }
+
+      // 更新粒子
+      particles.forEach(pt => {
+        pt.x += pt.vx;
+        pt.y += pt.vy;
+        pt.vy += 0.08;
+        pt.life -= pt.decay;
+      });
+      particles = particles.filter(pt => pt.life > 0);
+
+      // 更新彈幕
+      danmakus.forEach(dm => { dm.x += dm.vx; });
+      danmakus = danmakus.filter(dm => dm.x > -420);
+    }
+
+    // =========================================================================
+    // 主繪製函式
+    // =========================================================================
+    function render(time) {
+      drawSkyBackground();
+      drawStageScene();
+
+      // 平台與福物
+      platforms.forEach(drawPlatform);
+      items.forEach(it => drawItem(it, time));
+
+      // 主角
+      const auraLevel = Math.min(1, maxHeightM / 1000);
+      drawCharacter(ctx, selectedCharId, player.x, player.y - cameraY, {
+        scale: 1.05,
+        armsUp: player.armsUp,
+        squash: player.squash,
+        showAura: auraLevel,
+        time
+      });
+
+      // 粒子
+      particles.forEach(pt => {
+        const py = pt.y - cameraY;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, pt.life);
+        if (pt.kind === "heart") {
+          drawMiniHeart(ctx, pt.x, py, pt.size, pt.color);
+        } else {
+          ctx.fillStyle = pt.color;
+          ctx.beginPath();
+          ctx.arc(pt.x, py, pt.size * 0.55, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      });
+
+      // 飄過祝福彈幕
+      danmakus.forEach(dm => {
+        ctx.save();
+        ctx.font = "800 17px 'Noto Sans TC', sans-serif";
+        ctx.textAlign = "left";
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+        ctx.strokeText(dm.text, dm.x, dm.y);
+        ctx.fillStyle = dm.color;
+        ctx.fillText(dm.text, dm.x, dm.y);
+        ctx.restore();
+      });
+
+      // 階段一蓄力條
+      drawChargeBar();
+    }
+
+    // 動畫主迴圈
+    let lastTime = 0;
+    function gameLoop(ts) {
+      const dt = Math.min(0.05, (ts - lastTime) / 1000 || 0.016);
+      lastTime = ts;
+      update(dt);
+      render(ts * 0.001);
+      requestAnimationFrame(gameLoop);
+    }
+
+    // =========================================================================
+    // 鍵盤、滑鼠與觸控事件綁定
+    // =========================================================================
+    function getCanvasX(clientX) {
+      const rect = canvas.getBoundingClientRect();
+      return ((clientX - rect.left) / rect.width) * W;
+    }
+
+    canvas.addEventListener("pointerdown", (e) => {
+      sound.ensure();
+      pointerActive = true;
+      pointerTargetX = getCanvasX(e.clientX);
+      if (gameState === "stage1_ready") {
+        gameState = "stage1_charge";
+      }
+    });
+
+    window.addEventListener("pointermove", (e) => {
+      if (!pointerActive) return;
+      pointerTargetX = getCanvasX(e.clientX);
+    });
+
+    window.addEventListener("pointerup", () => {
+      pointerActive = false;
+      if (gameState === "stage1_charge") {
+        triggerLaunch();
+      }
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "ArrowLeft" || e.code === "KeyA") keys.left = true;
+      if (e.code === "ArrowRight" || e.code === "KeyD") keys.right = true;
+      if (e.code === "Space") {
+        e.preventDefault();
+        if (!keys.space) {
+          keys.space = true;
+          if (gameState === "stage1_ready") {
+            sound.ensure();
+            gameState = "stage1_charge";
+          }
+        }
+      }
+    });
+
+    window.addEventListener("keyup", (e) => {
+      if (e.code === "ArrowLeft" || e.code === "KeyA") keys.left = false;
+      if (e.code === "ArrowRight" || e.code === "KeyD") keys.right = false;
+      if (e.code === "Space") {
+        keys.space = false;
+        if (gameState === "stage1_charge") {
+          triggerLaunch();
+        }
+      }
+    });
+
+    // UI 按鈕事件
+    document.getElementById("btnStartGame").addEventListener("click", startGame);
+    document.getElementById("btnPlayAgain").addEventListener("click", startGame);
+    document.getElementById("btnSwitchChar").addEventListener("click", () => {
+      resultOverlay.classList.add("hidden");
+      menuOverlay.classList.remove("hidden");
+      gameState = "menu";
+      renderCharCards();
+    });
+    document.getElementById("btnDownloadCard").addEventListener("click", downloadGreetingCard);
+
+    btnMute.addEventListener("click", () => {
+      sound.muted = !sound.muted;
+      btnMute.textContent = sound.muted ? "🔇" : "🔊";
+      showToast(sound.muted ? "已靜音" : "音效已開啟");
+    });
+
+    // 啟動初始化
+    window.onload = () => {
+      renderCharCards();
+      initWorld();
+      requestAnimationFrame(gameLoop);
+    };
+  </script>
+</body>
+</html>
