@@ -1876,6 +1876,860 @@
     }
 
     // ---------------------------
+    // 10. 物理與主循環更新
+    // ---------------------------
+    function getLeaderX() {
+      return Math.min(Game.width * 0.44, Math.max(120, Game.width * 0.38));
+    }
+
+    function getGroundY() {
+      return Game.height * 0.78;
+    }
+
+    function update(dt) {
+      Game.time += dt;
+
+      const speedMult = (Game.feverTimer > 0 ? 1.55 : 1) * (Game.boostTimer > 0 ? 1.35 : 1) * (Game.stunTimer > 0 ? 0.25 : 1);
+      Game.scrollX += 155 * speedMult * dt;
+
+      if (Game.screenShake > 0) Game.screenShake = Math.max(0, Game.screenShake - dt * 28);
+      if (Game.discoTimer > 0) Game.discoTimer = Math.max(0, Game.discoTimer - dt);
+      if (Game.boostTimer > 0) Game.boostTimer = Math.max(0, Game.boostTimer - dt);
+      if (Game.stunTimer > 0) {
+        Game.stunTimer = Math.max(0, Game.stunTimer - dt);
+        if (Game.stunTimer === 0) Game.stunEffect = '';
+      }
+
+      // 狂熱模式倒數
+      if (Game.feverTimer > 0) {
+        Game.feverTimer = Math.max(0, Game.feverTimer - dt);
+        updateHUD();
+        if (Game.feverTimer === 0) {
+          Game.feverCharge = 0;
+          feverBanner.classList.remove('show');
+          updateHUD();
+        }
+      }
+
+      // 更新成員波浪起跳高度與進場彈性
+      const jumpDur = 0.68;
+      for (let i = 0; i < Game.centipede.length; i++) {
+        const m = Game.centipede[i];
+        if (m.joinAnim > 0) m.joinAnim = Math.max(0, m.joinAnim - dt * 3.5);
+        const localT = Game.time - (Game.waveJumpClock + i * 0.045);
+        if (localT >= 0 && localT <= jumpDur) {
+          m.jumpOffset = Math.sin((localT / jumpDur) * Math.PI) * 96;
+        } else {
+          m.jumpOffset = 0;
+        }
+      }
+
+      // 更新遊玩階段的目標與障礙物
+      if (Game.phase === 'playing') {
+        const leaderX = getLeaderX();
+
+        // 1. 待串目標移動
+        if (Game.activeTarget) {
+          const t = Game.activeTarget;
+          if (t.shakeTimer > 0) t.shakeTimer = Math.max(0, t.shakeTimer - dt);
+          t.x -= t.speed * (Game.stunTimer > 0 ? 0.35 : 1) * dt;
+          t.bouncePhase += dt * 7;
+
+          // 如果走過頭沒串到，搞笑彈回前方再給一次機會（扣連擊不卡關）
+          if (t.x < leaderX + 18) {
+            t.x = Game.width * 0.84;
+            Game.combo = 0;
+            Game.feverCharge = Math.max(0, Game.feverCharge - 1);
+            SoundEngine.playBonk();
+            addPopup('差點漏掉！回來重串！', leaderX + 60, getGroundY() - 105, '#ff8787', 0.92);
+            updateHUD();
+          }
+        }
+
+        // 2. 障礙物生成與預警
+        Game.obstacleTimer -= dt;
+        if (Game.obstacleTimer <= 0 && !Game.pendingObstacle && Game.obstacles.length === 0) {
+          const obsDef = pickRandom(OBSTACLES);
+          Game.pendingObstacle = obsDef;
+          Game.warningTimer = 1.05;
+          warningBanner.textContent = obsDef.warn;
+          warningBanner.classList.add('show');
+          btnJump.classList.add('urgent');
+        }
+
+        if (Game.pendingObstacle) {
+          Game.warningTimer -= dt;
+          if (Game.warningTimer <= 0) {
+            Game.obstacles.push({
+              ...Game.pendingObstacle,
+              x: Game.width + 55,
+              speed: 340 + Math.min(110, Game.centipede.length * 3),
+              passed: false,
+              hit: false
+            });
+            Game.pendingObstacle = null;
+            Game.obstacleTimer = randInt(48, 76) / 10; // 每 4.8~7.6 秒隨機出現一次
+          }
+        }
+
+        // 3. 障礙物移動與碰撞判定
+        for (let i = Game.obstacles.length - 1; i >= 0; i--) {
+          const ob = Game.obstacles[i];
+          ob.x -= ob.speed * dt;
+
+          // 狂熱模式自動起跳閃避
+          if (Game.feverTimer > 0 && !ob.passed && ob.x < leaderX + 120 && ob.x > leaderX + 30) {
+            if (Game.time - Game.waveJumpClock > 0.5) {
+              Game.waveJumpClock = Game.time;
+              SoundEngine.playJump();
+            }
+          }
+
+          // 碰撞領隊判定
+          if (!ob.hit && !ob.passed && Math.abs(ob.x - leaderX) < 34) {
+            const leaderJump = Game.centipede[0].jumpOffset;
+            if (leaderJump > 34 || Game.feverTimer > 0) {
+              ob.passed = true;
+              Game.stats.dodges++;
+              Game.score += 120;
+              updateHUD();
+              addPopup('💨 好險！完美波浪閃避 +120', leaderX + 10, getGroundY() - 130, '#63e6be', 1.0);
+              spawnParticles(leaderX, getGroundY() - 40, '#63e6be', 12, 'spark');
+              warningBanner.classList.remove('show');
+              btnJump.classList.remove('urgent');
+            } else {
+              ob.hit = true;
+              Game.stunTimer = 1.2;
+              Game.stunEffect = ob.effect;
+              Game.combo = 0;
+              Game.feverCharge = 0;
+              Game.screenShake = 12;
+              SoundEngine.playBonk();
+              SpeechEngine.speak('哎呀！', 1.35);
+              addPopup(`${ob.emoji} ${ob.hitMsg}`, leaderX, getGroundY() - 115, '#ff4d6d', 1.1);
+              warningBanner.classList.remove('show');
+              btnJump.classList.remove('urgent');
+              updateHUD();
+            }
+          }
+
+          if (ob.x < -80) {
+            warningBanner.classList.remove('show');
+            btnJump.classList.remove('urgent');
+            Game.obstacles.splice(i, 1);
+          }
+        }
+      } else if (Game.phase === 'victory') {
+        Game.victoryTimer += dt;
+        // 勝利煙火彩帶持續噴發
+        if (Math.random() < dt * 7) {
+          spawnParticles(randInt(80, Game.width - 80), randInt(60, Game.height * 0.45), pickRandom(['#ff3b4e', '#ffe066', '#00e5ff', '#2ecc71']), 8, 'confetti');
+        }
+      }
+
+      // 更新竹竿飛射線
+      for (let i = Game.bambooShots.length - 1; i >= 0; i--) {
+        Game.bambooShots[i].life -= dt;
+        if (Game.bambooShots[i].life <= 0) Game.bambooShots.splice(i, 1);
+      }
+
+      // 更新粒子
+      for (let i = Game.particles.length - 1; i >= 0; i--) {
+        const p = Game.particles[i];
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.vy += p.gravity * dt;
+        p.rot += p.vrot * dt;
+        p.life -= dt;
+        if (p.life <= 0) Game.particles.splice(i, 1);
+      }
+
+      // 更新漫畫文字彈幕
+      for (let i = Game.popups.length - 1; i >= 0; i--) {
+        const pop = Game.popups[i];
+        pop.y -= 42 * dt;
+        pop.life -= dt;
+        if (pop.life <= 0) Game.popups.splice(i, 1);
+      }
+    }
+
+    function spawnParticles(x, y, color, count, kind) {
+      const symbols = kind === 'super' ? ['👍', '💖', '⭐', '✨'] : kind === 'pearl' ? ['⚫', '🧋', '✨'] : null;
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 70 + Math.random() * 210;
+        Game.particles.push({
+          x, y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 110,
+          gravity: 420,
+          size: 5 + Math.random() * 6,
+          color: kind === 'confetti' ? pickRandom(['#ff3b4e', '#ffe066', '#00b4ff', '#2ecc71', '#c77dff']) : color,
+          kind,
+          symbol: symbols ? pickRandom(symbols) : null,
+          rot: Math.random() * Math.PI * 2,
+          vrot: (Math.random() - 0.5) * 10,
+          life: 0.7 + Math.random() * 0.55
+        });
+      }
+    }
+
+    function addPopup(text, x, y, color, scale = 1) {
+      Game.popups.push({
+        text,
+        x: Math.max(95, Math.min(Game.width - 95, x)),
+        y,
+        color,
+        scale,
+        life: 1.15,
+        maxLife: 1.15
+      });
+    }
+
+    // ---------------------------
+    // 11. 精緻 Q 版 Canvas 繪製引擎
+    // ---------------------------
+    function render() {
+      const w = Game.width;
+      const h = Game.height;
+      const groundY = getGroundY();
+
+      ctx.save();
+      if (Game.screenShake > 0.2) {
+        ctx.translate((Math.random() - 0.5) * Game.screenShake, (Math.random() - 0.5) * Game.screenShake);
+      }
+
+      // 1. 繪製台灣廟會派對背景
+      drawBackground(ctx, w, h, groundY);
+
+      // 2. 繪製地面「串聯感應區」光圈（引導玩家抓準時機）
+      if (Game.phase === 'playing') {
+        const sweetX = getLeaderX() + 125;
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255, 224, 102, 0.75)';
+        ctx.fillStyle = 'rgba(255, 224, 102, 0.16)';
+        ctx.lineWidth = 3;
+        ctx.setLineDash([8, 6]);
+        ctx.beginPath();
+        ctx.ellipse(sweetX, groundY + 4, 52, 14, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.font = '900 12px ' + getComputedStyle(document.body).fontFamily;
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.fillText('✨ 完美串聯區 ✨', sweetX, groundY + 26);
+        ctx.restore();
+      }
+
+      // 3. 繪製藍色蜈蚣大軍（含真實竹竿串聯）
+      drawBlueCentipede(ctx, w, h, groundY);
+
+      // 4. 繪製飛射竹竿特效
+      Game.bambooShots.forEach(s => {
+        const yOff = s.pole === 'head' ? -68 : s.pole === 'shoulder' ? -40 : -20;
+        const alpha = s.life / s.maxLife;
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        drawBambooStick(ctx, s.x1, groundY + yOff, s.x2, groundY + yOff, 9);
+        ctx.restore();
+      });
+
+      // 5. 繪製待串目標角色與部位提示光圈
+      if (Game.phase === 'playing' && Game.activeTarget) {
+        drawActiveTarget(ctx, Game.activeTarget, groundY);
+      }
+
+      // 6. 繪製搞笑障礙物
+      Game.obstacles.forEach(ob => drawObstacle(ctx, ob, groundY));
+
+      // 7. 繪製粒子
+      Game.particles.forEach(p => {
+        ctx.save();
+        ctx.globalAlpha = Math.min(1, p.life * 1.5);
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        if (p.symbol) {
+          ctx.font = `${Math.round(p.size * 2.4)}px sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(p.symbol, 0, 0);
+        } else {
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.7);
+        }
+        ctx.restore();
+      });
+
+      // 8. 繪製超大漫畫白邊彈幕
+      Game.popups.forEach(pop => {
+        const t = 1 - pop.life / pop.maxLife;
+        const popScale = pop.scale * (t < 0.15 ? 0.6 + (t / 0.15) * 0.55 : 1.05);
+        ctx.save();
+        ctx.globalAlpha = Math.min(1, pop.life * 2.2);
+        ctx.translate(pop.x, pop.y);
+        ctx.scale(popScale, popScale);
+        ctx.font = '900 22px "PingFang TC", "Microsoft JhengHei", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.lineWidth = 6;
+        ctx.strokeStyle = '#1a2438';
+        ctx.strokeText(pop.text, 0, 0);
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#ffffff';
+        ctx.strokeText(pop.text, 0, 0);
+        ctx.fillStyle = pop.color;
+        ctx.fillText(pop.text, 0, 0);
+        ctx.restore();
+      });
+
+      ctx.restore();
+    }
+
+    // 繪製廟會街道與派對燈籠背景
+    function drawBackground(c, w, h, groundY) {
+      // 天空漸層（狂熱模式或熱舞大叔時切換七彩霓虹派對！）
+      const skyGrad = c.createLinearGradient(0, 0, 0, groundY);
+      if (Game.feverTimer > 0) {
+        const hue = (Game.time * 180) % 360;
+        skyGrad.addColorStop(0, `hsl(${hue}, 85%, 45%)`);
+        skyGrad.addColorStop(1, `hsl(${(hue + 70) % 360}, 90%, 65%)`);
+      } else if (Game.discoTimer > 0) {
+        skyGrad.addColorStop(0, '#5f27cd');
+        skyGrad.addColorStop(1, '#ff9ff3');
+      } else {
+        skyGrad.addColorStop(0, '#1fa2ff');
+        skyGrad.addColorStop(0.65, '#7de2ff');
+        skyGrad.addColorStop(1, '#d9f7ff');
+      }
+      c.fillStyle = skyGrad;
+      c.fillRect(0, 0, w, groundY);
+
+      // 遠景廟宇屋簷與雲朵（緩慢捲動）
+      const cloudOffset = (Game.scrollX * 0.25) % (w + 260);
+      c.fillStyle = 'rgba(255,255,255,0.75)';
+      for (let i = 0; i < 4; i++) {
+        const cx = ((i * 290 - cloudOffset) % (w + 260) + (w + 260)) % (w + 260) - 100;
+        const cy = 54 + (i % 2) * 34;
+        c.beginPath();
+        c.arc(cx, cy, 24, 0, Math.PI * 2);
+        c.arc(cx + 22, cy - 8, 28, 0, Math.PI * 2);
+        c.arc(cx + 48, cy, 22, 0, Math.PI * 2);
+        c.fill();
+      }
+
+      // 遠景紅金廟宇牌樓剪影
+      const archStep = 340;
+      const archOff = (Game.scrollX * 0.45) % archStep;
+      for (let x = -archOff - 80; x < w + 120; x += archStep) {
+        c.fillStyle = '#e03131';
+        c.fillRect(x, groundY - 125, 16, 125);
+        c.fillRect(x + 96, groundY - 125, 16, 125);
+        // 翹角屋頂
+        c.fillStyle = '#f59f00';
+        c.beginPath();
+        c.moveTo(x - 22, groundY - 118);
+        c.quadraticCurveTo(x + 56, groundY - 154, x + 134, groundY - 118);
+        c.lineTo(x + 120, groundY - 104);
+        c.lineTo(x - 8, groundY - 104);
+        c.closePath();
+        c.fill();
+        // 匾額
+        c.fillStyle = '#1864ab';
+        c.fillRect(x + 28, groundY - 118, 56, 18);
+        c.fillStyle = '#ffe066';
+        c.font = '900 11px sans-serif';
+        c.textAlign = 'center';
+        c.fillText('藍蜈蚣宮', x + 56, groundY - 105);
+      }
+
+      // 頂部飄揚紅燈籠串
+      const lanternGap = 92;
+      const lOff = (Game.scrollX * 0.7) % lanternGap;
+      c.strokeStyle = '#c92a2a';
+      c.lineWidth = 2.5;
+      c.beginPath();
+      c.moveTo(0, 18);
+      c.lineTo(w, 18);
+      c.stroke();
+
+      for (let x = -lOff; x < w + lanternGap; x += lanternGap) {
+        const sway = Math.sin(Game.time * 4 + x * 0.03) * 4;
+        c.fillStyle = '#ff3b4e';
+        c.beginPath();
+        c.ellipse(x + sway, 32, 13, 15, 0, 0, Math.PI * 2);
+        c.fill();
+        c.fillStyle = '#ffe066';
+        c.fillRect(x + sway - 6, 17, 12, 4);
+        c.fillRect(x + sway - 5, 46, 10, 4);
+      }
+
+      // 慶典街道地面
+      c.fillStyle = '#3b4252';
+      c.fillRect(0, groundY, w, h - groundY);
+      // 紅金路緣石
+      c.fillStyle = '#ffd43b';
+      c.fillRect(0, groundY, w, 6);
+      c.fillStyle = '#ff3b4e';
+      c.fillRect(0, groundY + 6, w, 4);
+
+      // 道路白虛線捲動
+      const dashStep = 72;
+      const dOff = Game.scrollX % dashStep;
+      c.fillStyle = 'rgba(255, 255, 255, 0.55)';
+      for (let x = -dOff; x < w + dashStep; x += dashStep) {
+        c.fillRect(x, groundY + (h - groundY) * 0.45, 36, 6);
+      }
+    }
+
+    // 繪製翠綠竹竿（帶竹節細節）
+    function drawBambooStick(c, x1, y1, x2, y2, thickness = 7) {
+      c.save();
+      c.lineCap = 'round';
+      // 深綠外框
+      c.strokeStyle = '#145a32';
+      c.lineWidth = thickness + 3;
+      c.beginPath();
+      c.moveTo(x1, y1);
+      c.lineTo(x2, y2);
+      c.stroke();
+
+      // 翠綠主幹
+      c.strokeStyle = '#2ecc71';
+      c.lineWidth = thickness;
+      c.beginPath();
+      c.moveTo(x1, y1);
+      c.lineTo(x2, y2);
+      c.stroke();
+
+      // 亮綠反光
+      c.strokeStyle = '#8ce99a';
+      c.lineWidth = Math.max(2, thickness * 0.3);
+      c.beginPath();
+      c.moveTo(x1, y1 - 1.5);
+      c.lineTo(x2, y2 - 1.5);
+      c.stroke();
+
+      // 竹節刻度
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const dist = Math.hypot(dx, dy);
+      const nodes = Math.max(1, Math.floor(dist / 24));
+      c.strokeStyle = '#198754';
+      c.lineWidth = 2.5;
+      for (let i = 1; i < nodes; i++) {
+        const t = i / nodes;
+        const nx = x1 + dx * t;
+        const ny = y1 + dy * t;
+        const perpX = (-dy / (dist || 1)) * (thickness * 0.65);
+        const perpY = (dx / (dist || 1)) * (thickness * 0.65);
+        c.beginPath();
+        c.moveTo(nx - perpX, ny - perpY);
+        c.lineTo(nx + perpX, ny + perpY);
+        c.stroke();
+      }
+      c.restore();
+    }
+
+    // 計算並繪製整條藍色蜈蚣大軍（支援 1～62 人蜿蜒壯觀呈現）
+    function drawBlueCentipede(c, w, h, groundY) {
+      const count = Game.centipede.length;
+      const leaderX = Game.phase === 'victory'
+        ? w * 0.5 + Math.cos(Game.victoryTimer * 2.2) * (w * 0.25)
+        : getLeaderX();
+
+      // 動態間距：人數越多間距越緊湊，並且尾部會 S 型蜿蜒折返讓全員都看得見！
+      const spacing = count > 22 ? 26 : count > 12 ? 34 : 46;
+      const coords = [];
+
+      for (let i = 0; i < count; i++) {
+        const m = Game.centipede[i];
+        let x, y;
+        const wave = Math.sin(Game.time * 9 - i * 0.65) * (Game.feverTimer > 0 ? 11 : 6);
+        const headFloat = m.poles.includes('head') ? -10 + Math.sin(Game.time * 6 + i) * 4 : 0;
+
+        if (Game.phase === 'victory') {
+          // 繞場扭腰謝幕蛇行陣型
+          const angle = Game.victoryTimer * 2.4 - i * 0.28;
+          x = w * 0.5 + Math.cos(angle) * Math.min(w * 0.36, 120 + i * 7);
+          y = groundY - 20 + Math.sin(angle * 2) * 32 - Math.abs(Math.sin(Game.time * 10 - i * 0.5)) * 18;
+        } else {
+          // 一般行進：超過左邊界後自然蜿蜒盤繞成雙層藍蜈蚣大軍
+          const rawX = leaderX - i * spacing;
+          if (rawX >= 28) {
+            x = rawX;
+            y = groundY + wave * 0.4 + headFloat - m.jumpOffset;
+          } else {
+            const overflow = 28 - rawX;
+            const row = Math.floor(overflow / (w * 0.38)) + 1;
+            const mod = overflow % (w * 0.38);
+            x = (row % 2 === 1) ? 28 + mod : 28 + (w * 0.38) - mod;
+            y = groundY - row * 28 + wave * 0.35 + headFloat - m.jumpOffset;
+          }
+        }
+        coords.push({ x, y, m });
+      }
+
+      // 由後往前繪製（確保前面的角色疊在後方之上）
+      for (let i = count - 1; i >= 0; i--) {
+        const cur = coords[i];
+        const prev = i > 0 ? coords[i - 1] : null;
+
+        // 繪製連接到前一位隊員的對應部位竹竿（頭、肩、腰、或同時多竿！）
+        if (prev) {
+          const poles = cur.m.poles;
+          const poleOffsets = { head: -68, shoulder: -40, waist: -20 };
+          poles.forEach(pk => {
+            const yo = poleOffsets[pk] || -20;
+            drawBambooStick(c, cur.x, cur.y + yo, prev.x, prev.y + yo, 6.5);
+          });
+        }
+
+        drawCentipedeCharacter(c, cur.x, cur.y, cur.m, i, false);
+
+        // 在身體上方再畫一小段橫穿感竹竿頭，強化「串起來」的荒謬喜感
+        cur.m.poles.forEach(pk => {
+          const yo = pk === 'head' ? -68 : pk === 'shoulder' ? -40 : -20;
+          drawBambooStick(c, cur.x - 16, cur.y + yo, cur.x + 16, cur.y + yo, 5.5);
+        });
+      }
+    }
+
+    // 繪製單一 Q 版藍色蜈蚣角色（含 6 種搞笑路人專屬特徵）
+    function drawCentipedeCharacter(c, x, y, member, idx, isTarget) {
+      c.save();
+      c.translate(x, y);
+
+      const scalePop = member.joinAnim ? 1 + Math.sin(member.joinAnim * Math.PI) * 0.35 : 1;
+      const tilt = Game.stunEffect === 'wobble'
+        ? Math.sin(Game.time * 28 + idx) * 0.28
+        : Math.sin(Game.time * 9 - idx * 0.6) * 0.08;
+      c.rotate(tilt);
+      c.scale(scalePop, scalePop);
+
+      // 狂熱模式藍色發光光環
+      if (Game.feverTimer > 0 && !isTarget) {
+        c.save();
+        c.fillStyle = 'rgba(0, 229, 255, 0.35)';
+        c.beginPath();
+        c.arc(0, -38, 34, 0, Math.PI * 2);
+        c.fill();
+        c.restore();
+      }
+
+      // 地面陰影
+      c.fillStyle = 'rgba(0, 0, 0, 0.22)';
+      c.beginPath();
+      c.ellipse(0, 4, 18, 6, 0, 0, Math.PI * 2);
+      c.fill();
+
+      // 擺動的小短腿（蜈蚣步伐）
+      const legSwing = Math.sin(Game.time * 16 - idx * 0.9) * 8;
+      c.strokeStyle = '#0047b3';
+      c.lineWidth = 6;
+      c.lineCap = 'round';
+      c.beginPath();
+      c.moveTo(-7, -14); c.lineTo(-9 + legSwing, 0);
+      c.moveTo(7, -14);  c.lineTo(9 - legSwing, 0);
+      c.stroke();
+
+      // 藍色蜈蚣連身裝身體
+      const bodyColor = Game.stunEffect === 'stink' && !isTarget ? '#74c69d' : (member.type === 'leader' ? '#005ce6' : '#1890ff');
+      c.fillStyle = bodyColor;
+      c.strokeStyle = '#002d72';
+      c.lineWidth = 2.8;
+      c.beginPath();
+      c.roundRect(-16, -46, 32, 34, 14);
+      c.fill();
+      c.stroke();
+
+      // 蜈蚣腹部淺藍條紋
+      c.fillStyle = '#a5d8ff';
+      c.fillRect(-9, -37, 18, 4);
+      c.fillRect(-9, -29, 18, 4);
+      c.fillRect(-9, -21, 18, 4);
+
+      // 手臂（肩膀竹竿時僵硬平舉，其他時候開懷搖擺）
+      const armWave = member.poles && member.poles.includes('shoulder')
+        ? 0
+        : Math.sin(Game.time * 12 + idx) * 10;
+      c.strokeStyle = '#005ce6';
+      c.lineWidth = 5.5;
+      c.beginPath();
+      c.moveTo(-15, -36); c.lineTo(-24, -26 + armWave);
+      c.moveTo(15, -36);  c.lineTo(24, -26 - armWave);
+      c.stroke();
+
+      // 藍色蜈蚣頭套
+      c.fillStyle = bodyColor;
+      c.beginPath();
+      c.arc(0, -60, 19, 0, Math.PI * 2);
+      c.fill();
+      c.stroke();
+
+      // 頭頂兩根會晃動的藍色觸角！
+      const antSwing = Math.sin(Game.time * 14 + idx) * 5;
+      c.strokeStyle = '#003e99';
+      c.lineWidth = 3;
+      c.beginPath();
+      c.moveTo(-7, -77); c.quadraticCurveTo(-14 + antSwing, -92, -18 + antSwing, -89);
+      c.moveTo(7, -77);  c.quadraticCurveTo(14 + antSwing, -92, 18 + antSwing, -89);
+      c.stroke();
+      c.fillStyle = '#ffe066';
+      c.beginPath();
+      c.arc(-18 + antSwing, -89, 3.8, 0, Math.PI * 2);
+      c.arc(18 + antSwing, -89, 3.8, 0, Math.PI * 2);
+      c.fill();
+
+      // 露出的 Q 版小臉蛋
+      c.fillStyle = Game.stunEffect === 'stink' && !isTarget ? '#b7e4c7' : '#ffe3c2';
+      c.beginPath();
+      c.arc(2, -59, 13.5, 0, Math.PI * 2);
+      c.fill();
+
+      // 誇張搞笑表情（暈眩蚊香眼 / 頭插竹竿問號臉 / 歡樂大笑）
+      if (Game.stunTimer > 0 && !isTarget) {
+        // 蚊香眼 @_@
+        c.fillStyle = '#1a2438';
+        c.font = '900 10px sans-serif';
+        c.textAlign = 'center';
+        c.fillText('@  @', 3, -58);
+        c.beginPath();
+        c.arc(3, -51, 3.5, 0, Math.PI * 2);
+        c.stroke();
+      } else if (member.face === 'shock' || (member.poles && member.poles.includes('head'))) {
+        // 頭頂竹竿一臉問號 O_O
+        c.fillStyle = '#1a2438';
+        c.beginPath();
+        c.arc(-2, -61, 2.8, 0, Math.PI * 2);
+        c.arc(8, -61, 2.8, 0, Math.PI * 2);
+        c.fill();
+        c.beginPath();
+        c.arc(3, -52, 3.8, 0, Math.PI * 2);
+        c.stroke();
+      } else {
+        // 呆萌大眼睛＋大笑嘴
+        c.fillStyle = '#fff';
+        c.beginPath();
+        c.arc(-2, -61, 4.2, 0, Math.PI * 2);
+        c.arc(8, -61, 4.2, 0, Math.PI * 2);
+        c.fill();
+        c.fillStyle = '#1a2438';
+        c.beginPath();
+        c.arc(-1, -61, 2.2, 0, Math.PI * 2);
+        c.arc(9, -61, 2.2, 0, Math.PI * 2);
+        c.fill();
+        // 開心紅嘴巴
+        c.fillStyle = '#ff4d6d';
+        c.beginPath();
+        c.arc(3, -54, 4.5, 0, Math.PI);
+        c.fill();
+      }
+
+      // 繪製領隊小皇冠 或 6 種搞笑路人專屬手繪道具
+      if (member.type === 'leader') {
+        c.fillStyle = '#ffd43b';
+        c.strokeStyle = '#994900';
+        c.lineWidth = 2;
+        c.beginPath();
+        c.moveTo(-10, -78); c.lineTo(-12, -90); c.lineTo(-4, -84); c.lineTo(0, -93);
+        c.lineTo(4, -84); c.lineTo(12, -90); c.lineTo(10, -78);
+        c.closePath();
+        c.fill();
+        c.stroke();
+      } else if (member.ped) {
+        drawPedestrianProps(c, member.ped.id);
+      }
+
+      c.restore();
+    }
+
+    // 6 種搞笑路人專屬手繪配件
+    function drawPedestrianProps(c, pedId) {
+      if (pedId === 'grandma') {
+        // 買菜阿嬤：花白包頭＋紅白條紋塑膠袋＋綠色大蔥
+        c.fillStyle = '#e9ecef';
+        c.beginPath(); c.arc(-10, -76, 6, 0, Math.PI * 2); c.fill();
+        // 紅白塑膠袋
+        c.fillStyle = '#fff';
+        c.fillRect(16, -24, 14, 16);
+        c.fillStyle = '#ff3b4e';
+        c.fillRect(19, -24, 3, 16);
+        c.fillRect(25, -24, 3, 16);
+        // 露出大蔥
+        c.strokeStyle = '#2ecc71';
+        c.lineWidth = 3;
+        c.beginPath(); c.moveTo(22, -24); c.lineTo(26, -36); c.stroke();
+      } else if (pedId === 'disco') {
+        // 熱舞大叔：大爆炸頭＋酷炫墨鏡
+        c.fillStyle = '#2b2d42';
+        c.beginPath();
+        c.arc(-8, -74, 9, 0, Math.PI * 2);
+        c.arc(2, -79, 10, 0, Math.PI * 2);
+        c.arc(11, -73, 8, 0, Math.PI * 2);
+        c.fill();
+        // 墨鏡
+        c.fillStyle = '#111';
+        c.fillRect(-7, -64, 9, 5);
+        c.fillRect(4, -64, 9, 5);
+        c.fillRect(1, -63, 4, 2);
+      } else if (pedId === 'delivery') {
+        // 外送小哥：紅色安全帽＋背後粉紅外送箱
+        c.fillStyle = '#ff3b4e';
+        c.beginPath(); c.arc(0, -65, 18, Math.PI, 0); c.fill();
+        c.fillStyle = '#ff6b9d';
+        c.strokeStyle = '#a61e4d';
+        c.lineWidth = 2;
+        c.fillRect(-30, -45, 16, 20);
+        c.strokeRect(-30, -45, 16, 20);
+      } else if (pedId === 'office') {
+        // 迷路上班族：飛揚紅領帶＋手拿熱咖啡
+        c.fillStyle = '#e03131';
+        c.beginPath();
+        c.moveTo(2, -45); c.lineTo(7, -30); c.lineTo(3, -24); c.lineTo(-1, -30);
+        c.closePath();
+        c.fill();
+        c.fillStyle = '#f8f9fa';
+        c.fillRect(19, -34, 8, 11);
+        c.fillStyle = '#7950f2';
+        c.fillRect(19, -30, 8, 4);
+      } else if (pedId === 'boba') {
+        // 珍奶高中生：超大杯珍珠奶茶
+        c.fillStyle = '#f3d9a4';
+        c.strokeStyle = '#8d5524';
+        c.lineWidth = 1.8;
+        c.fillRect(16, -42, 13, 18);
+        c.strokeRect(16, -42, 13, 18);
+        // 黑糖珍珠
+        c.fillStyle = '#2b1b17';
+        c.beginPath();
+        c.arc(19, -27, 2, 0, Math.PI * 2);
+        c.arc(23, -26, 2, 0, Math.PI * 2);
+        c.arc(26, -28, 2, 0, Math.PI * 2);
+        c.fill();
+        // 粗吸管
+        c.strokeStyle = '#ff4d6d';
+        c.lineWidth = 3;
+        c.beginPath(); c.moveTo(23, -42); c.lineTo(26, -52); c.stroke();
+      } else if (pedId === 'lion') {
+        // 廟會舞獅弟：超喜慶迷你紅金舞獅頭套
+        c.fillStyle = '#ff3b4e';
+        c.strokeStyle = '#ffd43b';
+        c.lineWidth = 2.5;
+        c.beginPath(); c.arc(0, -68, 18, Math.PI * 0.95, Math.PI * 0.05); c.fill(); c.stroke();
+        c.fillStyle = '#ffe066';
+        c.beginPath(); c.arc(0, -82, 5, 0, Math.PI * 2); c.fill();
+      }
+    }
+
+    // 繪製前方待串目標角色與發光竹竿目標圈
+    function drawActiveTarget(c, target, groundY) {
+      const shakeX = target.shakeTimer > 0 ? Math.sin(Game.time * 60) * 7 : 0;
+      const bounceY = -Math.abs(Math.sin(target.bouncePhase)) * 12;
+      const tx = target.x + shakeX;
+      const ty = groundY + bounceY;
+
+      drawCentipedeCharacter(c, tx, ty, {
+        type: target.type,
+        ped: target.ped,
+        poles: [],
+        face: target.shakeTimer > 0 ? 'shock' : 'happy'
+      }, 99, true);
+
+      // 繪製每個需要串聯部位的發光瞄準環
+      const poleOffsets = { head: -68, shoulder: -40, waist: -20 };
+      const pulse = 1 + Math.sin(Game.time * 14) * 0.16;
+
+      target.requiredPoles.forEach(pk => {
+        const py = ty + poleOffsets[pk];
+        c.save();
+        c.strokeStyle = POLE_META[pk].color;
+        c.lineWidth = 4;
+        c.beginPath();
+        c.arc(tx, py, 14 * pulse, 0, Math.PI * 2);
+        c.stroke();
+
+        c.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        c.beginPath();
+        c.arc(tx, py, 4.5, 0, Math.PI * 2);
+        c.fill();
+        c.restore();
+      });
+
+      // 頭頂任務提示大氣泡標籤
+      const labelText = target.taskKey === 'multi'
+        ? `⚡ 同時串：${target.requiredPoles.map(p => POLE_META[p].short).join('＋')}`
+        : `${POLE_META[target.taskKey].keyHint}`;
+
+      c.save();
+      c.font = '900 14px "PingFang TC", "Microsoft JhengHei", sans-serif';
+      const tw = c.measureText(labelText).width + 20;
+      const bx = tx - tw / 2;
+      const by = ty - 124;
+
+      c.fillStyle = POLE_META[target.taskKey].color;
+      c.strokeStyle = '#ffffff';
+      c.lineWidth = 3;
+      c.beginPath();
+      c.roundRect(bx, by, tw, 28, 12);
+      c.fill();
+      c.stroke();
+
+      c.fillStyle = '#ffffff';
+      c.textAlign = 'center';
+      c.textBaseline = 'middle';
+      c.fillText(labelText, tx, by + 14);
+
+      // 特殊路人名牌
+      if (target.ped) {
+        c.font = '900 12px "PingFang TC", "Microsoft JhengHei", sans-serif';
+        c.fillStyle = '#ffe066';
+        c.strokeStyle = '#1a2438';
+        c.lineWidth = 3.5;
+        const pTag = `${target.ped.emoji} ${target.ped.name}`;
+        c.strokeText(pTag, tx, by - 11);
+        c.fillText(pTag, tx, by - 11);
+      }
+      c.restore();
+    }
+
+    // 繪製搞笑障礙物
+    function drawObstacle(c, ob, groundY) {
+      c.save();
+      c.translate(ob.x, groundY);
+
+      // 地面陰影
+      c.fillStyle = 'rgba(0,0,0,0.28)';
+      c.beginPath();
+      c.ellipse(0, 4, 24, 7, 0, 0, Math.PI * 2);
+      c.fill();
+
+      // 臭豆腐綠色臭氣雲特效
+      if (ob.id === 'tofu') {
+        c.fillStyle = 'rgba(105, 219, 124, 0.55)';
+        const wave = Math.sin(Game.time * 12) * 5;
+        c.beginPath();
+        c.arc(-8 + wave, -44, 14, 0, Math.PI * 2);
+        c.arc(10 - wave, -52, 16, 0, Math.PI * 2);
+        c.fill();
+      }
+
+      // 障礙物本體（大圖示 + 彈跳動感）
+      const hop = -Math.abs(Math.sin(Game.time * 16)) * (ob.id === 'shiba' ? 14 : 5);
+      c.font = '44px sans-serif';
+      c.textAlign = 'center';
+      c.textBaseline = 'bottom';
+      c.fillText(ob.emoji, 0, hop + 4);
+
+      c.font = '900 12px "PingFang TC", sans-serif';
+      c.strokeStyle = '#1a2438';
+      c.lineWidth = 3.5;
+      c.fillStyle = '#ffe066';
+      c.strokeText(ob.name, 0, hop - 42);
+      c.fillText(ob.name, 0, hop - 42);
+      c.restore();
+    }
+
+    // ---------------------------
     // 12. 下載專屬「藍色蜈蚣過關榮譽證書」PNG 生成器（1080 × 1560）
     // ---------------------------
     function drawWrappedText(g, text, x, y, maxWidth, lineHeight, maxLines = 3) {
