@@ -884,7 +884,7 @@
           <button type="button" class="filter-pill" data-category="荒誕喜劇">荒誕喜劇</button>
           <button type="button" class="filter-pill" data-category="成長練習">成長練習</button>
         </div>
-        <div id="galleryCount" class="gallery-count">共 10 款收錄作品</div>
+        <div id="galleryCount" class="gallery-count">共 12 款收錄作品</div>
       </div>
     </header>
 
@@ -976,7 +976,7 @@
               ＋ 新增一款遊戲
             </button>
             <button id="resetDefaultBtn" type="button" class="btn-ghost btn-danger-ghost" style="min-height: 38px; font-size: 0.82rem;">
-              ↺ 恢復預設 10 款
+              ↺ 恢復預設 12 款
             </button>
           </div>
         </div>
@@ -1005,118 +1005,118 @@
       'use strict';
 
       /* ========================================================================
-         1. 預設作品資料（10 款完整收錄，皆配有專屬 artKey）
+         1. 預設作品資料（12 款完整收錄，皆配有專屬 artKey）
          ======================================================================== */
-    const DEFAULT_GAMES = [
-  {
-    "id": "invoice-king",
-    "title": "銷單王者歸來",
-    "category": "藝術冒險",
-    "subTag": "鎏金浮世繪",
-    "path": "invoice_king_returns.html",
-    "desc": "三關討伐魔王、蝸牛闖山林、女王核銷一吼，親手拔起金光「銷單王」神劍並下載專屬照片姓名證書。",
-    "artKey": "invoice_king"
-  },
-  {
-    "id": "luminance-ch1",
-    "title": "《空明・見性》",
-    "category": "禪意靜心",
-    "subTag": "水墨冥想",
-    "path": "luminance_chapter1.html",
-    "desc": "如來",
-    "artKey": "zen_ch1"
-  },
-  {
-    "id": "chair-moon",
-    "title": "無椅的沉默：宇宙級嘴硬遠征",
-    "category": "荒誕喜劇",
-    "subTag": "四關小遊戲",
-    "path": "chair_moon_adventure.html",
-    "desc": "從辦公桌沒椅子、路人老虎演講、和平鴿投椅入海，到月球開直播照亮太陽獲得「靈芝草一隻」與結業證書。",
-    "artKey": "chair_moon"
-  },
-  {
-    "id": "daily-five",
-    "title": "每日五題成長小徑",
-    "category": "成長練習",
-    "subTag": "40 天打卡",
-    "path": "daily_five_growth.html",
-    "desc": "40 天由淺入深每日五題練習、錯題統計儀表板，支援跨裝置登入與 Google 試算表紀錄。",
-    "artKey": "daily_five"
-  },
-  {
-    "id": "custom-1795403620313",
-    "title": "山景教室：刷新三觀大作戰",
-    "category": "藝術冒險",
-    "subTag": "互動新作",
-    "path": "mountain_classroom_game.html",
-    "desc": "三段式晴空山景落地窗、精緻手寫粉筆綠黑板、12 課桌椅自由換位與 NPC 助攻系統、三關進階搗蛋猴子（含吃香蕉誘餌、全班齊射 Fever 與第三關分身大亂鬥）",
-    "artKey": "mountain_classroom"
-  },
-  {
-    "id": "custom-1795424546777",
-    "title": "蔚藍名流・美國夢豪華遠征",
-    "category": "藝術冒險",
-    "subTag": "互動新作",
-    "path": "azure_american_dream.html",
-    "desc": "US$100,000 揪團集資與高級禮儀樂團祝賀演出、加州舉重競技場對決洋妞 Jessica、五大美國名企粉絲見面會集花束",
-    "artKey": "azure_american_dream"
-  },
-  {
-    "id": "custom-1795424679657",
-    "title": "翡翠算力帝國：顯卡、獸吼與高訂洞洞",
-    "category": "荒誕喜劇",
-    "subTag": "AI世界",
-    "path": "tiffany_gpu_empire.html",
-    "desc": "全球出貨與豺狼虎豹批鬥」、「會發出怒吼與蟲鳴鳥叫的軟體之王」以及「戳破顯卡追求高訂質感而華麗下台」三大關卡；每過一關皆會觸發 ±20%～30% 的即時隨機盤勢震盪（起始 50,000 點），並於通關後繪製完整股市走勢圖，支援上傳個人照片與切換幽默標語，即時合成 1080×1520 高畫質 PNG 榮譽證書。",
-    "artKey": "tiffany_gpu_empire"
-  },
-  {
-    "id": "custom-1795424787013",
-    "title": "粉紅泡泡沙龍：氣質彈珠台",
-    "category": "成長練習",
-    "subTag": "古典遊戲",
-    "path": "pink_bubble_pinball.html",
-    "desc": "以柔和珍珠粉白、乾燥玫瑰粉與香檳玫瑰金營造法式沙龍高級質感，完整還原 15 排經典台灣彈珠台的發射軌道、頂部排數禮讚銘牌、交錯玫瑰金珍珠釘陣與第 1／15 排加贈彈珠機制；每點亮一排皆會綻放即時讚美泡泡，結算時依點亮排數獻上專屬氣質稱號與暖心金句，並即時合成內含個人照片、15 排成果點陣圖與玫瑰金火漆印章的 1080×1520 高訂榮譽證書供一鍵下載與手機長按保存。",
-    "artKey": "pink_bubble_pinball"
-  },
-  {
-    "id": "custom-1795424839957",
-    "title": "幸運小瑪莉：2的次方讚賞機",
-    "category": "成長練習",
-    "subTag": "古典遊戲",
-    "path": "little_mary_power2.html",
-    "desc": "皇家絲絨酒紅與香檳金 LED 燈框的經典 24 格小瑪莉機台，完整實作初始 100 元、1 單位以上自由投注、即時「2 的次方（2^n）」與「賺錢比例」雙重分類、歸零暖心鼓勵補給、超過 2,000 元自動止盈終止並綻放金色紙花，以及可客製化送出、複製文字與下載 1080×1350 高畫質 PNG 讚賞榮譽卡的完整體驗。",
-    "artKey": "little_mary_power2"
-  },
-  {
-    "id": "custom-1795434270604",
-    "title": "紅線大合唱：少子化 × AI 動物大賽跑",
-    "category": "荒誕喜劇",
-    "subTag": "競技型遊戲",
-    "path": "redline_chorus_race.html",
-    "desc": "遊戲將包含實體翻牌式台灣數據儀表板、雙主角（學霸黑熊與創客石虎）立體公仔與跟班小動物群、2025～2030 立體年份拱門與「5% 戴墨鏡跳槽創業」拋物線動畫、雙人同機與單人 AI 對戰、實體按壓回饋按鈕，以及衝破彈性紅線後的聚光燈擁抱大合唱舞台、Web Audio API 即時合成雙聲部主題曲、卡拉 OK 歌詞跑馬燈與互動音符煙火結算獎牌。",
-    "artKey": "redline_chorus_race"
-  },
-  {
-    "id": "custom-1795591262730",
-    "title": "少女上車舞・專屬加油影片生成器",
-    "category": "荒誕喜劇",
-    "subTag": "加油生成器",
-    "path": "shangche_cheer_studio.html",
-    "desc": "輸入名字與多段上車劇情，一鍵生成 9:16 少女唱跳加油影片！內建 132 BPM 電音 DJ、126 BPM 甜美偶像與原曲匯入三種配樂，並搭配可愛中文語音朗讀、自動壓低配樂及錄影麥克風混音收音。\n\n條列重點版（適合詳情頁）：\n\n三模配樂＋原曲匯入：自由切換 🔥 132 BPM 電音 DJ 版（氣笛、刷碟與重拍同步舞步）、🌸 126 BPM 少女偶像版，或直接匯入 MP4/MP3/WAV 原曲混音錄製。\n\n可愛語音＋智慧壓音：預設中文女聲朗讀客製台詞與祝福，說話時自動壓低背景配樂（Audio Ducking），支援少女、電音 MC、溫柔暖心三種語調。\n\n9:16 錄影＋麥克風收音：直接匯出直式加油影片，勾選麥克風收音即可將語音或親口加油聲與配樂一同混錄下載。",
-    "artKey": "custom"
-  },
-  {
-    "id": "custom-1795747811489",
-    "title": "藍色蜈蚣：竹竿大串聯",
-    "category": "荒誕喜劇",
-    "subTag": "互動新作",
-    "path": "blue_centipede_party.html",
-    "desc": "自由填寫人數並搭配系統隨機突襲派發路人，用竹竿從頭部、肩膀、腰部三竿齊發串聯成超長藍色大蜈蚣！內建中文語音魔性大喊「天清清地靈靈」與「棒棒棒超級棒」、全員波浪起跳閃障礙，過關還能上傳照片客製含今日日期與祝福對話的專屬榮譽證書。\n\n條列重點版（適合詳情頁）：\n\n雙軌人數 × 三部位竹竿串聯：自由設定 1～50 人，再開局拉霸隨機加碼 6 種手繪搞笑路人（買菜阿嬤、熱舞大叔、外送小哥、珍奶高中生、廟會舞獅弟等），抓準節奏以頭／肩／腰與三竿齊發接龍，並以全員波浪起跳閃避香蕉皮、暴衝柴犬與臭豆腐攤車。\n\n魔性中文語音 × 廟會派對音效：每次串聯即時喊出「天清清！地靈靈！」與「棒棒棒！超級棒！」並搭配木魚鑼鼓音效，連擊 5 次觸發 5 秒七彩無敵「蜈蚣起飛狂熱模式」。\n\n過關專屬榮譽證書下載：支援上傳個人照片自動裁成慶典圓框大頭照、帶入今日中文日期、16 句隨機廟會祝福語及自訂暱稱與漫畫對話氣泡，即時預覽並一鍵下載高解析度 PNG 證書。",
-    "artKey": "custom"
-  }
-];
+      const DEFAULT_GAMES = [
+        {
+          "id": "invoice-king",
+          "title": "銷單王者歸來",
+          "category": "藝術冒險",
+          "subTag": "鎏金浮世繪",
+          "path": "invoice_king_returns.html",
+          "desc": "三關討伐魔王、蝸牛闖山林、女王核銷一吼，親手拔起金光「銷單王」神劍並下載專屬照片姓名證書。",
+          "artKey": "invoice_king"
+        },
+        {
+          "id": "luminance-ch1",
+          "title": "《空明・見性》",
+          "category": "禪意靜心",
+          "subTag": "水墨冥想",
+          "path": "luminance_chapter1.html",
+          "desc": "如來",
+          "artKey": "zen_ch1"
+        },
+        {
+          "id": "chair-moon",
+          "title": "無椅的沉默：宇宙級嘴硬遠征",
+          "category": "荒誕喜劇",
+          "subTag": "四關小遊戲",
+          "path": "chair_moon_adventure.html",
+          "desc": "從辦公桌沒椅子、路人老虎演講、和平鴿投椅入海，到月球開直播照亮太陽獲得「靈芝草一隻」與結業證書。",
+          "artKey": "chair_moon"
+        },
+        {
+          "id": "daily-five",
+          "title": "每日五題成長小徑",
+          "category": "成長練習",
+          "subTag": "40 天打卡",
+          "path": "daily_five_growth.html",
+          "desc": "40 天由淺入深每日五題練習、錯題統計儀表板，支援跨裝置登入與 Google 試算表紀錄。",
+          "artKey": "daily_five"
+        },
+        {
+          "id": "custom-1795403620313",
+          "title": "山景教室：刷新三觀大作戰",
+          "category": "藝術冒險",
+          "subTag": "互動新作",
+          "path": "mountain_classroom_game.html",
+          "desc": "三段式晴空山景落地窗、精緻手寫粉筆綠黑板、12 課桌椅自由換位與 NPC 助攻系統、三關進階搗蛋猴子（含吃香蕉誘餌、全班齊射 Fever 與第三關分身大亂鬥）",
+          "artKey": "mountain_classroom"
+        },
+        {
+          "id": "custom-1795424546777",
+          "title": "蔚藍名流・美國夢豪華遠征",
+          "category": "藝術冒險",
+          "subTag": "互動新作",
+          "path": "azure_american_dream.html",
+          "desc": "US$100,000 揪團集資與高級禮儀樂團祝賀演出、加州舉重競技場對決洋妞 Jessica、五大美國名企粉絲見面會集花束",
+          "artKey": "azure_american_dream"
+        },
+        {
+          "id": "custom-1795424679657",
+          "title": "翡翠算力帝國：顯卡、獸吼與高訂洞洞",
+          "category": "荒誕喜劇",
+          "subTag": "AI世界",
+          "path": "tiffany_gpu_empire.html",
+          "desc": "全球出貨與豺狼虎豹批鬥」、「會發出怒吼與蟲鳴鳥叫的軟體之王」以及「戳破顯卡追求高訂質感而華麗下台」三大關卡；每過一關皆會觸發 ±20%～30% 的即時隨機盤勢震盪（起始 50,000 點），並於通關後繪製完整股市走勢圖，支援上傳個人照片與切換幽默標語，即時合成 1080×1520 高畫質 PNG 榮譽證書。",
+          "artKey": "tiffany_gpu_empire"
+        },
+        {
+          "id": "custom-1795424787013",
+          "title": "粉紅泡泡沙龍：氣質彈珠台",
+          "category": "成長練習",
+          "subTag": "古典遊戲",
+          "path": "pink_bubble_pinball.html",
+          "desc": "以柔和珍珠粉白、乾燥玫瑰粉與香檳玫瑰金營造法式沙龍高級質感，完整還原 15 排經典台灣彈珠台的發射軌道、頂部排數禮讚銘牌、交錯玫瑰金珍珠釘陣與第 1／15 排加贈彈珠機制；每點亮一排皆會綻放即時讚美泡泡，結算時依點亮排數獻上專屬氣質稱號與暖心金句，並即時合成內含個人照片、15 排成果點陣圖與玫瑰金火漆印章的 1080×1520 高訂榮譽證書供一鍵下載與手機長按保存。",
+          "artKey": "pink_bubble_pinball"
+        },
+        {
+          "id": "custom-1795424839957",
+          "title": "幸運小瑪莉：2的次方讚賞機",
+          "category": "成長練習",
+          "subTag": "古典遊戲",
+          "path": "little_mary_power2.html",
+          "desc": "皇家絲絨酒紅與香檳金 LED 燈框的經典 24 格小瑪莉機台，完整實作初始 100 元、1 單位以上自由投注、即時「2 的次方（2^n）」與「賺錢比例」雙重分類、歸零暖心鼓勵補給、超過 2,000 元自動止盈終止並綻放金色紙花，以及可客製化送出、複製文字與下載 1080×1350 高畫質 PNG 讚賞榮譽卡的完整體驗。",
+          "artKey": "little_mary_power2"
+        },
+        {
+          "id": "custom-1795434270604",
+          "title": "紅線大合唱：少子化 × AI 動物大賽跑",
+          "category": "荒誕喜劇",
+          "subTag": "競技型遊戲",
+          "path": "redline_chorus_race.html",
+          "desc": "遊戲將包含實體翻牌式台灣數據儀表板、雙主角（學霸黑熊與創客石虎）立體公仔與跟班小動物群、2025～2030 立體年份拱門與「5% 戴墨鏡跳槽創業」拋物線動畫、雙人同機與單人 AI 對戰、實體按壓回饋按鈕，以及衝破彈性紅線後的聚光燈擁抱大合唱舞台、Web Audio API 即時合成雙聲部主題曲、卡拉 OK 歌詞跑馬燈與互動音符煙火結算獎牌。",
+          "artKey": "redline_chorus_race"
+        },
+        {
+          "id": "custom-1795591262730",
+          "title": "少女上車舞・專屬加油影片生成器",
+          "category": "荒誕喜劇",
+          "subTag": "加油生成器",
+          "path": "shangche_cheer_studio.html",
+          "desc": "輸入名字與多段上車劇情，一鍵生成 9:16 少女唱跳加油影片！內建 132 BPM 電音 DJ、126 BPM 甜美偶像與原曲匯入三種配樂，並搭配可愛中文語音朗讀、自動壓低配樂及錄影麥克風混音收音。",
+          "artKey": "shangche_cheer"
+        },
+        {
+          "id": "custom-1795747811489",
+          "title": "藍色蜈蚣：竹竿大串聯",
+          "category": "荒誕喜劇",
+          "subTag": "互動新作",
+          "path": "blue_centipede_party.html",
+          "desc": "自由填寫人數並搭配系統隨機突襲派發路人，用竹竿從頭部、肩膀、腰部三竿齊發串聯成超長藍色大蜈蚣！內建中文語音魔性大喊「天清清地靈靈」與「棒棒棒超級棒」、全員波浪起跳閃障礙，過關還能上傳照片客製含今日日期與祝福對話的專屬榮譽證書。",
+          "artKey": "blue_centipede"
+        }
+      ];
 
       const STORAGE_KEY = 'original_game_arcade_hub_v1';
       const CATEGORIES = ['藝術冒險', '禪意靜心', '荒誕喜劇', '成長練習'];
@@ -1133,7 +1133,9 @@
         'tiffany_gpu_empire.html': 'tiffany_gpu_empire',
         'pink_bubble_pinball.html': 'pink_bubble_pinball',
         'little_mary_power2.html': 'little_mary_power2',
-        'redline_chorus_race.html': 'redline_chorus_race'
+        'redline_chorus_race.html': 'redline_chorus_race',
+        'shangche_cheer_studio.html': 'shangche_cheer',
+        'blue_centipede_party.html': 'blue_centipede'
       };
 
       function resolveArtKey(artKey, game) {
@@ -1146,7 +1148,7 @@
       }
 
       /* ========================================================================
-         2. 全新重繪：10 款作品專屬博物館級 SVG 藝術封面插畫庫（零外部圖片、唯一 ID）
+         2. 專屬博物館級 SVG 藝術封面插畫庫（零外部圖片、唯一 ID）
          ======================================================================== */
       let svgUidCounter = 0;
 
@@ -1731,7 +1733,7 @@
               <!-- 24 格經典小瑪莉香檳金 LED 燈框 -->
               <g transform="translate(320 180)">
                 <rect x="-228" y="-142" width="456" height="284" rx="22" fill="#230710" stroke="url(#${uid}_gold)" stroke-width="4"/>
-                <!-- 外圍跑馬燈格子（簡潔均勻排列） -->
+                <!-- 外圍跑馬燈格子 -->
                 <g fill="#3B0D1B" stroke="#E8C468" stroke-width="1.4">
                   <rect x="-210" y="-124" width="54" height="38" rx="6"/><rect x="-148" y="-124" width="54" height="38" rx="6"/>
                   <rect x="-86" y="-124" width="54" height="38" rx="6"/><rect x="-24" y="-124" width="54" height="38" rx="6"/>
@@ -1849,66 +1851,7 @@
         }
 
         /* ----------------------------------------------------------------------
-           11. 保留精緻版：《空明・見性》第三章 (zen_ch3)
-           ---------------------------------------------------------------------- */
-        if (key === 'zen_ch3') {
-          return `
-            <svg viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <defs>
-                <radialGradient id="${uid}_bg" cx="50%" cy="40%" r="70%">
-                  <stop offset="0%" stop-color="#2B2152"/>
-                  <stop offset="55%" stop-color="#14132C"/>
-                  <stop offset="100%" stop-color="#080915"/>
-                </radialGradient>
-                <linearGradient id="${uid}_beam" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stop-color="#FFF7D6" stop-opacity="0.7"/>
-                  <stop offset="55%" stop-color="#E8C468" stop-opacity="0.25"/>
-                  <stop offset="100%" stop-color="#B794F4" stop-opacity="0"/>
-                </linearGradient>
-              </defs>
-              <rect width="640" height="360" fill="url(#${uid}_bg)"/>
-              <rect x="292" y="0" width="56" height="360" fill="url(#${uid}_beam)"/>
-              <g transform="translate(320 150)" fill="none" stroke-opacity="0.58">
-                <circle r="118" stroke="#9F7AEA" stroke-width="1.2"/>
-                <polygon points="0,-105 91,52 -91,52" stroke="#E8C468" stroke-width="1.4"/>
-                <polygon points="0,105 91,-52 -91,-52" stroke="#D6BCFA" stroke-width="1.4"/>
-              </g>
-              <circle cx="320" cy="64" r="14" fill="#FFFDF2"/>
-              <circle cx="320" cy="150" r="36" fill="#FCE49C" stroke="#FFFDF2" stroke-width="2"/>
-              <line x1="90" y1="252" x2="550" y2="252" stroke="#E8C468" stroke-width="1.2" stroke-opacity="0.45"/>
-              <ellipse cx="320" cy="286" rx="54" ry="12" fill="rgba(252,228,156,0.35)" stroke="#FCE49C" stroke-width="1.5"/>
-            </svg>`;
-        }
-
-        /* ----------------------------------------------------------------------
-           12. 升級版幾何鎏金預設封面 (custom)
-           ---------------------------------------------------------------------- */
-        const accentMap = {
-          '藝術冒險': '#E8C468',
-          '禪意靜心': '#B794F4',
-          '荒誕喜劇': '#F6AD55',
-          '成長練習': '#68D391'
-        };
-        const accent = accentMap[category] || '#E8C468';
-        return `
-          <svg viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <defs>
-              <radialGradient id="${uid}_bg" cx="50%" cy="45%" r="72%">
-                <stop offset="0%" stop-color="#222C4A"/>
-                <stop offset="100%" stop-color="#0B0F1A"/>
-              </radialGradient>
-            </defs>
-            <rect width="640" height="360" fill="url(#${uid}_bg)"/>
-            <g transform="translate(320 180)" fill="none">
-              <circle r="118" stroke="${accent}" stroke-width="1.8" stroke-opacity="0.52"/>
-              <circle r="86" stroke="${accent}" stroke-width="1.2" stroke-dasharray="6 6" stroke-opacity="0.72"/>
-              <polygon points="0,-64 56,0 0,64 -56,0" fill="${accent}" fill-opacity="0.18" stroke="${accent}" stroke-width="2"/>
-              <polygon points="-12,-20 24,0 -12,20" fill="${accent}"/>
-            </g>
-          </svg>`;
-      }
-      /* ----------------------------------------------------------------------
-           少女上車舞：專屬加油影片生成器 (shangche_cheer)
+           11. 少女上車舞・專屬加油影片生成器 (shangche_cheer)
            ---------------------------------------------------------------------- */
         if (key === 'shangche_cheer') {
           return `
@@ -1965,7 +1908,6 @@
               <!-- 左側：薰衣草長髮少女（揮應援棒） -->
               <g transform="translate(204 218) scale(0.84)">
                 <path d="M-28,-38 Q-36,6 -28,34 L28,34 Q36,6 28,-38 Z" fill="#B68CFF"/>
-                <!-- 應援棒 -->
                 <g transform="translate(-32 10) rotate(-32)">
                   <rect x="-3" y="-34" width="6" height="22" rx="3" fill="#FFF0B3"/>
                   <rect x="-2.5" y="-12" width="5" height="9" rx="2" fill="#FFF"/>
@@ -2001,18 +1943,15 @@
 
               <!-- C位主角：粉櫻雙馬尾少女＋閃耀皇冠 -->
               <g transform="translate(320 206)">
-                <!-- 雙馬尾 -->
                 <path d="M-24,-40 Q-58,-22 -50,24 Q-36,16 -30,-16 Z" fill="#FF78A8"/>
                 <path d="M24,-40 Q58,-22 50,24 Q36,16 30,-16 Z" fill="#FF78A8"/>
                 <ellipse cx="-29" cy="-38" rx="8" ry="4.5" transform="rotate(-24 -29 -38)" fill="#FFF4C2"/>
                 <ellipse cx="29" cy="-38" rx="8" ry="4.5" transform="rotate(24 29 -38)" fill="#FFF4C2"/>
-                <!-- 澎澎洋裝與水手領 -->
                 <path d="M-34,54 Q0,64 34,54 L24,18 L-24,18 Z" fill="#FFF"/>
                 <path d="M-18,-4 L18,-4 L32,48 Q0,58 -32,48 Z" fill="#FF85B3"/>
                 <polygon points="-16,-4 0,14 16,-4" fill="#FFF"/>
                 <ellipse cx="-6" cy="11" rx="6.5" ry="3.8" fill="#FFF4C2"/>
                 <ellipse cx="6" cy="11" rx="6.5" ry="3.8" fill="#FFF4C2"/>
-                <!-- 圓臉與星光大眼 -->
                 <circle cx="0" cy="-32" r="28" fill="#FFECE3"/>
                 <ellipse cx="-15" cy="-24" rx="6" ry="3.4" fill="#FF769C" opacity="0.42"/>
                 <ellipse cx="15" cy="-24" rx="6" ry="3.4" fill="#FF769C" opacity="0.42"/>
@@ -2023,9 +1962,7 @@
                 <circle cx="-13" cy="-34" r="2" fill="#FFF"/>
                 <circle cx="9" cy="-34" r="2" fill="#FFF"/>
                 <ellipse cx="0" cy="-19" rx="4.5" ry="4" fill="#E85C82"/>
-                <!-- 瀏海 -->
                 <path d="M-29,-34 A29,29 0 0,1 29,-34 L22,-36 L12,-46 L0,-36 L-12,-46 L-22,-36 Z" fill="#FF78A8"/>
-                <!-- 頭頂發光皇冠 -->
                 <g transform="translate(0 -78)">
                   <path d="M-22,8 L-26,-14 L-10,-4 L0,-20 L10,-4 L26,-14 L22,8 Z" fill="url(#${uid}_crown)" stroke="#FFF8DC" stroke-width="2"/>
                   <circle cx="0" cy="-1" r="3.6" fill="#FF5D9E"/>
@@ -2044,7 +1981,6 @@
                 <path d="M-4,-8 A4,4 0 0,0 4,-8 Z" fill="#EB5E84"/>
                 <path d="M-23,-25 A23,23 0 0,1 23,-25 Z" fill="#FFD43B" stroke="#FFF5B8" stroke-width="1.8"/>
                 <ellipse cx="-4" cy="-25" rx="28" ry="6" fill="#FFBE26"/>
-                <!-- 對話泡泡 -->
                 <g transform="translate(-44 -58) rotate(10)">
                   <rect x="-34" y="-15" width="68" height="26" rx="13" fill="#FFF" stroke="#FF85B3" stroke-width="2"/>
                   <text x="0" y="2" text-anchor="middle" fill="#E84C88" font-size="12" font-weight="800" font-family="sans-serif">來囉～</text>
@@ -2072,8 +2008,9 @@
               <text x="558" y="43" text-anchor="middle" fill="#FFE066" font-size="12" font-weight="800" font-family="sans-serif">🎧 132 BPM</text>
             </svg>`;
         }
-  /* ----------------------------------------------------------------------
-           藍色蜈蚣：竹竿大串聯 (blue_centipede)
+
+        /* ----------------------------------------------------------------------
+           12. 藍色蜈蚣：竹竿大串聯 (blue_centipede)
            ---------------------------------------------------------------------- */
         if (key === 'blue_centipede') {
           return `
@@ -2136,13 +2073,10 @@
 
               <!-- 背後貫穿的「頭部、肩膀、腰部」三根翠綠竹竿（後層） -->
               <g stroke-linecap="round">
-                <!-- 頭部竹竿 -->
                 <line x1="296" y1="184" x2="438" y2="184" stroke="#145A32" stroke-width="10"/>
                 <line x1="296" y1="184" x2="438" y2="184" stroke="#2ECC71" stroke-width="6.5"/>
-                <!-- 肩膀竹竿 -->
                 <line x1="202" y1="214" x2="442" y2="214" stroke="#145A32" stroke-width="10"/>
                 <line x1="202" y1="214" x2="442" y2="214" stroke="#2ECC71" stroke-width="6.5"/>
-                <!-- 腰部竹竿 -->
                 <line x1="106" y1="238" x2="452" y2="238" stroke="#145A32" stroke-width="11"/>
                 <line x1="106" y1="238" x2="452" y2="238" stroke="#2ECC71" stroke-width="7"/>
               </g>
@@ -2156,10 +2090,8 @@
                 <rect x="-8" y="-33" width="16" height="4" fill="#A5D8FF"/>
                 <rect x="-8" y="-25" width="16" height="4" fill="#A5D8FF"/>
                 <circle cx="0" cy="-58" r="18" fill="#1890FF" stroke="#002D72" stroke-width="2.6"/>
-                <!-- 爆炸頭 -->
                 <circle cx="-9" cy="-73" r="9" fill="#2B2D42"/><circle cx="2" cy="-78" r="10" fill="#2B2D42"/><circle cx="11" cy="-72" r="8" fill="#2B2D42"/>
                 <circle cx="2" cy="-57" r="12.5" fill="#FFE3C2"/>
-                <!-- 墨鏡 -->
                 <rect x="-7" y="-62" width="9" height="5" rx="1.5" fill="#111"/><rect x="4" y="-62" width="9" height="5" rx="1.5" fill="#111"/>
                 <path d="M-2,-52 Q3,-47 8,-52" fill="none" stroke="#E03131" stroke-width="2.4" stroke-linecap="round"/>
               </g>
@@ -2172,12 +2104,10 @@
                 <rect x="-16" y="-44" width="32" height="34" rx="13" fill="#1890FF" stroke="#002D72" stroke-width="2.6"/>
                 <rect x="-8" y="-33" width="16" height="4" fill="#A5D8FF"/>
                 <rect x="-8" y="-25" width="16" height="4" fill="#A5D8FF"/>
-                <!-- 買菜袋與大蔥 -->
                 <rect x="15" y="-26" width="14" height="16" rx="2" fill="#FFF"/>
                 <rect x="18" y="-26" width="3" height="16" fill="#FF3B4E"/>
                 <rect x="24" y="-26" width="3" height="16" fill="#FF3B4E"/>
                 <line x1="22" y1="-26" x2="26" y2="-38" stroke="#2ECC71" stroke-width="3.2" stroke-linecap="round"/>
-                <!-- 頭與包頭 -->
                 <circle cx="-11" cy="-73" r="6.5" fill="#E9ECEF" stroke="#ADB5BD" stroke-width="1.5"/>
                 <circle cx="0" cy="-58" r="18" fill="#1890FF" stroke="#002D72" stroke-width="2.6"/>
                 <circle cx="2" cy="-57" r="12.5" fill="#FFE3C2"/>
@@ -2193,7 +2123,6 @@
                 <rect x="-16" y="-44" width="32" height="34" rx="13" fill="#1890FF" stroke="#002D72" stroke-width="2.6"/>
                 <rect x="-8" y="-33" width="16" height="4" fill="#A5D8FF"/>
                 <rect x="-8" y="-25" width="16" height="4" fill="#A5D8FF"/>
-                <!-- 藍色觸角 -->
                 <path d="M-7,-75 Q-14,-90 -18,-86" fill="none" stroke="#003E99" stroke-width="2.8" stroke-linecap="round"/>
                 <path d="M7,-75 Q14,-90 18,-86" fill="none" stroke="#003E99" stroke-width="2.8" stroke-linecap="round"/>
                 <circle cx="-18" cy="-86" r="3.5" fill="#FFE066"/><circle cx="18" cy="-86" r="3.5" fill="#FFE066"/>
@@ -2211,17 +2140,14 @@
                 <rect x="-18" y="-46" width="36" height="36" rx="14" fill="#005CE6" stroke="#002D72" stroke-width="2.8"/>
                 <rect x="-9" y="-35" width="18" height="4.5" fill="#A5D8FF"/>
                 <rect x="-9" y="-26" width="18" height="4.5" fill="#A5D8FF"/>
-                <!-- 藍色觸角 -->
                 <path d="M-8,-78 Q-16,-94 -21,-90" fill="none" stroke="#003E99" stroke-width="3" stroke-linecap="round"/>
                 <path d="M8,-78 Q16,-94 21,-90" fill="none" stroke="#003E99" stroke-width="3" stroke-linecap="round"/>
                 <circle cx="-21" cy="-90" r="4" fill="#FFE066"/><circle cx="21" cy="-90" r="4" fill="#FFE066"/>
                 <circle cx="0" cy="-60" r="20" fill="#005CE6" stroke="#002D72" stroke-width="2.8"/>
                 <circle cx="3" cy="-59" r="13.5" fill="#FFE3C2"/>
-                <!-- 呆萌大眼＋開心紅嘴 -->
                 <circle cx="-1" cy="-61" r="4" fill="#FFF"/><circle cx="9" cy="-61" r="4" fill="#FFF"/>
                 <circle cx="0" cy="-61" r="2.2" fill="#1A2438"/><circle cx="10" cy="-61" r="2.2" fill="#1A2438"/>
                 <path d="M-1,-54 A5,5 0 0,0 9,-54 Z" fill="#FF4D6D"/>
-                <!-- 金色皇冠 -->
                 <path d="M-11,-78 L-13,-91 L-4,-85 L0,-95 L4,-85 L13,-91 L11,-78 Z" fill="url(#${uid}_gold)" stroke="#994900" stroke-width="1.8"/>
               </g>
 
@@ -2275,6 +2201,67 @@
               <text x="320" y="329" text-anchor="middle" fill="#FFE066" font-size="14.5" font-weight="900" font-family="sans-serif">🎋 頭・肩・腰三竿齊發 × 過關榮譽證書 🎋</text>
             </svg>`;
         }
+
+        /* ----------------------------------------------------------------------
+           13. 保留精緻版：《空明・見性》第三章 (zen_ch3)
+           ---------------------------------------------------------------------- */
+        if (key === 'zen_ch3') {
+          return `
+            <svg viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <defs>
+                <radialGradient id="${uid}_bg" cx="50%" cy="40%" r="70%">
+                  <stop offset="0%" stop-color="#2B2152"/>
+                  <stop offset="55%" stop-color="#14132C"/>
+                  <stop offset="100%" stop-color="#080915"/>
+                </radialGradient>
+                <linearGradient id="${uid}_beam" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#FFF7D6" stop-opacity="0.7"/>
+                  <stop offset="55%" stop-color="#E8C468" stop-opacity="0.25"/>
+                  <stop offset="100%" stop-color="#B794F4" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <rect width="640" height="360" fill="url(#${uid}_bg)"/>
+              <rect x="292" y="0" width="56" height="360" fill="url(#${uid}_beam)"/>
+              <g transform="translate(320 150)" fill="none" stroke-opacity="0.58">
+                <circle r="118" stroke="#9F7AEA" stroke-width="1.2"/>
+                <polygon points="0,-105 91,52 -91,52" stroke="#E8C468" stroke-width="1.4"/>
+                <polygon points="0,105 91,-52 -91,-52" stroke="#D6BCFA" stroke-width="1.4"/>
+              </g>
+              <circle cx="320" cy="64" r="14" fill="#FFFDF2"/>
+              <circle cx="320" cy="150" r="36" fill="#FCE49C" stroke="#FFFDF2" stroke-width="2"/>
+              <line x1="90" y1="252" x2="550" y2="252" stroke="#E8C468" stroke-width="1.2" stroke-opacity="0.45"/>
+              <ellipse cx="320" cy="286" rx="54" ry="12" fill="rgba(252,228,156,0.35)" stroke="#FCE49C" stroke-width="1.5"/>
+            </svg>`;
+        }
+
+        /* ----------------------------------------------------------------------
+           14. 升級版幾何鎏金預設封面 (custom)
+           ---------------------------------------------------------------------- */
+        const accentMap = {
+          '藝術冒險': '#E8C468',
+          '禪意靜心': '#B794F4',
+          '荒誕喜劇': '#F6AD55',
+          '成長練習': '#68D391'
+        };
+        const accent = accentMap[category] || '#E8C468';
+        return `
+          <svg viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <radialGradient id="${uid}_bg" cx="50%" cy="45%" r="72%">
+                <stop offset="0%" stop-color="#222C4A"/>
+                <stop offset="100%" stop-color="#0B0F1A"/>
+              </radialGradient>
+            </defs>
+            <rect width="640" height="360" fill="url(#${uid}_bg)"/>
+            <g transform="translate(320 180)" fill="none">
+              <circle r="118" stroke="${accent}" stroke-width="1.8" stroke-opacity="0.52"/>
+              <circle r="86" stroke="${accent}" stroke-width="1.2" stroke-dasharray="6 6" stroke-opacity="0.72"/>
+              <polygon points="0,-64 56,0 0,64 -56,0" fill="${accent}" fill-opacity="0.18" stroke="${accent}" stroke-width="2"/>
+              <polygon points="-12,-20 24,0 -12,20" fill="${accent}"/>
+            </g>
+          </svg>`;
+      }
+
       /* ========================================================================
          3. 狀態與 DOM 參照
          ======================================================================== */
@@ -2569,7 +2556,7 @@
       function openAdminModal() {
         adminDraftGames = cloneGames(games);
         pendingResetConfirm = false;
-        resetDefaultBtn.textContent = '↺ 恢復預設 10 款';
+        resetDefaultBtn.textContent = `↺ 恢復預設 ${DEFAULT_GAMES.length} 款`;
         renderAdminList();
         adminModal.classList.add('open');
         document.body.style.overflow = 'hidden';
@@ -2719,10 +2706,10 @@
           return;
         }
         pendingResetConfirm = false;
-        resetDefaultBtn.textContent = '↺ 恢復預設 10 款';
+        resetDefaultBtn.textContent = `↺ 恢復預設 ${DEFAULT_GAMES.length} 款`;
         adminDraftGames = cloneGames(DEFAULT_GAMES);
         renderAdminList();
-        showToast('已恢復預設 10 款作品，請按「儲存並套用變更」');
+        showToast(`已恢復預設 ${DEFAULT_GAMES.length} 款作品，請按「儲存並套用變更」`);
       });
 
       document.getElementById('saveAdminBtn').addEventListener('click', () => {
