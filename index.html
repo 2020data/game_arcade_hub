@@ -1007,7 +1007,7 @@
       /* ========================================================================
          1. 預設作品資料（10 款完整收錄，皆配有專屬 artKey）
          ======================================================================== */
-      const DEFAULT_GAMES = [
+    const DEFAULT_GAMES = [
   {
     "id": "invoice-king",
     "title": "銷單王者歸來",
@@ -1104,7 +1104,16 @@
     "category": "荒誕喜劇",
     "subTag": "加油生成器",
     "path": "shangche_cheer_studio.html",
-    "desc": "三種配樂模式自由切換＋原曲匯入：\n\n🔥 上車電音 DJ 版（預設，132 BPM）：開場與站點轉場自動播放招牌三連氣笛（Airhorn）與 DJ 刷碟過門，搭配重拍四拍大鼓、反拍 Melbourne Bounce Bass 與高能派對合成器旋律，5 位少女的舞步也會自動同步至 132 BPM！\n\n🌸 甜美少女偶像版（126 BPM）：保留原本柔和的日系偶像王道和弦，適合暖心安慰劇情。\n\n📂 匯入這支影片／音檔當配樂：可直接挑選你手上的 MP4 / MP3 / WAV 原曲檔，自動透過 Web Audio 混音播放，並且會完整錄製進匯出的 9:16 影片中。\n\n預設開啟可愛中文語音＋智慧壓低配樂（Audio Ducking）：\n\n預設開啟語音朗讀，按下「▶ 播放預覽」就會自動用中文女聲唸出每一句客製化名字的上車台詞與結尾祝福，且說話時背景電音會自動柔和壓低至 42%，確保人聲清晰不打架。\n\n提供 🎀 可愛少女、⚡ 電音 MC、🧸 溫柔暖心 三種語調預設、系統中文語音選單與「🔊 試聽語音」按鈕。\n\n錄影麥克風收音選項：\n\n錄製 9:16 影片時語音仍會同步唸出；若勾選「🎙 錄影時開啟麥克風收音」，可將喇叭播出的語音（或你親口配音的加油聲）與電音配樂一起混音錄進最終下載的 9:16 影片中。",
+    "desc": "輸入名字與多段上車劇情，一鍵生成 9:16 少女唱跳加油影片！內建 132 BPM 電音 DJ、126 BPM 甜美偶像與原曲匯入三種配樂，並搭配可愛中文語音朗讀、自動壓低配樂及錄影麥克風混音收音。\n\n條列重點版（適合詳情頁）：\n\n三模配樂＋原曲匯入：自由切換 🔥 132 BPM 電音 DJ 版（氣笛、刷碟與重拍同步舞步）、🌸 126 BPM 少女偶像版，或直接匯入 MP4/MP3/WAV 原曲混音錄製。\n\n可愛語音＋智慧壓音：預設中文女聲朗讀客製台詞與祝福，說話時自動壓低背景配樂（Audio Ducking），支援少女、電音 MC、溫柔暖心三種語調。\n\n9:16 錄影＋麥克風收音：直接匯出直式加油影片，勾選麥克風收音即可將語音或親口加油聲與配樂一同混錄下載。",
+    "artKey": "custom"
+  },
+  {
+    "id": "custom-1795747811489",
+    "title": "藍色蜈蚣：竹竿大串聯",
+    "category": "荒誕喜劇",
+    "subTag": "互動新作",
+    "path": "blue_centipede_party.html",
+    "desc": "自由填寫人數並搭配系統隨機突襲派發路人，用竹竿從頭部、肩膀、腰部三竿齊發串聯成超長藍色大蜈蚣！內建中文語音魔性大喊「天清清地靈靈」與「棒棒棒超級棒」、全員波浪起跳閃障礙，過關還能上傳照片客製含今日日期與祝福對話的專屬榮譽證書。\n\n條列重點版（適合詳情頁）：\n\n雙軌人數 × 三部位竹竿串聯：自由設定 1～50 人，再開局拉霸隨機加碼 6 種手繪搞笑路人（買菜阿嬤、熱舞大叔、外送小哥、珍奶高中生、廟會舞獅弟等），抓準節奏以頭／肩／腰與三竿齊發接龍，並以全員波浪起跳閃避香蕉皮、暴衝柴犬與臭豆腐攤車。\n\n魔性中文語音 × 廟會派對音效：每次串聯即時喊出「天清清！地靈靈！」與「棒棒棒！超級棒！」並搭配木魚鑼鼓音效，連擊 5 次觸發 5 秒七彩無敵「蜈蚣起飛狂熱模式」。\n\n過關專屬榮譽證書下載：支援上傳個人照片自動裁成慶典圓框大頭照、帶入今日中文日期、16 句隨機廟會祝福語及自訂暱稱與漫畫對話氣泡，即時預覽並一鍵下載高解析度 PNG 證書。",
     "artKey": "custom"
   }
 ];
@@ -1898,7 +1907,374 @@
             </g>
           </svg>`;
       }
+      /* ----------------------------------------------------------------------
+           少女上車舞：專屬加油影片生成器 (shangche_cheer)
+           ---------------------------------------------------------------------- */
+        if (key === 'shangche_cheer') {
+          return `
+            <svg viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <defs>
+                <linearGradient id="${uid}_bg" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#24102E"/>
+                  <stop offset="58%" stop-color="#61255C"/>
+                  <stop offset="100%" stop-color="#D96B9B"/>
+                </linearGradient>
+                <linearGradient id="${uid}_beam" x1="50%" y1="0%" x2="50%" y2="100%">
+                  <stop offset="0%" stop-color="#FFF0F8" stop-opacity="0.28"/>
+                  <stop offset="100%" stop-color="#FFF0F8" stop-opacity="0"/>
+                </linearGradient>
+                <linearGradient id="${uid}_crown" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#FFF7C2"/>
+                  <stop offset="55%" stop-color="#FFD15C"/>
+                  <stop offset="100%" stop-color="#E59A24"/>
+                </linearGradient>
+                <radialGradient id="${uid}_glow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#FF9BC6" stop-opacity="0.45"/>
+                  <stop offset="100%" stop-color="#FF9BC6" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
 
+              <!-- 夢幻夜櫻舞台背景 -->
+              <rect width="640" height="360" fill="url(#${uid}_bg)"/>
+
+              <!-- 舞台聚光燈光束 -->
+              <polygon points="320,0 130,360 265,360" fill="url(#${uid}_beam)"/>
+              <polygon points="320,0 375,360 510,360" fill="url(#${uid}_beam)"/>
+
+              <!-- 中央節拍霓虹光環 -->
+              <circle cx="320" cy="182" r="128" fill="url(#${uid}_glow)"/>
+              <circle cx="320" cy="182" r="96" fill="none" stroke="#FF85B3" stroke-width="3.5" stroke-opacity="0.55"/>
+              <circle cx="320" cy="182" r="114" fill="none" stroke="#FFF2B2" stroke-width="1.6" stroke-dasharray="6 8" stroke-opacity="0.6"/>
+
+              <!-- 漂浮星塵與櫻花光點 -->
+              <g fill="#FFE4F0" opacity="0.85">
+                <circle cx="96" cy="108" r="2.6"/>
+                <circle cx="152" cy="72" r="1.8"/>
+                <circle cx="486" cy="80" r="2.4"/>
+                <circle cx="566" cy="126" r="2"/>
+                <circle cx="118" cy="212" r="2.2"/>
+              </g>
+              <g fill="#FFD166" opacity="0.9">
+                <path d="M188,92 L191,99 L198,102 L191,105 L188,112 L185,105 L178,102 L185,99 Z"/>
+                <path d="M454,104 L457,111 L464,114 L457,117 L454,124 L451,117 L444,114 L451,111 Z"/>
+              </g>
+
+              <!-- 發光舞台地板 -->
+              <ellipse cx="320" cy="330" rx="355" ry="74" fill="#3D1742" stroke="#FF8FC0" stroke-width="2.5" stroke-opacity="0.7"/>
+
+              <!-- 左側：薰衣草長髮少女（揮應援棒） -->
+              <g transform="translate(204 218) scale(0.84)">
+                <path d="M-28,-38 Q-36,6 -28,34 L28,34 Q36,6 28,-38 Z" fill="#B68CFF"/>
+                <!-- 應援棒 -->
+                <g transform="translate(-32 10) rotate(-32)">
+                  <rect x="-3" y="-34" width="6" height="22" rx="3" fill="#FFF0B3"/>
+                  <rect x="-2.5" y="-12" width="5" height="9" rx="2" fill="#FFF"/>
+                </g>
+                <path d="M-16,0 L16,0 L28,48 Q0,56 -28,48 Z" fill="#C6A6FF"/>
+                <polygon points="-14,0 0,14 14,0" fill="#FFF"/>
+                <circle cx="0" cy="-24" r="24" fill="#FFECE3"/>
+                <ellipse cx="-12" cy="-18" rx="5" ry="3" fill="#FF769C" opacity="0.4"/>
+                <ellipse cx="12" cy="-18" rx="5" ry="3" fill="#FF769C" opacity="0.4"/>
+                <path d="M-13,-24 Q-9,-29 -5,-24" fill="none" stroke="#4B2C3B" stroke-width="2.6" stroke-linecap="round"/>
+                <path d="M5,-24 Q9,-29 13,-24" fill="none" stroke="#4B2C3B" stroke-width="2.6" stroke-linecap="round"/>
+                <path d="M-4,-14 Q0,-10 4,-14" fill="none" stroke="#C94C84" stroke-width="2.2" stroke-linecap="round"/>
+                <path d="M-25,-26 A25,25 0 0,1 25,-26 L18,-28 L10,-36 L0,-28 L-10,-36 L-18,-28 Z" fill="#B68CFF"/>
+              </g>
+
+              <!-- 右側：暖陽金髮鮑伯少女（揮應援棒） -->
+              <g transform="translate(436 218) scale(0.84)">
+                <circle cx="0" cy="-22" r="28" fill="#F6C86E"/>
+                <g transform="translate(32 10) rotate(32)">
+                  <rect x="-3" y="-34" width="6" height="22" rx="3" fill="#FF8AB5"/>
+                  <rect x="-2.5" y="-12" width="5" height="9" rx="2" fill="#FFF"/>
+                </g>
+                <path d="M-16,0 L16,0 L28,48 Q0,56 -28,48 Z" fill="#FFE08A"/>
+                <polygon points="-14,0 0,14 14,0" fill="#FFF"/>
+                <circle cx="0" cy="-24" r="24" fill="#FFECE3"/>
+                <ellipse cx="-12" cy="-18" rx="5" ry="3" fill="#FF769C" opacity="0.4"/>
+                <ellipse cx="12" cy="-18" rx="5" ry="3" fill="#FF769C" opacity="0.4"/>
+                <path d="M-13,-24 Q-9,-29 -5,-24" fill="none" stroke="#4B2C3B" stroke-width="2.6" stroke-linecap="round"/>
+                <path d="M5,-24 Q9,-29 13,-24" fill="none" stroke="#4B2C3B" stroke-width="2.6" stroke-linecap="round"/>
+                <path d="M-4,-14 Q0,-10 4,-14" fill="none" stroke="#C94C84" stroke-width="2.2" stroke-linecap="round"/>
+                <path d="M-25,-26 A25,25 0 0,1 25,-26 L18,-28 L8,-36 L0,-28 L-8,-36 L-18,-28 Z" fill="#F6C86E"/>
+              </g>
+
+              <!-- C位主角：粉櫻雙馬尾少女＋閃耀皇冠 -->
+              <g transform="translate(320 206)">
+                <!-- 雙馬尾 -->
+                <path d="M-24,-40 Q-58,-22 -50,24 Q-36,16 -30,-16 Z" fill="#FF78A8"/>
+                <path d="M24,-40 Q58,-22 50,24 Q36,16 30,-16 Z" fill="#FF78A8"/>
+                <ellipse cx="-29" cy="-38" rx="8" ry="4.5" transform="rotate(-24 -29 -38)" fill="#FFF4C2"/>
+                <ellipse cx="29" cy="-38" rx="8" ry="4.5" transform="rotate(24 29 -38)" fill="#FFF4C2"/>
+                <!-- 澎澎洋裝與水手領 -->
+                <path d="M-34,54 Q0,64 34,54 L24,18 L-24,18 Z" fill="#FFF"/>
+                <path d="M-18,-4 L18,-4 L32,48 Q0,58 -32,48 Z" fill="#FF85B3"/>
+                <polygon points="-16,-4 0,14 16,-4" fill="#FFF"/>
+                <ellipse cx="-6" cy="11" rx="6.5" ry="3.8" fill="#FFF4C2"/>
+                <ellipse cx="6" cy="11" rx="6.5" ry="3.8" fill="#FFF4C2"/>
+                <!-- 圓臉與星光大眼 -->
+                <circle cx="0" cy="-32" r="28" fill="#FFECE3"/>
+                <ellipse cx="-15" cy="-24" rx="6" ry="3.4" fill="#FF769C" opacity="0.42"/>
+                <ellipse cx="15" cy="-24" rx="6" ry="3.4" fill="#FF769C" opacity="0.42"/>
+                <circle cx="-11" cy="-32" r="6" fill="#D93B7A"/>
+                <circle cx="11" cy="-32" r="6" fill="#D93B7A"/>
+                <circle cx="-11" cy="-32" r="3" fill="#2D1828"/>
+                <circle cx="11" cy="-32" r="3" fill="#2D1828"/>
+                <circle cx="-13" cy="-34" r="2" fill="#FFF"/>
+                <circle cx="9" cy="-34" r="2" fill="#FFF"/>
+                <ellipse cx="0" cy="-19" rx="4.5" ry="4" fill="#E85C82"/>
+                <!-- 瀏海 -->
+                <path d="M-29,-34 A29,29 0 0,1 29,-34 L22,-36 L12,-46 L0,-36 L-12,-46 L-22,-36 Z" fill="#FF78A8"/>
+                <!-- 頭頂發光皇冠 -->
+                <g transform="translate(0 -78)">
+                  <path d="M-22,8 L-26,-14 L-10,-4 L0,-20 L10,-4 L26,-14 L22,8 Z" fill="url(#${uid}_crown)" stroke="#FFF8DC" stroke-width="2"/>
+                  <circle cx="0" cy="-1" r="3.6" fill="#FF5D9E"/>
+                  <circle cx="-26" cy="-15" r="3" fill="#FFF9D6"/>
+                  <circle cx="0" cy="-22" r="3.2" fill="#FFF9D6"/>
+                  <circle cx="26" cy="-15" r="3" fill="#FFF9D6"/>
+                </g>
+              </g>
+
+              <!-- 右下角彩蛋：黃帽少女探頭「來囉～」 -->
+              <g transform="translate(558 236) rotate(-10)">
+                <rect x="-22" y="4" width="44" height="44" rx="14" fill="#FFD95E"/>
+                <circle cx="0" cy="-16" r="22" fill="#FFECE3"/>
+                <path d="M-11,-16 Q-7,-21 -3,-16" fill="none" stroke="#4D2E3D" stroke-width="2.4" stroke-linecap="round"/>
+                <path d="M3,-16 Q7,-21 11,-16" fill="none" stroke="#4D2E3D" stroke-width="2.4" stroke-linecap="round"/>
+                <path d="M-4,-8 A4,4 0 0,0 4,-8 Z" fill="#EB5E84"/>
+                <path d="M-23,-25 A23,23 0 0,1 23,-25 Z" fill="#FFD43B" stroke="#FFF5B8" stroke-width="1.8"/>
+                <ellipse cx="-4" cy="-25" rx="28" ry="6" fill="#FFBE26"/>
+                <!-- 對話泡泡 -->
+                <g transform="translate(-44 -58) rotate(10)">
+                  <rect x="-34" y="-15" width="68" height="26" rx="13" fill="#FFF" stroke="#FF85B3" stroke-width="2"/>
+                  <text x="0" y="2" text-anchor="middle" fill="#E84C88" font-size="12" font-weight="800" font-family="sans-serif">來囉～</text>
+                </g>
+              </g>
+
+              <!-- 左側音浪與語音圖示 -->
+              <g transform="translate(68 188)" fill="#FFE066" opacity="0.88">
+                <rect x="0" y="-10" width="5" height="20" rx="2.5"/>
+                <rect x="10" y="-22" width="5" height="44" rx="2.5" fill="#FF9BC6"/>
+                <rect x="20" y="-14" width="5" height="28" rx="2.5"/>
+                <rect x="30" y="-26" width="5" height="52" rx="2.5" fill="#C6A6FF"/>
+                <rect x="40" y="-12" width="5" height="24" rx="2.5"/>
+              </g>
+
+              <!-- 底部卡拉 OK 動態字幕條 -->
+              <rect x="150" y="302" width="340" height="38" rx="19" fill="#2A1230" fill-opacity="0.82" stroke="#FFE08C" stroke-width="2"/>
+              <text x="320" y="326" text-anchor="middle" fill="#FFF8DC" font-size="15" font-weight="800" font-family="sans-serif">✨ 閃閃發光惹人愛・為你加油 ✨</text>
+
+              <!-- 頂部 9:16 REC 與 132 BPM 徽章 -->
+              <rect x="30" y="26" width="94" height="26" rx="13" fill="#E84376" stroke="#FFB8D0" stroke-width="1.4"/>
+              <text x="77" y="43" text-anchor="middle" fill="#FFF" font-size="12" font-weight="800" font-family="sans-serif">● 9:16 REC</text>
+
+              <rect x="506" y="26" width="104" height="26" rx="13" fill="#2F1847" fill-opacity="0.85" stroke="#FFD166" stroke-width="1.4"/>
+              <text x="558" y="43" text-anchor="middle" fill="#FFE066" font-size="12" font-weight="800" font-family="sans-serif">🎧 132 BPM</text>
+            </svg>`;
+        }
+  /* ----------------------------------------------------------------------
+           藍色蜈蚣：竹竿大串聯 (blue_centipede)
+           ---------------------------------------------------------------------- */
+        if (key === 'blue_centipede') {
+          return `
+            <svg viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <defs>
+                <linearGradient id="${uid}_sky" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#0B4DB8"/>
+                  <stop offset="55%" stop-color="#1FB6FF"/>
+                  <stop offset="100%" stop-color="#B8EEFF"/>
+                </linearGradient>
+                <linearGradient id="${uid}_gold" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#FFF5B8"/>
+                  <stop offset="55%" stop-color="#FFD43B"/>
+                  <stop offset="100%" stop-color="#F59F00"/>
+                </linearGradient>
+                <radialGradient id="${uid}_glow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#FFF3A1" stop-opacity="0.48"/>
+                  <stop offset="100%" stop-color="#FFF3A1" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+
+              <!-- 亮天藍廟會派對背景 -->
+              <rect width="640" height="360" fill="url(#${uid}_sky)"/>
+              <circle cx="320" cy="175" r="150" fill="url(#${uid}_glow)"/>
+
+              <!-- 遠景雲朵 -->
+              <g fill="#FFFFFF" opacity="0.72">
+                <circle cx="110" cy="82" r="20"/><circle cx="130" cy="76" r="24"/><circle cx="152" cy="83" r="18"/>
+                <circle cx="496" cy="78" r="18"/><circle cx="516" cy="72" r="22"/><circle cx="536" cy="79" r="17"/>
+              </g>
+
+              <!-- 遠景廟會牌樓剪影 -->
+              <g opacity="0.92">
+                <rect x="242" y="148" width="14" height="122" fill="#E03131"/>
+                <rect x="384" y="148" width="14" height="122" fill="#E03131"/>
+                <path d="M214,154 Q320,114 426,154 L410,168 L230,168 Z" fill="url(#${uid}_gold)" stroke="#B84B00" stroke-width="2"/>
+                <rect x="282" y="150" width="76" height="22" rx="4" fill="#103E8A" stroke="#FFE066" stroke-width="1.8"/>
+                <text x="320" y="165" text-anchor="middle" fill="#FFE066" font-size="12" font-weight="900" font-family="sans-serif">藍蜈蚣宮</text>
+              </g>
+
+              <!-- 頂部飄揚紅燈籠串 -->
+              <path d="M0,26 Q160,44 320,28 T640,26" fill="none" stroke="#C92A2A" stroke-width="2.4"/>
+              <g>
+                <ellipse cx="145" cy="40" rx="11" ry="13" fill="#FF3B4E"/><rect x="140" y="27" width="10" height="3.5" fill="#FFE066"/>
+                <ellipse cx="250" cy="39" rx="11" ry="13" fill="#FF3B4E"/><rect x="245" y="26" width="10" height="3.5" fill="#FFE066"/>
+                <ellipse cx="390" cy="39" rx="11" ry="13" fill="#FF3B4E"/><rect x="385" y="26" width="10" height="3.5" fill="#FFE066"/>
+                <ellipse cx="495" cy="40" rx="11" ry="13" fill="#FF3B4E"/><rect x="490" y="27" width="10" height="3.5" fill="#FFE066"/>
+              </g>
+
+              <!-- 慶典街道地面與紅金路緣 -->
+              <rect x="0" y="268" width="640" height="92" fill="#2B364B"/>
+              <rect x="0" y="268" width="640" height="6" fill="#FFD43B"/>
+              <rect x="0" y="274" width="640" height="4" fill="#FF3B4E"/>
+              <g fill="#FFFFFF" opacity="0.45">
+                <rect x="34" y="294" width="44" height="5" rx="2.5"/>
+                <rect x="134" y="294" width="44" height="5" rx="2.5"/>
+                <rect x="466" y="294" width="44" height="5" rx="2.5"/>
+                <rect x="562" y="294" width="44" height="5" rx="2.5"/>
+              </g>
+
+              <!-- 背後貫穿的「頭部、肩膀、腰部」三根翠綠竹竿（後層） -->
+              <g stroke-linecap="round">
+                <!-- 頭部竹竿 -->
+                <line x1="296" y1="184" x2="438" y2="184" stroke="#145A32" stroke-width="10"/>
+                <line x1="296" y1="184" x2="438" y2="184" stroke="#2ECC71" stroke-width="6.5"/>
+                <!-- 肩膀竹竿 -->
+                <line x1="202" y1="214" x2="442" y2="214" stroke="#145A32" stroke-width="10"/>
+                <line x1="202" y1="214" x2="442" y2="214" stroke="#2ECC71" stroke-width="6.5"/>
+                <!-- 腰部竹竿 -->
+                <line x1="106" y1="238" x2="452" y2="238" stroke="#145A32" stroke-width="11"/>
+                <line x1="106" y1="238" x2="452" y2="238" stroke="#2ECC71" stroke-width="7"/>
+              </g>
+
+              <!-- 第 4 位：熱舞大叔（爆炸頭＋墨鏡） -->
+              <g transform="translate(132 262)">
+                <ellipse cx="0" cy="6" rx="18" ry="5" fill="#000" opacity="0.25"/>
+                <line x1="-7" y1="-12" x2="-12" y2="3" stroke="#0047B3" stroke-width="6" stroke-linecap="round"/>
+                <line x1="7" y1="-12" x2="12" y2="3" stroke="#0047B3" stroke-width="6" stroke-linecap="round"/>
+                <rect x="-16" y="-44" width="32" height="34" rx="13" fill="#1890FF" stroke="#002D72" stroke-width="2.6"/>
+                <rect x="-8" y="-33" width="16" height="4" fill="#A5D8FF"/>
+                <rect x="-8" y="-25" width="16" height="4" fill="#A5D8FF"/>
+                <circle cx="0" cy="-58" r="18" fill="#1890FF" stroke="#002D72" stroke-width="2.6"/>
+                <!-- 爆炸頭 -->
+                <circle cx="-9" cy="-73" r="9" fill="#2B2D42"/><circle cx="2" cy="-78" r="10" fill="#2B2D42"/><circle cx="11" cy="-72" r="8" fill="#2B2D42"/>
+                <circle cx="2" cy="-57" r="12.5" fill="#FFE3C2"/>
+                <!-- 墨鏡 -->
+                <rect x="-7" y="-62" width="9" height="5" rx="1.5" fill="#111"/><rect x="4" y="-62" width="9" height="5" rx="1.5" fill="#111"/>
+                <path d="M-2,-52 Q3,-47 8,-52" fill="none" stroke="#E03131" stroke-width="2.4" stroke-linecap="round"/>
+              </g>
+
+              <!-- 第 3 位：買菜阿嬤（包頭＋紅白條紋買菜袋＋大蔥） -->
+              <g transform="translate(226 258)">
+                <ellipse cx="0" cy="6" rx="18" ry="5" fill="#000" opacity="0.25"/>
+                <line x1="-7" y1="-12" x2="-10" y2="3" stroke="#0047B3" stroke-width="6" stroke-linecap="round"/>
+                <line x1="7" y1="-12" x2="10" y2="3" stroke="#0047B3" stroke-width="6" stroke-linecap="round"/>
+                <rect x="-16" y="-44" width="32" height="34" rx="13" fill="#1890FF" stroke="#002D72" stroke-width="2.6"/>
+                <rect x="-8" y="-33" width="16" height="4" fill="#A5D8FF"/>
+                <rect x="-8" y="-25" width="16" height="4" fill="#A5D8FF"/>
+                <!-- 買菜袋與大蔥 -->
+                <rect x="15" y="-26" width="14" height="16" rx="2" fill="#FFF"/>
+                <rect x="18" y="-26" width="3" height="16" fill="#FF3B4E"/>
+                <rect x="24" y="-26" width="3" height="16" fill="#FF3B4E"/>
+                <line x1="22" y1="-26" x2="26" y2="-38" stroke="#2ECC71" stroke-width="3.2" stroke-linecap="round"/>
+                <!-- 頭與包頭 -->
+                <circle cx="-11" cy="-73" r="6.5" fill="#E9ECEF" stroke="#ADB5BD" stroke-width="1.5"/>
+                <circle cx="0" cy="-58" r="18" fill="#1890FF" stroke="#002D72" stroke-width="2.6"/>
+                <circle cx="2" cy="-57" r="12.5" fill="#FFE3C2"/>
+                <circle cx="-2" cy="-59" r="2.2" fill="#1A2438"/><circle cx="7" cy="-59" r="2.2" fill="#1A2438"/>
+                <path d="M-1,-52 Q3,-48 7,-52" fill="none" stroke="#FF4D6D" stroke-width="2.4" stroke-linecap="round"/>
+              </g>
+
+              <!-- 第 2 位：頭插竹竿呆萌隊員（O_O 問號臉） -->
+              <g transform="translate(322 252)">
+                <ellipse cx="0" cy="8" rx="18" ry="5" fill="#000" opacity="0.25"/>
+                <line x1="-7" y1="-12" x2="-11" y2="3" stroke="#0047B3" stroke-width="6" stroke-linecap="round"/>
+                <line x1="7" y1="-12" x2="11" y2="3" stroke="#0047B3" stroke-width="6" stroke-linecap="round"/>
+                <rect x="-16" y="-44" width="32" height="34" rx="13" fill="#1890FF" stroke="#002D72" stroke-width="2.6"/>
+                <rect x="-8" y="-33" width="16" height="4" fill="#A5D8FF"/>
+                <rect x="-8" y="-25" width="16" height="4" fill="#A5D8FF"/>
+                <!-- 藍色觸角 -->
+                <path d="M-7,-75 Q-14,-90 -18,-86" fill="none" stroke="#003E99" stroke-width="2.8" stroke-linecap="round"/>
+                <path d="M7,-75 Q14,-90 18,-86" fill="none" stroke="#003E99" stroke-width="2.8" stroke-linecap="round"/>
+                <circle cx="-18" cy="-86" r="3.5" fill="#FFE066"/><circle cx="18" cy="-86" r="3.5" fill="#FFE066"/>
+                <circle cx="0" cy="-58" r="18" fill="#1890FF" stroke="#002D72" stroke-width="2.6"/>
+                <circle cx="2" cy="-57" r="12.5" fill="#FFE3C2"/>
+                <circle cx="-2" cy="-59" r="2.6" fill="#1A2438"/><circle cx="7" cy="-59" r="2.6" fill="#1A2438"/>
+                <circle cx="2.5" cy="-51" r="3.4" fill="none" stroke="#1A2438" stroke-width="2.2"/>
+              </g>
+
+              <!-- 第 1 位（C 位領隊）：藍蜈蚣大隊長＋金色皇冠 -->
+              <g transform="translate(418 256)">
+                <ellipse cx="0" cy="7" rx="20" ry="6" fill="#000" opacity="0.28"/>
+                <line x1="-8" y1="-12" x2="-13" y2="4" stroke="#003E99" stroke-width="6.5" stroke-linecap="round"/>
+                <line x1="8" y1="-12" x2="13" y2="4" stroke="#003E99" stroke-width="6.5" stroke-linecap="round"/>
+                <rect x="-18" y="-46" width="36" height="36" rx="14" fill="#005CE6" stroke="#002D72" stroke-width="2.8"/>
+                <rect x="-9" y="-35" width="18" height="4.5" fill="#A5D8FF"/>
+                <rect x="-9" y="-26" width="18" height="4.5" fill="#A5D8FF"/>
+                <!-- 藍色觸角 -->
+                <path d="M-8,-78 Q-16,-94 -21,-90" fill="none" stroke="#003E99" stroke-width="3" stroke-linecap="round"/>
+                <path d="M8,-78 Q16,-94 21,-90" fill="none" stroke="#003E99" stroke-width="3" stroke-linecap="round"/>
+                <circle cx="-21" cy="-90" r="4" fill="#FFE066"/><circle cx="21" cy="-90" r="4" fill="#FFE066"/>
+                <circle cx="0" cy="-60" r="20" fill="#005CE6" stroke="#002D72" stroke-width="2.8"/>
+                <circle cx="3" cy="-59" r="13.5" fill="#FFE3C2"/>
+                <!-- 呆萌大眼＋開心紅嘴 -->
+                <circle cx="-1" cy="-61" r="4" fill="#FFF"/><circle cx="9" cy="-61" r="4" fill="#FFF"/>
+                <circle cx="0" cy="-61" r="2.2" fill="#1A2438"/><circle cx="10" cy="-61" r="2.2" fill="#1A2438"/>
+                <path d="M-1,-54 A5,5 0 0,0 9,-54 Z" fill="#FF4D6D"/>
+                <!-- 金色皇冠 -->
+                <path d="M-11,-78 L-13,-91 L-4,-85 L0,-95 L4,-85 L13,-91 L11,-78 Z" fill="url(#${uid}_gold)" stroke="#994900" stroke-width="1.8"/>
+              </g>
+
+              <!-- 前層橫穿竹竿節點高光（強化串聯喜感） -->
+              <g stroke-linecap="round">
+                <line x1="306" y1="184" x2="338" y2="184" stroke="#2ECC71" stroke-width="6"/>
+                <line x1="322" y1="180" x2="322" y2="188" stroke="#145A32" stroke-width="2.4"/>
+                <line x1="210" y1="214" x2="242" y2="214" stroke="#2ECC71" stroke-width="6"/>
+                <line x1="402" y1="214" x2="434" y2="214" stroke="#2ECC71" stroke-width="6"/>
+                <line x1="116" y1="238" x2="148" y2="238" stroke="#2ECC71" stroke-width="6.5"/>
+                <line x1="402" y1="238" x2="434" y2="238" stroke="#2ECC71" stroke-width="6.5"/>
+              </g>
+
+              <!-- 右側暴走障礙物：超大香蕉皮 -->
+              <g transform="translate(546 258)">
+                <ellipse cx="0" cy="8" rx="22" ry="6" fill="#000" opacity="0.28"/>
+                <path d="M-24,4 Q-8,-14 0,-26 Q8,-14 24,4 Q10,-4 0,-8 Q-10,-4 -24,4 Z" fill="#FFD43B" stroke="#996500" stroke-width="2.4"/>
+                <path d="M-8,-6 Q0,-22 8,-6 Q2,2 -8,-6 Z" fill="#FFF3BF"/>
+                <rect x="-3" y="-32" width="6" height="8" rx="2" fill="#8C5A00"/>
+                <text x="0" y="-40" text-anchor="middle" fill="#FF3B4E" font-size="13" font-weight="900" font-family="sans-serif">⚠️ 快跳！</text>
+              </g>
+
+              <!-- 魔性口號漫畫氣泡 -->
+              <g transform="translate(158 106) rotate(-4)">
+                <rect x="-86" y="-20" width="172" height="36" rx="18" fill="#1A2438" stroke="#63E6BE" stroke-width="2.8"/>
+                <text x="0" y="4" text-anchor="middle" fill="#63E6BE" font-size="15" font-weight="900" font-family="sans-serif">✨ 天清清！地靈靈！</text>
+              </g>
+              <g transform="translate(474 108) rotate(4)">
+                <rect x="-90" y="-20" width="180" height="36" rx="18" fill="#FF3B4E" stroke="#FFE066" stroke-width="2.8"/>
+                <text x="0" y="4" text-anchor="middle" fill="#FFE066" font-size="15" font-weight="900" font-family="sans-serif">👍 棒棒棒！超級棒！</text>
+              </g>
+
+              <!-- 派對彩帶與星芒 -->
+              <g fill="#FFE066">
+                <path d="M72,146 L75,153 L82,156 L75,159 L72,166 L69,159 L62,156 L69,153 Z"/>
+                <path d="M582,156 L585,163 L592,166 L585,169 L582,176 L579,169 L572,166 L579,163 Z"/>
+              </g>
+              <rect x="268" y="88" width="9" height="5" rx="2" transform="rotate(24 268 88)" fill="#FF6B81"/>
+              <rect x="358" y="82" width="9" height="5" rx="2" transform="rotate(-18 358 82)" fill="#2ECC71"/>
+              <rect x="520" y="162" width="8" height="5" rx="2" transform="rotate(35 520 162)" fill="#A855F7"/>
+
+              <!-- 頂部徽章 -->
+              <rect x="26" y="20" width="102" height="26" rx="13" fill="#FF3B4E" stroke="#FFE066" stroke-width="1.6"/>
+              <text x="77" y="37" text-anchor="middle" fill="#FFF" font-size="12" font-weight="900" font-family="sans-serif">🏮 廟會派對</text>
+
+              <rect x="510" y="20" width="104" height="26" rx="13" fill="#102A54" fill-opacity="0.88" stroke="#63E6BE" stroke-width="1.6"/>
+              <text x="562" y="37" text-anchor="middle" fill="#63E6BE" font-size="12" font-weight="900" font-family="sans-serif">🗣 中文語音</text>
+
+              <!-- 底部標題條 -->
+              <rect x="132" y="306" width="376" height="36" rx="18" fill="#102A54" fill-opacity="0.9" stroke="#FFD43B" stroke-width="2.2"/>
+              <text x="320" y="329" text-anchor="middle" fill="#FFE066" font-size="14.5" font-weight="900" font-family="sans-serif">🎋 頭・肩・腰三竿齊發 × 過關榮譽證書 🎋</text>
+            </svg>`;
+        }
       /* ========================================================================
          3. 狀態與 DOM 參照
          ======================================================================== */
