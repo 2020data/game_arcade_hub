@@ -1,0 +1,2443 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>藍色蜈蚣：竹竿大串聯</title>
+  <style>
+    /* =====================================================================
+       設計系統與全局樣式（亮天藍 × 慶典紅金 × 翠綠竹竿 × 漫畫粗體）
+       ===================================================================== */
+    :root {
+      --sky-top: #1fb6ff;
+      --sky-mid: #63d8ff;
+      --blue-hero: #0077ff;
+      --blue-deep: #0047b3;
+      --fest-red: #ff3b4e;
+      --fest-gold: #ffd43b;
+      --fest-orange: #ff8c1a;
+      --bamboo: #2ecc71;
+      --bamboo-dark: #198754;
+      --purple-fever: #9b51e0;
+      --ink: #1a2438;
+      --white: #ffffff;
+      --font-main: 'PingFang TC', 'Microsoft JhengHei', 'Noto Sans TC', 'Heiti TC', system-ui, -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      font-family: var(--font-main);
+      background: linear-gradient(180deg, #0b5ed7 0%, #1fb6ff 100%);
+      color: var(--ink);
+    }
+
+    /* 主遊戲容器：滿版無捲動 */
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100dvh;
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #0d3b66;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* =====================================================================
+       頂部 HUD 資訊列
+       ===================================================================== */
+    .hud-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 12px;
+      background: linear-gradient(90deg, #0047b3 0%, #0077ff 50%, #0052cc 100%);
+      border-bottom: 3px solid var(--fest-gold);
+      color: #fff;
+      flex-shrink: 0;
+      z-index: 10;
+      flex-wrap: wrap;
+    }
+
+    .hud-left, .hud-center, .hud-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hud-pill {
+      background: rgba(0, 0, 0, 0.28);
+      border: 2px solid rgba(255, 255, 255, 0.45);
+      border-radius: 999px;
+      padding: 4px 11px;
+      font-size: clamp(0.76rem, 2vw, 0.92rem);
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+      text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+    }
+
+    .hud-pill.gold {
+      background: linear-gradient(180deg, #ffe066, #f59f00);
+      color: #4a2300;
+      border-color: #fff;
+      text-shadow: none;
+    }
+
+    .fever-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 0, 0, 0.32);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      border-radius: 999px;
+      padding: 3px 10px 3px 8px;
+    }
+
+    .fever-label {
+      font-size: 0.78rem;
+      font-weight: 900;
+      color: #ffe066;
+      white-space: nowrap;
+    }
+
+    .fever-track {
+      width: clamp(64px, 14vw, 120px);
+      height: 12px;
+      background: rgba(255, 255, 255, 0.22);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1.5px solid #fff;
+    }
+
+    .fever-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ffdd00, #ff5500, #ff00aa);
+      transition: width 0.2s ease;
+    }
+
+    .hud-icon-btn {
+      background: rgba(255, 255, 255, 0.18);
+      border: 2px solid rgba(255, 255, 255, 0.65);
+      color: #fff;
+      border-radius: 12px;
+      padding: 4px 9px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: inherit;
+      transition: transform 0.1s;
+    }
+
+    .hud-icon-btn:active {
+      transform: scale(0.93);
+    }
+
+    .hud-icon-btn.off {
+      opacity: 0.55;
+      background: rgba(0, 0, 0, 0.35);
+    }
+
+    /* =====================================================================
+       中央遊戲畫布舞台
+       ===================================================================== */
+    .stage-wrap {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      background: #4cc9ff;
+    }
+
+    #gameCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: manipulation;
+    }
+
+    /* 障礙物預警浮標 */
+    .warning-banner {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: linear-gradient(135deg, #ff2a4b, #ff7b00);
+      color: #fff;
+      border: 3px solid #fff;
+      border-radius: 16px;
+      padding: 8px 14px;
+      font-size: clamp(0.85rem, 2.4vw, 1.08rem);
+      font-weight: 900;
+      box-shadow: 0 6px 18px rgba(255, 42, 75, 0.5);
+      display: none;
+      align-items: center;
+      gap: 8px;
+      z-index: 6;
+      animation: warnPulse 0.35s infinite alternate;
+      pointer-events: none;
+    }
+
+    .warning-banner.show {
+      display: inline-flex;
+    }
+
+    @keyframes warnPulse {
+      from { transform: scale(1) rotate(-1.5deg); }
+      to { transform: scale(1.07) rotate(1.5deg); }
+    }
+
+    /* 狂熱模式橫幅 */
+    .fever-banner {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(90deg, #ff007f, #ffae00, #00e5ff, #9b51e0);
+      background-size: 250% 100%;
+      animation: rainbowSlide 1.2s linear infinite;
+      color: #fff;
+      border: 3px solid #fff;
+      border-radius: 999px;
+      padding: 6px 18px;
+      font-size: clamp(0.85rem, 2.5vw, 1.12rem);
+      font-weight: 900;
+      text-shadow: 0 2px 0 rgba(0, 0, 0, 0.45);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+      display: none;
+      z-index: 6;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .fever-banner.show {
+      display: block;
+    }
+
+    @keyframes rainbowSlide {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 250% 50%; }
+    }
+
+    /* =====================================================================
+       下方實體感大型遊戲按鍵區
+       ===================================================================== */
+    .control-deck {
+      flex-shrink: 0;
+      background: linear-gradient(180deg, #102a54 0%, #091a38 100%);
+      border-top: 4px solid var(--fest-gold);
+      padding: 8px 10px calc(10px + env(safe-area-inset-bottom, 0px));
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    .pole-btn-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .arcade-btn {
+      position: relative;
+      border: 3px solid #fff;
+      border-radius: 16px;
+      padding: 9px 6px;
+      font-family: inherit;
+      font-weight: 900;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.1s;
+      text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+      min-height: 62px;
+      touch-action: manipulation;
+    }
+
+    .arcade-btn .btn-emoji {
+      font-size: clamp(1.25rem, 3.6vw, 1.65rem);
+      line-height: 1;
+    }
+
+    .arcade-btn .btn-title {
+      font-size: clamp(0.76rem, 2.3vw, 0.98rem);
+      line-height: 1.15;
+    }
+
+    .arcade-btn .btn-key {
+      font-size: 0.68rem;
+      background: rgba(0, 0, 0, 0.28);
+      padding: 1px 7px;
+      border-radius: 999px;
+      opacity: 0.92;
+      font-weight: 800;
+    }
+
+    .arcade-btn:active, .arcade-btn.pressed {
+      transform: translateY(4px) scale(0.97);
+    }
+
+    /* 四種竹竿按鈕配色 */
+    .btn-head {
+      background: linear-gradient(180deg, #ff6b81 0%, #e02447 100%);
+      box-shadow: 0 5px 0 #8f1029, 0 8px 14px rgba(0, 0, 0, 0.3);
+    }
+    .btn-head:active, .btn-head.pressed { box-shadow: 0 1px 0 #8f1029; }
+
+    .btn-shoulder {
+      background: linear-gradient(180deg, #ffae2b 0%, #e67300 100%);
+      box-shadow: 0 5px 0 #994900, 0 8px 14px rgba(0, 0, 0, 0.3);
+    }
+    .btn-shoulder:active, .btn-shoulder.pressed { box-shadow: 0 1px 0 #994900; }
+
+    .btn-waist {
+      background: linear-gradient(180deg, #2ecc71 0%, #19944c 100%);
+      box-shadow: 0 5px 0 #0e5c2e, 0 8px 14px rgba(0, 0, 0, 0.3);
+    }
+    .btn-waist:active, .btn-waist.pressed { box-shadow: 0 1px 0 #0e5c2e; }
+
+    .btn-multi {
+      background: linear-gradient(180deg, #a855f7 0%, #6d28d9 100%);
+      box-shadow: 0 5px 0 #42128c, 0 8px 14px rgba(0, 0, 0, 0.3);
+    }
+    .btn-multi:active, .btn-multi.pressed { box-shadow: 0 1px 0 #42128c; }
+
+    /* 目標提示高亮脈衝 */
+    .arcade-btn.hint-glow {
+      animation: btnGlow 0.45s infinite alternate;
+      border-color: #ffe066;
+    }
+
+    @keyframes btnGlow {
+      from { filter: brightness(1); box-shadow: 0 5px 0 rgba(0,0,0,0.4), 0 0 8px #ffe066; }
+      to { filter: brightness(1.22); box-shadow: 0 5px 0 rgba(0,0,0,0.4), 0 0 22px #fff200; }
+    }
+
+    /* 獨立顯眼的起跳閃障礙大按鈕 */
+    .btn-jump {
+      width: 100%;
+      min-height: 48px;
+      flex-direction: row;
+      gap: 10px;
+      padding: 8px 16px;
+      background: linear-gradient(90deg, #00b4ff 0%, #0077ff 50%, #00b4ff 100%);
+      box-shadow: 0 5px 0 #003e99, 0 8px 16px rgba(0, 119, 255, 0.35);
+      border-radius: 16px;
+    }
+    .btn-jump:active, .btn-jump.pressed { box-shadow: 0 1px 0 #003e99; }
+    .btn-jump.urgent {
+      background: linear-gradient(90deg, #ff3b4e, #ff9900, #ff3b4e);
+      animation: btnGlow 0.3s infinite alternate;
+    }
+
+    /* =====================================================================
+       彈窗遮罩（開場設定大廳 & 結算派對卡片）
+       ===================================================================== */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 22, 52, 0.78);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      z-index: 30;
+      overflow-y: auto;
+    }
+
+    .modal-overlay.hidden {
+      display: none;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 560px;
+      max-height: 94dvh;
+      overflow-y: auto;
+      background: linear-gradient(180deg, #ffffff 0%, #eef7ff 100%);
+      border: 4px solid var(--fest-gold);
+      border-radius: 26px;
+      padding: 18px 20px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+      color: var(--ink);
+    }
+
+    .game-logo {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .logo-badge {
+      display: inline-block;
+      background: linear-gradient(90deg, #ff3b4e, #ff8c1a);
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 900;
+      padding: 3px 12px;
+      border-radius: 999px;
+      margin-bottom: 5px;
+      letter-spacing: 0.05em;
+    }
+
+    .game-logo h1 {
+      margin: 0;
+      font-size: clamp(1.5rem, 5vw, 2.05rem);
+      font-weight: 900;
+      color: #005ce6;
+      text-shadow: 3px 3px 0 #ffe066;
+      line-height: 1.15;
+    }
+
+    .game-logo p {
+      margin: 5px 0 0;
+      font-size: 0.85rem;
+      color: #465a78;
+      font-weight: 700;
+    }
+
+    .setup-box {
+      background: #fff;
+      border: 2.5px solid #b8dcff;
+      border-radius: 18px;
+      padding: 12px 14px;
+      margin-bottom: 11px;
+    }
+
+    .setup-title {
+      font-size: 0.92rem;
+      font-weight: 900;
+      color: #0047b3;
+      margin: 0 0 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .count-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .count-input {
+      width: 92px;
+      padding: 8px 10px;
+      font-size: 1.15rem;
+      font-weight: 900;
+      text-align: center;
+      border: 3px solid #0077ff;
+      border-radius: 12px;
+      color: #0047b3;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .quick-btn {
+      background: #e6f2ff;
+      border: 2px solid #80bdff;
+      color: #0047b3;
+      font-weight: 900;
+      font-size: 0.84rem;
+      padding: 7px 11px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.12s;
+    }
+
+    .quick-btn:hover, .quick-btn.active {
+      background: #0077ff;
+      color: #fff;
+      border-color: #0047b3;
+    }
+
+    /* 系統隨機派發拉霸區 */
+    .slot-box {
+      background: linear-gradient(135deg, #fff8db 0%, #ffe8cc 100%);
+      border: 2.5px dashed #ff922b;
+      border-radius: 16px;
+      padding: 11px 13px;
+      margin-bottom: 11px;
+    }
+
+    .slot-display {
+      background: #1a2438;
+      color: #ffe066;
+      border-radius: 12px;
+      padding: 9px 12px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      min-height: 44px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin: 8px 0;
+      border: 2px solid #ffd43b;
+    }
+
+    .slot-chip {
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 224, 102, 0.55);
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-size: 0.78rem;
+      color: #fff;
+      white-space: nowrap;
+    }
+
+    .total-formula {
+      font-size: 0.94rem;
+      font-weight: 900;
+      color: #c92a2a;
+      text-align: center;
+      background: #fff;
+      border-radius: 10px;
+      padding: 6px 10px;
+      border: 2px solid #ffc9c9;
+    }
+
+    .audio-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .mini-btn {
+      border: none;
+      border-radius: 12px;
+      padding: 8px 12px;
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: transform 0.1s;
+    }
+
+    .mini-btn:active { transform: scale(0.95); }
+    .mini-btn.blue { background: #0077ff; color: #fff; }
+    .mini-btn.orange { background: #ff8c1a; color: #fff; }
+    .mini-btn.green { background: #2ecc71; color: #fff; }
+    .mini-btn.gray { background: #e9ecef; color: #343a40; }
+
+    .start-btn {
+      width: 100%;
+      border: 3px solid #fff;
+      border-radius: 18px;
+      padding: 13px 18px;
+      font-family: inherit;
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: #fff;
+      background: linear-gradient(90deg, #ff3b4e 0%, #ff8c1a 50%, #ff3b4e 100%);
+      box-shadow: 0 6px 0 #a81524, 0 10px 22px rgba(255, 59, 78, 0.4);
+      cursor: pointer;
+      transition: transform 0.1s;
+      text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    .start-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #a81524;
+    }
+
+    /* 結算畫面樣式 */
+    .result-title-badge {
+      background: linear-gradient(135deg, #0077ff, #9b51e0);
+      color: #ffe066;
+      border: 3px solid #ffe066;
+      border-radius: 16px;
+      padding: 10px 14px;
+      text-align: center;
+      font-size: clamp(1.05rem, 3.6vw, 1.32rem);
+      font-weight: 900;
+      margin: 8px 0 12px;
+      box-shadow: 0 6px 16px rgba(0, 119, 255, 0.28);
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .stat-card {
+      background: #fff;
+      border: 2px solid #cfe4ff;
+      border-radius: 14px;
+      padding: 8px 10px;
+      text-align: center;
+    }
+
+    .stat-card .s-label {
+      font-size: 0.74rem;
+      color: #5c708a;
+      font-weight: 800;
+    }
+
+    .stat-card .s-val {
+      font-size: 1.08rem;
+      font-weight: 900;
+      color: #0047b3;
+      margin-top: 2px;
+    }
+
+    .ped-roster {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .ped-badge {
+      background: #e7f5ff;
+      border: 1.5px solid #74c0fc;
+      color: #0b4f9c;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .result-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    /* 過關專屬榮譽證書編輯與預覽區 */
+    .cert-studio {
+      background: linear-gradient(135deg, #fffdf0 0%, #fff3d6 100%);
+      border: 2.5px solid #ffd43b;
+      border-radius: 18px;
+      padding: 12px 13px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    .cert-date-tag {
+      font-size: 0.76rem;
+      font-weight: 900;
+      color: #c92a2a;
+      background: #fff;
+      border: 1.5px solid #ffc9c9;
+      padding: 2px 9px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .photo-upload-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .photo-thumb {
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      border: 3px solid #ff3b4e;
+      background: linear-gradient(135deg, #74c0fc, #1890ff);
+      box-shadow: 0 4px 10px rgba(0, 71, 179, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+      font-size: 1.7rem;
+      color: #fff;
+    }
+
+    .photo-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .photo-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .cert-field {
+      margin-bottom: 9px;
+    }
+
+    .cert-field label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      font-weight: 900;
+      color: #5c3a00;
+      margin-bottom: 4px;
+    }
+
+    .cert-input, .cert-textarea {
+      width: 100%;
+      padding: 8px 11px;
+      border-radius: 12px;
+      border: 2px solid #ffc078;
+      background: #fff;
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 700;
+      outline: none;
+      transition: border-color 0.15s;
+      user-select: text;
+    }
+
+    .cert-input:focus, .cert-textarea:focus {
+      border-color: #0077ff;
+    }
+
+    .cert-textarea {
+      resize: none;
+      min-height: 58px;
+      line-height: 1.4;
+    }
+
+    .blessing-box {
+      background: #fff;
+      border: 2px dashed #ff922b;
+      border-radius: 12px;
+      padding: 9px 11px;
+      font-size: 0.86rem;
+      font-weight: 800;
+      color: #b84b00;
+      line-height: 1.45;
+      margin-bottom: 8px;
+    }
+
+    .cert-preview-wrap {
+      margin-top: 10px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.85);
+      border: 2px solid #ffe066;
+      border-radius: 14px;
+      padding: 10px;
+    }
+
+    .cert-preview-img {
+      width: 100%;
+      max-width: 310px;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+      display: block;
+      margin: 0 auto;
+    }
+
+    .cert-preview-hint {
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: #5c708a;
+      margin-top: 6px;
+    }
+
+    /* Toast 提示（取代 alert） */
+    .toast-box {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(20, 32, 58, 0.94);
+      color: #ffe066;
+      border: 2px solid #ffe066;
+      padding: 9px 18px;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      font-weight: 900;
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease;
+      white-space: nowrap;
+      max-width: 92vw;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .toast-box.show {
+      opacity: 1;
+    }
+
+    @media (max-width: 560px) {
+      .hud-bar { padding: 6px 8px; gap: 5px; }
+      .arcade-btn { min-height: 56px; padding: 6px 4px; border-radius: 13px; }
+      .arcade-btn .btn-key { display: none; }
+      .btn-jump { min-height: 44px; font-size: 0.92rem; }
+      .modal-card { padding: 14px 14px; }
+      .result-actions { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- 頂部 HUD 列 -->
+    <header class="hud-bar">
+      <div class="hud-left">
+        <div class="hud-pill gold">🐛 <span id="hudProgress">0 / 0 人</span></div>
+        <div class="hud-pill">⭐ <span id="hudScore">0</span></div>
+        <div class="hud-pill" id="hudComboPill">🔥 <span id="hudCombo">0</span> 連擊</div>
+      </div>
+
+      <div class="hud-center">
+        <div class="fever-wrap" title="連續成功 5 次觸發蜈蚣起飛狂熱模式！">
+          <span class="fever-label">⚡狂熱</span>
+          <div class="fever-track">
+            <div class="fever-fill" id="feverFill"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-right">
+        <button class="hud-icon-btn" id="btnToggleVoice" title="開關中文語音">🗣 語音開</button>
+        <button class="hud-icon-btn" id="btnToggleSfx" title="開關音效">🔊 音效開</button>
+        <button class="hud-icon-btn" id="btnOpenLobby" title="返回設定大廳">⚙ 重設</button>
+      </div>
+    </header>
+
+    <!-- 中央 Canvas 舞台 -->
+    <main class="stage-wrap" id="stageWrap">
+      <canvas id="gameCanvas"></canvas>
+      <div class="fever-banner" id="feverBanner">🔥 蜈蚣起飛狂熱模式！自動無敵閃障礙！ 🔥</div>
+      <div class="warning-banner" id="warningBanner">⚠️ 障礙物來襲！快按起跳！</div>
+    </main>
+
+    <!-- 下方實體感大型遊戲按鍵區 -->
+    <footer class="control-deck">
+      <div class="pole-btn-grid">
+        <button class="arcade-btn btn-head" id="btnHead" data-pole="head">
+          <span class="btn-emoji">👑</span>
+          <span class="btn-title">串頭部</span>
+          <span class="btn-key">1 / Q</span>
+        </button>
+        <button class="arcade-btn btn-shoulder" id="btnShoulder" data-pole="shoulder">
+          <span class="btn-emoji">💪</span>
+          <span class="btn-title">串肩膀</span>
+          <span class="btn-key">2 / W</span>
+        </button>
+        <button class="arcade-btn btn-waist" id="btnWaist" data-pole="waist">
+          <span class="btn-emoji">🌀</span>
+          <span class="btn-title">串腰部</span>
+          <span class="btn-key">3 / E</span>
+        </button>
+        <button class="arcade-btn btn-multi" id="btnMulti" data-pole="multi">
+          <span class="btn-emoji">⚡</span>
+          <span class="btn-title">三竿齊發</span>
+          <span class="btn-key">Space</span>
+        </button>
+      </div>
+      <button class="arcade-btn btn-jump" id="btnJump">
+        <span class="btn-emoji">🦘</span>
+        <span class="btn-title">全員波浪起跳閃障礙！</span>
+        <span class="btn-key">↑ / Shift</span>
+      </button>
+    </footer>
+
+    <!-- ===============================================================
+         開場大廳彈窗（自由填人數 + 系統隨機突襲派發拉霸 + 語音測試）
+         =============================================================== -->
+    <div class="modal-overlay" id="lobbyModal">
+      <div class="modal-card">
+        <div class="game-logo">
+          <span class="logo-badge">🏮 台灣廟會搞笑派對遊戲 🎋</span>
+          <h1>藍色蜈蚣：竹竿大串聯</h1>
+          <p>腰部、頭部、肩膀三竿齊發！每串一次大喊「天清清地靈靈」＆「棒棒棒超級棒」！</p>
+        </div>
+
+        <!-- 1. 自由填人數 -->
+        <div class="setup-box">
+          <div class="setup-title">
+            <span>👥 步驟一：自由填寫基礎人數（1～50 人）</span>
+          </div>
+          <div class="count-row">
+            <input type="number" id="inputCustomCount" class="count-input" min="1" max="50" value="10" />
+            <button class="quick-btn" data-count="5">5人</button>
+            <button class="quick-btn active" data-count="10">10人</button>
+            <button class="quick-btn" data-count="20">20人</button>
+            <button class="quick-btn" data-count="30">30人</button>
+          </div>
+        </div>
+
+        <!-- 2. 系統隨機突襲派發 -->
+        <div class="slot-box">
+          <div class="setup-title" style="color:#b84b00;">
+            <span>🎰 步驟二：系統隨機突襲派發搞笑路人</span>
+            <button class="mini-btn orange" id="btnSpinBonus">🎲 重新抽籤加碼</button>
+          </div>
+          <div class="slot-display" id="slotDisplay">點擊抽籤或直接開玩，系統自動派發神秘路人！</div>
+          <div class="total-formula" id="totalFormula">自訂 10 人 ＋ 系統加碼 0 人 ＝ 總計 10 人藍色大蜈蚣！</div>
+        </div>
+
+        <!-- 3. 語音與音效測試 -->
+        <div class="setup-box">
+          <div class="audio-row">
+            <button class="mini-btn blue" id="btnTestAudio">🔊 測試語音與音效</button>
+            <div style="display:flex;align-items:center;gap:6px;font-size:0.82rem;font-weight:800;">
+              <span>語速：</span>
+              <select id="selectSpeechRate" style="padding:4px 8px;border-radius:8px;border:2px solid #80bdff;font-weight:800;font-family:inherit;">
+                <option value="1.05">正常歡樂</option>
+                <option value="1.25" selected>快嘴廟會 (推薦)</option>
+                <option value="1.45">超高速魔性</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <button class="start-btn" id="btnStartGame">🎋 起駕開串！組建藍色大蜈蚣！</button>
+      </div>
+    </div>
+
+    <!-- ===============================================================
+         結算派對彈窗（成就統計 + 搞笑稱號 + 下載紀念照）
+         =============================================================== -->
+    <div class="modal-overlay hidden" id="resultModal">
+      <div class="modal-card">
+        <div class="game-logo" style="margin-bottom:6px;">
+          <span class="logo-badge">🎉 藍色大蜈蚣串聯大成功！ 🎉</span>
+          <h1 style="font-size:1.55rem;">全員繞場謝幕大派對</h1>
+        </div>
+
+        <div class="result-title-badge" id="resTitleBadge">【鎮瀾宮級人體蜈蚣總指揮】</div>
+
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="s-label">總串聯人數</div>
+            <div class="s-val" id="resTotalPeople">15 人 (自訂10+隨機5)</div>
+          </div>
+          <div class="stat-card">
+            <div class="s-label">總積分 / 最高連擊</div>
+            <div class="s-val" id="resScoreCombo">0 分 / 0 連擊</div>
+          </div>
+          <div class="stat-card">
+            <div class="s-label">竹竿部位統計</div>
+            <div class="s-val" id="resPoles" style="font-size:0.84rem;">頭0 / 肩0 / 腰0 / 多竿0</div>
+          </div>
+          <div class="stat-card">
+            <div class="s-label">魔性口號次數</div>
+            <div class="s-val" id="resChants" style="font-size:0.84rem;">天清清 0 / 棒棒棒 0</div>
+          </div>
+          <div class="stat-card" style="grid-column: span 2;">
+            <div class="s-label">成功波浪閃避障礙物</div>
+            <div class="s-val" id="resDodges">0 次閃避成功</div>
+          </div>
+        </div>
+
+        <div class="setup-box" style="margin-bottom:8px;">
+          <div class="setup-title" style="margin-bottom:4px;">🎭 收集到的搞笑路人清單</div>
+          <div class="ped-roster" id="resPedRoster"></div>
+        </div>
+
+        <!-- 專屬過關榮譽證書製作區 -->
+        <div class="cert-studio">
+          <div class="setup-title" style="color:#b84b00;margin-bottom:8px;">
+            <span>📜 客製我的過關榮譽證書</span>
+            <span class="cert-date-tag" id="certDateDisplay">📅 今日日期</span>
+          </div>
+
+          <!-- 1. 上傳自己的照片 -->
+          <div class="photo-upload-row">
+            <div class="photo-thumb" id="certPhotoThumb" title="證書大頭照預覽">🐛</div>
+            <div class="photo-controls">
+              <input type="file" id="inputCertPhoto" accept="image/*" style="display:none;" />
+              <button class="mini-btn orange" id="btnUploadPhoto" type="button">📷 上傳我的照片</button>
+              <button class="mini-btn gray" id="btnClearPhoto" type="button" style="display:none;">✕ 清除照片</button>
+            </div>
+          </div>
+
+          <!-- 2. 玩家暱稱 -->
+          <div class="cert-field">
+            <label for="inputPlayerName">
+              <span>✍️ 玩家暱稱（選填）</span>
+              <span style="font-size:0.72rem;color:#8c6d3f;">顯示於證書頒發對象</span>
+            </label>
+            <input type="text" id="inputPlayerName" class="cert-input" maxlength="14" placeholder="例如：藍蜈蚣小天后、阿明大隊長" />
+          </div>
+
+          <!-- 3. 隨機祝福語 -->
+          <div class="cert-field">
+            <label>
+              <span>🧧 官方隨機祝福語</span>
+              <button class="mini-btn blue" id="btnRollBlessing" type="button" style="padding:4px 9px;font-size:0.76rem;">🎲 換一句隨機祝福</button>
+            </label>
+            <div class="blessing-box" id="certBlessingText">天清清地靈靈，願你天天好運連連、笑口常開、超級棒！</div>
+          </div>
+
+          <!-- 4. 自己輸入對話／感言 -->
+          <div class="cert-field" style="margin-bottom:0;">
+            <label for="inputPlayerDialogue">
+              <span>💬 輸入我想說的對話／祝福（選填）</span>
+              <span id="dialogueCharCount" style="font-size:0.72rem;color:#8c6d3f;">0 / 60</span>
+            </label>
+            <textarea id="inputPlayerDialogue" class="cert-textarea" maxlength="60" placeholder="寫下想說的搞笑台詞、通關感言，或送給親友的祝福吧！"></textarea>
+          </div>
+
+          <!-- 5. 即時證書縮圖預覽 -->
+          <div class="cert-preview-wrap">
+            <img id="certPreviewImg" class="cert-preview-img" alt="藍色蜈蚣過關榮譽證書預覽" />
+            <div class="cert-preview-hint">📱 即時預覽：手機也可直接長按上方證書圖片儲存至相簿</div>
+          </div>
+        </div>
+
+        <div class="result-actions">
+          <button class="mini-btn green" id="btnDownloadPhoto" style="justify-content:center;padding:12px;font-size:0.96rem;">📜 下載專屬過關證書（PNG）</button>
+          <button class="mini-btn blue" id="btnPlayAgain" style="justify-content:center;padding:12px;font-size:0.96rem;">🔄 再串一場</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast 訊息盒 -->
+  <div class="toast-box" id="toastBox"></div>
+
+  <script>
+    /* =====================================================================
+       《藍色蜈蚣：竹竿大串聯》完整遊戲引擎
+       純原生 HTML5 Canvas + Web Audio API + Web Speech API
+       ===================================================================== */
+
+    // ---------------------------
+    // 1. 角色、竹竿與障礙物定義表
+    // ---------------------------
+    const PEDESTRIANS = [
+      { id: 'grandma', name: '買菜阿嬤', emoji: '👵', bonusText: '買菜阿嬤超穩加分！', score: 220, color: '#ff85a2', alwaysSuper: false },
+      { id: 'disco',   name: '熱舞大叔', emoji: '🕺', bonusText: '熱舞大叔迪斯可加速！', score: 240, color: '#ffa94d', alwaysSuper: false },
+      { id: 'delivery',name: '外送小哥', emoji: '🛵', bonusText: '外送小哥極速衝刺！', score: 250, color: '#ff6b6b', alwaysSuper: false },
+      { id: 'office',  name: '迷路上班族', emoji: '💼', bonusText: '上班族一臉懵逼加入！', score: 200, color: '#74c0fc', alwaysSuper: false },
+      { id: 'boba',    name: '珍奶高中生', emoji: '🧋', bonusText: '黃金珍珠噴發加分！', score: 230, color: '#ffd43b', alwaysSuper: false },
+      { id: 'lion',    name: '廟會舞獅弟', emoji: '🦁', bonusText: '舞獅弟加持！超級棒！', score: 350, color: '#ff3b4e', alwaysSuper: true }
+    ];
+
+    const OBSTACLES = [
+      { id: 'banana', name: '超大香蕉皮', emoji: '🍌', warn: '🍌 超大香蕉皮來襲！快跳！', effect: 'dizzy',  hitMsg: '滑倒啦！@_@' },
+      { id: 'shiba',  name: '亂入柴犬',   emoji: '🐕', warn: '🐕 暴衝柴犬來了！快跳！',   effect: 'wobble', hitMsg: '竹竿被咬歪啦！汪！' },
+      { id: 'tofu',   name: '暴走臭豆腐攤車', emoji: '🍲', warn: '🍲 臭豆腐攤車衝過來！快跳！', effect: 'stink',  hitMsg: '好臭好香臉綠啦！' },
+      { id: 'scooter',name: '菜市場飄移阿伯', emoji: '🛵', warn: '🛵 阿伯飄移過來啦！快跳！', effect: 'dizzy',  hitMsg: '叭叭～借過喔！' }
+    ];
+
+    const POLE_META = {
+      head:     { label: '頭部竹竿', short: '頭', color: '#ff4d6d', keyHint: '👑 串頭部' },
+      shoulder: { label: '肩膀竹竿', short: '肩', color: '#ff922b', keyHint: '💪 串肩膀' },
+      waist:    { label: '腰部竹竿', short: '腰', color: '#2ecc71', keyHint: '🌀 串腰部' },
+      multi:    { label: '同時多部位', short: '多竿', color: '#a855f7', keyHint: '⚡ 三竿齊發' }
+    };
+
+    // 16 句歡樂搞笑又暖心的廟會派對祝福語庫
+    const BLESSINGS = [
+      '天清清地靈靈，願你天天好運連連、笑口常開、超級棒！',
+      '願你像藍色大蜈蚣一樣人緣爆棚，貴人串成排、幸福一整年！',
+      '所有煩惱都被波浪跳過去，只留下滿滿好運與驚喜！',
+      '竹竿串起好福氣，頭好壯壯、肩扛好運、腰纏萬貫！',
+      '棒棒棒超級棒！祝你每天睡到自然醒，數錢數到手抽筋！',
+      '藍蜈蚣宮加持！願你出門遇貴人、抽獎必中獎、平安喜樂！',
+      '買菜阿嬤送好蔥，祝你聰明伶俐、財源滾滾、萬事亨通！',
+      '舞獅弟敲鑼打鼓賀喜，願你今年好運大爆發、天天都像過節！',
+      '願你的快樂像藍色蜈蚣一樣越串越長，好心情永遠不散場！',
+      '香蕉皮滑不倒你，臭豆腐燻不到你，願你一路順風衝第一！',
+      '天清清心明朗，地靈靈福氣旺，願你心想事成、夢想起飛！',
+      '三竿齊發好運到！愛情、事業、健康一次全部串起來！',
+      '願你每天都有珍奶般的甜蜜、熱舞般的活力，超級無敵棒！',
+      '好運一節接一節，歡笑一波接一波，祝福你天天好運爆棚！',
+      '不管世界多忙碌，願你永遠保有童心與笑聲，平安又富貴！',
+      '藍蜈蚣隊長認證：你就是今天最閃亮、最幸運的超級大明星！'
+    ];
+
+    // 過關榮譽證書客製狀態
+    const CertState = {
+      photoImg: null,
+      blessing: BLESSINGS[0],
+      playerName: '',
+      dialogue: '',
+      todayStr: '',
+      lastPngUrl: ''
+    };
+
+    // ---------------------------
+    // 2. Web Audio API 喜慶音效引擎
+    // ---------------------------
+    const SoundEngine = {
+      ctx: null,
+      enabled: true,
+
+      init() {
+        try {
+          if (!this.ctx) {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (AC) this.ctx = new AC();
+          }
+          if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume();
+          }
+        } catch (e) {}
+      },
+
+      // 木魚＋鑼鼓（天清清地靈靈配樂）
+      playMuyuGong() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+
+        // 木魚敲擊 2 下
+        [0, 0.13].forEach((offset, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          const baseF = idx === 0 ? 640 : 780;
+          osc.frequency.setValueAtTime(baseF, now + offset);
+          osc.frequency.exponentialRampToValueAtTime(baseF * 0.55, now + offset + 0.08);
+          gain.gain.setValueAtTime(0.32, now + offset);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.11);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + offset);
+          osc.stop(now + offset + 0.12);
+        });
+
+        // 大鼓低音咚
+        const drum = this.ctx.createOscillator();
+        const dGain = this.ctx.createGain();
+        drum.type = 'triangle';
+        drum.frequency.setValueAtTime(160, now + 0.02);
+        drum.frequency.exponentialRampToValueAtTime(48, now + 0.25);
+        dGain.gain.setValueAtTime(0.42, now + 0.02);
+        dGain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+        drum.connect(dGain);
+        dGain.connect(this.ctx.destination);
+        drum.start(now + 0.02);
+        drum.stop(now + 0.3);
+      },
+
+      // 歡樂上升音階＋鈸（棒棒棒超級棒配樂）
+      playSuperFanfare() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.5]; // C5 E5 G5 C6
+        notes.forEach((freq, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          const t = now + i * 0.065;
+          osc.frequency.setValueAtTime(freq, t);
+          gain.gain.setValueAtTime(0.24, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.24);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.26);
+        });
+      },
+
+      // 狂熱模式開場電音號角
+      playFeverStart() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const notes = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1318.5];
+        notes.forEach((f, i) => {
+          const osc = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          const t = now + i * 0.055;
+          osc.frequency.setValueAtTime(f, t);
+          g.gain.setValueAtTime(0.14, t);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+          osc.connect(g);
+          g.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.28);
+        });
+      },
+
+      // 波浪起跳彈簧聲
+      playJump() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(240, now);
+        osc.frequency.exponentialRampToValueAtTime(760, now + 0.16);
+        g.gain.setValueAtTime(0.26, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.19);
+        osc.connect(g);
+        g.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      },
+
+      // 滑倒／戳錯滑稽 Boing 聲
+      playBonk() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(420, now);
+        osc.frequency.exponentialRampToValueAtTime(110, now + 0.28);
+        g.gain.setValueAtTime(0.22, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc.connect(g);
+        g.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.32);
+      },
+
+      // 拉霸轉動滴答聲
+      playTick() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(880, now);
+        g.gain.setValueAtTime(0.08, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+        osc.connect(g);
+        g.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      },
+
+      // 勝利謝幕慶典
+      playVictory() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const melody = [523.25, 659.25, 783.99, 659.25, 783.99, 1046.5];
+        const times = [0, 0.11, 0.22, 0.34, 0.45, 0.58];
+        melody.forEach((f, idx) => {
+          const osc = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          osc.type = 'triangle';
+          const t = now + times[idx];
+          osc.frequency.setValueAtTime(f, t);
+          g.gain.setValueAtTime(0.28, t);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.32);
+          osc.connect(g);
+          g.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.35);
+        });
+      }
+    };
+
+    // ---------------------------
+    // 3. Web Speech API 中文語音喊話系統（防卡頓防重疊）
+    // ---------------------------
+    const SpeechEngine = {
+      enabled: true,
+      rate: 1.25,
+      zhVoice: null,
+      lastSpeakAt: 0,
+
+      init() {
+        if (!('speechSynthesis' in window)) return;
+        const loadVoices = () => {
+          const voices = window.speechSynthesis.getVoices();
+          if (!voices || !voices.length) return;
+          this.zhVoice =
+            voices.find(v => /zh[-_]?TW/i.test(v.lang)) ||
+            voices.find(v => /zh[-_]?HK/i.test(v.lang)) ||
+            voices.find(v => /^zh/i.test(v.lang)) ||
+            null;
+        };
+        loadVoices();
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+      },
+
+      speak(text, pitch = 1.2, priority = false) {
+        if (!this.enabled || !('speechSynthesis' in window)) return;
+        const now = performance.now();
+        // 防連點過度打斷造成瀏覽器語音卡死
+        if (!priority && now - this.lastSpeakAt < 240) return;
+        this.lastSpeakAt = now;
+
+        try {
+          window.speechSynthesis.cancel();
+          const utter = new SpeechSynthesisUtterance(text);
+          utter.lang = 'zh-TW';
+          if (this.zhVoice) utter.voice = this.zhVoice;
+          utter.rate = this.rate;
+          utter.pitch = pitch;
+          utter.volume = 1.0;
+          window.speechSynthesis.speak(utter);
+        } catch (e) {}
+      }
+    };
+
+    // ---------------------------
+    // 4. 遊戲全局狀態
+    // ---------------------------
+    const Game = {
+      phase: 'lobby', // lobby | playing | victory
+      width: 800,
+      height: 500,
+      dpr: 1,
+      time: 0,
+      scrollX: 0,
+
+      // 人數配置
+      customCount: 10,
+      bonusBreakdown: [], // [{ ped, count }]
+      bonusCount: 0,
+      totalTarget: 10,
+
+      // 隊伍與目標佇列
+      centipede: [], // 已經串上來的成員陣列（index 0 是領隊大頭）
+      pendingQueue: [], // 待串聯的角色清單
+      activeTarget: null, // 畫面上正在靠近的待串目標
+      bambooShots: [], // 飛射出去的竹竿視覺特效
+
+      // 障礙物與波浪跳躍
+      obstacles: [],
+      obstacleTimer: 4.0,
+      pendingObstacle: null,
+      warningTimer: 0,
+      waveJumpClock: -10, // 觸發起跳的時間點
+
+      // 狀態效果
+      score: 0,
+      combo: 0,
+      maxCombo: 0,
+      feverCharge: 0, // 0..5
+      feverTimer: 0,  // >0 代表狂熱模式中
+      stunTimer: 0,
+      stunEffect: '', // dizzy | wobble | stink
+      discoTimer: 0,
+      boostTimer: 0,
+      screenShake: 0,
+
+      // 統計數據
+      stats: {
+        head: 0,
+        shoulder: 0,
+        waist: 0,
+        multi: 0,
+        chantTian: 0,
+        chantBang: 0,
+        dodges: 0,
+        collectedPeds: {} // { id: count }
+      },
+
+      // 視覺粒子與漫畫彈幕
+      particles: [],
+      popups: [],
+      victoryTimer: 0
+    };
+
+    // ---------------------------
+    // 5. DOM 參照與工具函式
+    // ---------------------------
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const stageWrap = document.getElementById('stageWrap');
+    const lobbyModal = document.getElementById('lobbyModal');
+    const resultModal = document.getElementById('resultModal');
+    const warningBanner = document.getElementById('warningBanner');
+    const feverBanner = document.getElementById('feverBanner');
+    const toastBox = document.getElementById('toastBox');
+
+    const btnHead = document.getElementById('btnHead');
+    const btnShoulder = document.getElementById('btnShoulder');
+    const btnWaist = document.getElementById('btnWaist');
+    const btnMulti = document.getElementById('btnMulti');
+    const btnJump = document.getElementById('btnJump');
+    const poleButtons = { head: btnHead, shoulder: btnShoulder, waist: btnWaist, multi: btnMulti };
+
+    let toastTimer = null;
+    function showToast(msg) {
+      toastBox.textContent = msg;
+      toastBox.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastBox.classList.remove('show'), 2200);
+    }
+
+    function randInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function pickRandom(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    // ---------------------------
+    // 6. 大廳拉霸抽籤（系統隨機突襲派發 2～12 人）
+    // ---------------------------
+    let spinAnimId = null;
+
+    function generateBonusRoll() {
+      const targetBonus = randInt(2, 12);
+      const typesCount = randInt(2, Math.min(4, targetBonus));
+      const chosenPeds = shuffle(PEDESTRIANS).slice(0, typesCount);
+      const breakdown = chosenPeds.map(p => ({ ped: p, count: 1 }));
+      let remaining = targetBonus - typesCount;
+      while (remaining > 0) {
+        const pick = pickRandom(breakdown);
+        pick.count++;
+        remaining--;
+      }
+      return { total: targetBonus, breakdown };
+    }
+
+    function updateLobbyFormula() {
+      const inp = document.getElementById('inputCustomCount');
+      let val = parseInt(inp.value, 10);
+      if (isNaN(val) || val < 1) val = 1;
+      if (val > 50) val = 50;
+      Game.customCount = val;
+      Game.totalTarget = Game.customCount + Game.bonusCount;
+      document.getElementById('totalFormula').textContent =
+        `自訂 ${Game.customCount} 人 ＋ 系統加碼 ${Game.bonusCount} 人 ＝ 總計 ${Game.totalTarget} 人藍色大蜈蚣！`;
+
+      document.querySelectorAll('.quick-btn').forEach(b => {
+        b.classList.toggle('active', parseInt(b.dataset.count, 10) === Game.customCount);
+      });
+    }
+
+    function runBonusSlot(withSound = true) {
+      if (spinAnimId) clearInterval(spinAnimId);
+      const slotDisplay = document.getElementById('slotDisplay');
+      let ticks = 0;
+      const maxTicks = 11;
+
+      spinAnimId = setInterval(() => {
+        ticks++;
+        const roll = generateBonusRoll();
+        if (withSound) SoundEngine.playTick();
+
+        slotDisplay.innerHTML = roll.breakdown
+          .map(b => `<span class="slot-chip">${b.ped.emoji} +${b.count}位 ${b.ped.name}</span>`)
+          .join('');
+
+        if (ticks >= maxTicks) {
+          clearInterval(spinAnimId);
+          spinAnimId = null;
+          Game.bonusBreakdown = roll.breakdown;
+          Game.bonusCount = roll.total;
+          updateLobbyFormula();
+          if (withSound) SoundEngine.playSuperFanfare();
+        }
+      }, 65);
+    }
+
+    // ---------------------------
+    // 7. 遊戲開局與佇列建構
+    // ---------------------------
+    function startNewGame() {
+      SoundEngine.init();
+      SpeechEngine.init();
+      updateLobbyFormula();
+      if (Game.bonusCount === 0) {
+        const roll = generateBonusRoll();
+        Game.bonusBreakdown = roll.breakdown;
+        Game.bonusCount = roll.total;
+        updateLobbyFormula();
+      }
+
+      Game.phase = 'playing';
+      Game.time = 0;
+      Game.scrollX = 0;
+      Game.score = 0;
+      Game.combo = 0;
+      Game.maxCombo = 0;
+      Game.feverCharge = 0;
+      Game.feverTimer = 0;
+      Game.stunTimer = 0;
+      Game.stunEffect = '';
+      Game.discoTimer = 0;
+      Game.boostTimer = 0;
+      Game.screenShake = 0;
+      Game.waveJumpClock = -10;
+      Game.obstacles = [];
+      Game.pendingObstacle = null;
+      Game.warningTimer = 0;
+      Game.obstacleTimer = 3.8;
+      Game.bambooShots = [];
+      Game.particles = [];
+      Game.popups = [];
+      Game.victoryTimer = 0;
+
+      Game.stats = {
+        head: 0,
+        shoulder: 0,
+        waist: 0,
+        multi: 0,
+        chantTian: 0,
+        chantBang: 0,
+        dodges: 0,
+        collectedPeds: {}
+      };
+
+      // 建立領隊（第 0 位：藍蜈蚣大隊長）
+      Game.centipede = [{
+        type: 'leader',
+        name: '藍蜈蚣隊長',
+        poles: ['waist'],
+        jumpOffset: 0,
+        joinAnim: 0,
+        face: 'happy'
+      }];
+
+      // 建立待串聯佇列（自訂人數一般隊員 + 系統隨機派發搞笑路人）
+      const queue = [];
+      for (let i = 0; i < Game.customCount; i++) {
+        queue.push({ type: 'normal', name: '藍蜈蚣隊員', ped: null });
+      }
+      Game.bonusBreakdown.forEach(item => {
+        for (let k = 0; k < item.count; k++) {
+          queue.push({ type: 'ped', name: item.ped.name, ped: item.ped });
+        }
+      });
+
+      Game.pendingQueue = shuffle(queue);
+      Game.activeTarget = null;
+      spawnNextTarget();
+
+      lobbyModal.classList.add('hidden');
+      resultModal.classList.add('hidden');
+      warningBanner.classList.remove('show');
+      feverBanner.classList.remove('show');
+
+      updateHUD();
+      addPopup('🎋 藍色大蜈蚣起駕！', Game.width * 0.5, Game.height * 0.32, '#ffe066', 1.25);
+      SoundEngine.playMuyuGong();
+      SpeechEngine.speak('藍色蜈蚣起駕！開始串聯！', 1.2, true);
+    }
+
+    function spawnNextTarget() {
+      if (Game.pendingQueue.length === 0) {
+        Game.activeTarget = null;
+        triggerVictory();
+        return;
+      }
+
+      const nextInfo = Game.pendingQueue.shift();
+      // 決定竹竿部位任務：隨著進度與連擊增加「同時多部位串聯」的機率
+      const linkedSoFar = Game.centipede.length - 1;
+      const multiChance = linkedSoFar >= 2 ? (Game.feverTimer > 0 ? 0.4 : 0.28) : 0.12;
+      let taskKey = 'waist';
+      let requiredPoles = ['waist'];
+
+      if (Math.random() < multiChance) {
+        taskKey = 'multi';
+        // 隨機 2 竿或 3 竿齊發
+        const multiCombos = [
+          ['head', 'shoulder', 'waist'],
+          ['shoulder', 'waist'],
+          ['head', 'waist'],
+          ['head', 'shoulder']
+        ];
+        requiredPoles = pickRandom(multiCombos);
+      } else {
+        taskKey = pickRandom(['head', 'shoulder', 'waist']);
+        requiredPoles = [taskKey];
+      }
+
+      // 移動速度隨進度微幅提升，保持歡樂節奏
+      const baseSpeed = Math.min(250, 145 + linkedSoFar * 2.2);
+
+      Game.activeTarget = {
+        ...nextInfo,
+        taskKey,
+        requiredPoles,
+        x: Game.width + 65,
+        speed: baseSpeed,
+        bouncePhase: Math.random() * Math.PI * 2,
+        shakeTimer: 0
+      };
+
+      updateButtonHints();
+    }
+
+    function updateButtonHints() {
+      Object.values(poleButtons).forEach(b => b.classList.remove('hint-glow'));
+      if (Game.phase === 'playing' && Game.activeTarget) {
+        const btn = poleButtons[Game.activeTarget.taskKey];
+        if (btn) btn.classList.add('hint-glow');
+      }
+    }
+
+    // ---------------------------
+    // 8. 串聯操作與波浪跳躍邏輯
+    // ---------------------------
+    function handlePoleInput(poleKey) {
+      if (Game.phase !== 'playing') return;
+      SoundEngine.init();
+
+      // 按鈕按壓回饋
+      const btn = poleButtons[poleKey];
+      if (btn) {
+        btn.classList.add('pressed');
+        setTimeout(() => btn.classList.remove('pressed'), 110);
+      }
+
+      if (Game.stunTimer > 0) {
+        addPopup('暈眩中！@_@', Game.width * 0.45, Game.height * 0.45, '#ff6b6b', 0.9);
+        SoundEngine.playBonk();
+        return;
+      }
+
+      const target = Game.activeTarget;
+      if (!target) return;
+
+      // 檢查是否在有效串聯範圍（進入畫面即可串，但靠近中心為 PERFECT）
+      if (target.x > Game.width * 0.96) {
+        addPopup('再靠近一點！', target.x - 40, Game.height * 0.48, '#ffffff', 0.85);
+        return;
+      }
+
+      // 狂熱模式下按任何竹竿按鈕都能自動精準串聯！
+      const isMatch = (poleKey === target.taskKey) || (Game.feverTimer > 0);
+
+      if (isMatch) {
+        const leaderX = getLeaderX();
+        const dist = Math.abs(target.x - (leaderX + 125));
+        const isPerfect = dist < 72 || Game.feverTimer > 0;
+        completeLink(target, isPerfect);
+      } else {
+        // 戳錯部位的搞笑回饋
+        target.shakeTimer = 0.35;
+        Game.combo = 0;
+        Game.feverCharge = Math.max(0, Game.feverCharge - 1);
+        Game.screenShake = 6;
+        SoundEngine.playBonk();
+        addPopup(`戳錯啦！要按 ${POLE_META[target.taskKey].keyHint}`, target.x, Game.height * 0.36, '#ff5964', 0.95);
+        updateHUD();
+      }
+    }
+
+    function completeLink(target, isPerfect) {
+      const leaderX = getLeaderX();
+      const groundY = getGroundY();
+
+      // 產生竹竿飛射特效
+      target.requiredPoles.forEach(p => {
+        Game.bambooShots.push({
+          x1: leaderX,
+          x2: target.x,
+          pole: p,
+          life: 0.28,
+          maxLife: 0.28
+        });
+      });
+
+      // 加入藍色蜈蚣隊伍
+      Game.centipede.push({
+        type: target.type,
+        name: target.name,
+        ped: target.ped,
+        poles: target.requiredPoles.slice(),
+        jumpOffset: 0,
+        joinAnim: 1.0,
+        face: target.taskKey === 'head' ? 'shock' : 'happy'
+      });
+
+      // 統計部位次數
+      Game.stats[target.taskKey]++;
+      if (target.ped) {
+        Game.stats.collectedPeds[target.ped.id] = (Game.stats.collectedPeds[target.ped.id] || 0) + 1;
+      }
+
+      // 連擊與積分計算
+      Game.combo++;
+      if (Game.combo > Game.maxCombo) Game.maxCombo = Game.combo;
+
+      const isMulti = target.taskKey === 'multi';
+      const isSpecialPed = Boolean(target.ped);
+      const isLion = target.ped && target.ped.alwaysSuper;
+
+      let pts = 100 + Game.combo * 15;
+      if (isPerfect) pts += 60;
+      if (isMulti) pts += 120;
+      if (target.ped) pts += target.ped.score;
+      if (Game.feverTimer > 0) pts = Math.round(pts * 1.5);
+      Game.score += pts;
+
+      // 特殊路人搞笑加成效果
+      if (target.ped) {
+        if (target.ped.id === 'disco') Game.discoTimer = 3.2;
+        if (target.ped.id === 'delivery') Game.boostTimer = 2.6;
+        if (target.ped.id === 'boba') spawnParticles(target.x, groundY - 50, '#ffd43b', 16, 'pearl');
+        if (target.ped.id === 'lion') Game.feverCharge = Math.min(5, Game.feverCharge + 2);
+        addPopup(`${target.ped.emoji} ${target.ped.bonusText}`, target.x, groundY - 135, target.ped.color, 0.95);
+      }
+
+      // 累積狂熱能量（連擊 5 次觸發 5 秒狂熱起飛模式）
+      let triggeredFever = false;
+      if (Game.feverTimer <= 0) {
+        Game.feverCharge++;
+        if (Game.feverCharge >= 5) {
+          triggeredFever = true;
+          Game.feverCharge = 5;
+          Game.feverTimer = 5.0;
+          feverBanner.classList.add('show');
+          SoundEngine.playFeverStart();
+          SpeechEngine.speak('天清清地靈靈，棒棒棒超級棒！', 1.32, true);
+          Game.stats.chantTian++;
+          Game.stats.chantBang++;
+          addPopup('🔥 天清清地靈靈！棒棒棒超級棒！ 🔥', Game.width * 0.5, Game.height * 0.24, '#ffe066', 1.35);
+          spawnParticles(Game.width * 0.5, Game.height * 0.4, '#00e5ff', 36, 'confetti');
+        }
+      }
+
+      // 決定喊「天清清！地靈靈！」還是「棒棒棒！超級棒！」
+      if (!triggeredFever) {
+        const shouldSuper = isMulti || isLion || (isSpecialPed && Math.random() < 0.72) || (isPerfect && Game.combo >= 3 && Game.combo % 2 === 1);
+        if (shouldSuper) {
+          Game.stats.chantBang++;
+          SoundEngine.playSuperFanfare();
+          SpeechEngine.speak('棒棒棒！超級棒！', 1.28);
+          addPopup('👍 棒棒棒！超級棒！ 💖', target.x - 20, groundY - 95, '#ffdd00', 1.22);
+          spawnParticles(target.x, groundY - 60, '#ff4d6d', 22, 'super');
+        } else {
+          Game.stats.chantTian++;
+          SoundEngine.playMuyuGong();
+          const pitchUp = Math.min(1.42, 1.1 + Game.combo * 0.03);
+          SpeechEngine.speak('天清清！地靈靈！', pitchUp);
+          addPopup('✨ 天清清！地靈靈！ ✨', target.x - 20, groundY - 90, '#63e6be', 1.12);
+          spawnParticles(target.x, groundY - 55, '#2ecc71', 14, 'spark');
+        }
+      }
+
+      Game.screenShake = isMulti ? 8 : 4;
+      updateHUD();
+      spawnNextTarget();
+    }
+
+    function handleJumpInput() {
+      if (Game.phase !== 'playing') return;
+      SoundEngine.init();
+      btnJump.classList.add('pressed');
+      setTimeout(() => btnJump.classList.remove('pressed'), 120);
+
+      // 冷卻 0.55 秒避免連點無敵
+      if (Game.time - Game.waveJumpClock < 0.55) return;
+      Game.waveJumpClock = Game.time;
+      SoundEngine.playJump();
+      addPopup('🦘 全員起跳！', getLeaderX(), getGroundY() - 120, '#74c0fc', 0.95);
+    }
+
+    // ---------------------------
+    // 9. 勝利謝幕與結算稱號
+    // ---------------------------
+    function triggerVictory() {
+      Game.phase = 'victory';
+      Game.victoryTimer = 0;
+      Game.obstacles = [];
+      Game.pendingObstacle = null;
+      warningBanner.classList.remove('show');
+      feverBanner.classList.remove('show');
+      btnJump.classList.remove('urgent');
+      Object.values(poleButtons).forEach(b => b.classList.remove('hint-glow'));
+
+      SoundEngine.playVictory();
+      SpeechEngine.speak('全員串聯大成功！天清清地靈靈，棒棒棒超級棒！', 1.25, true);
+      spawnParticles(Game.width * 0.5, Game.height * 0.35, '#ffe066', 60, 'confetti');
+
+      // 繞場扭腰謝幕 2.1 秒後彈出結算卡
+      setTimeout(() => {
+        if (Game.phase === 'victory') showResultModal();
+      }, 2100);
+    }
+
+    function computeFunnyTitle() {
+      const s = Game.stats;
+      const total = Game.centipede.length - 1;
+      if (total >= 30) return '【鎮瀾宮級人體蜈蚣總指揮】';
+      if (Game.maxCombo >= total && total >= 5) return '【超級棒棒串聯界天花板】';
+      if (s.head >= s.shoulder && s.head >= s.waist && s.head >= 3) return '【頂天立地藍蜈蚣大法師】';
+      if (s.multi >= 4) return '【三竿齊發人體串燒宗師】';
+      if (s.dodges >= 4) return '【波浪凌波微步藍蜈蚣神】';
+      return '【天清清地靈靈歡樂大串王】';
+    }
+
+    function showResultModal() {
+      const s = Game.stats;
+      const total = Game.centipede.length - 1;
+      const title = computeFunnyTitle();
+
+      document.getElementById('resTitleBadge').textContent = title;
+      document.getElementById('resTotalPeople').textContent = `${total} 人 (自訂${Game.customCount}+隨機${Game.bonusCount})`;
+      document.getElementById('resScoreCombo').textContent = `${Game.score} 分 / ${Game.maxCombo} 連擊`;
+      document.getElementById('resPoles').textContent = `頭${s.head} / 肩${s.shoulder} / 腰${s.waist} / 多竿${s.multi}`;
+      document.getElementById('resChants').textContent = `天清清 ${s.chantTian} 次 / 棒棒棒 ${s.chantBang} 次`;
+      document.getElementById('resDodges').textContent = `${s.dodges} 次全員波浪閃避成功`;
+
+      const rosterEl = document.getElementById('resPedRoster');
+      const entries = Object.entries(s.collectedPeds);
+      if (entries.length === 0) {
+        rosterEl.innerHTML = '<span class="ped-badge">純血藍色蜈蚣大軍</span>';
+      } else {
+        rosterEl.innerHTML = entries.map(([id, cnt]) => {
+          const p = PEDESTRIANS.find(x => x.id === id);
+          return `<span class="ped-badge">${p.emoji} ${p.name} × ${cnt}</span>`;
+        }).join('');
+      }
+
+      // 初始化今日日期與隨機祝福語，並即時渲染專屬證書預覽
+      CertState.todayStr = getFormattedToday();
+      document.getElementById('certDateDisplay').textContent = `📅 ${CertState.todayStr}`;
+      rollRandomBlessing(false);
+      updateCertificatePreview();
+
+      resultModal.classList.remove('hidden');
+    }
+
+    function getFormattedToday() {
+      const now = new Date();
+      return `${now.getFullYear()} 年 ${now.getMonth() + 1} 月 ${now.getDate()} 日`;
+    }
+
+    function rollRandomBlessing(withSound = true) {
+      let next = pickRandom(BLESSINGS);
+      if (BLESSINGS.length > 1 && next === CertState.blessing) {
+        next = pickRandom(BLESSINGS.filter(b => b !== CertState.blessing));
+      }
+      CertState.blessing = next;
+      const el = document.getElementById('certBlessingText');
+      if (el) el.textContent = next;
+      if (withSound) {
+        SoundEngine.playSuperFanfare();
+        updateCertificatePreview();
+      }
+    }
+
+    function updateHUD() {
+      const linked = Math.max(0, Game.centipede.length - 1);
+      document.getElementById('hudProgress').textContent = `${linked} / ${Game.totalTarget} 人`;
+      document.getElementById('hudScore').textContent = Game.score;
+      document.getElementById('hudCombo').textContent = Game.combo;
+      const pct = Game.feverTimer > 0 ? (Game.feverTimer / 5.0) * 100 : (Game.feverCharge / 5) * 100;
+      document.getElementById('feverFill').style.width = `${Math.min(100, Math.max(0, pct))}%`;
+    }
+
+    // ---------------------------
+    // 12. 下載專屬「藍色蜈蚣過關榮譽證書」PNG 生成器（1080 × 1560）
+    // ---------------------------
+    function drawWrappedText(g, text, x, y, maxWidth, lineHeight, maxLines = 3) {
+      const paragraphs = String(text || '').split(/\r?\n/);
+      const lines = [];
+      for (let p = 0; p < paragraphs.length; p++) {
+        let current = '';
+        for (const ch of paragraphs[p]) {
+          const test = current + ch;
+          if (g.measureText(test).width > maxWidth && current.length > 0) {
+            lines.push(current);
+            current = ch;
+            if (lines.length >= maxLines) break;
+          } else {
+            current = test;
+          }
+        }
+        if (current && lines.length < maxLines) lines.push(current);
+        if (lines.length >= maxLines) break;
+      }
+      lines.forEach((line, idx) => {
+        g.fillText(line, x, y + idx * lineHeight);
+      });
+      return lines.length;
+    }
+
+    function renderCertificateCanvas() {
+      const W = 1080;
+      const H = 1560;
+      const pc = document.createElement('canvas');
+      pc.width = W;
+      pc.height = H;
+      const g = pc.getContext('2d');
+
+      const fontSans = '"PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif';
+      const todayStr = CertState.todayStr || getFormattedToday();
+      const displayName = CertState.playerName.trim() || '藍蜈蚣大玩家';
+      const dialogueText = CertState.dialogue.trim();
+      const title = computeFunnyTitle();
+      const s = Game.stats;
+      const total = Math.max(0, Game.centipede.length - 1);
+
+      // 1. 慶典藍金暖陽漸層背景
+      const bg = g.createLinearGradient(0, 0, 0, H);
+      bg.addColorStop(0, '#0047b3');
+      bg.addColorStop(0.32, '#1fb6ff');
+      bg.addColorStop(0.75, '#fff9db');
+      bg.addColorStop(1, '#ffe8cc');
+      g.fillStyle = bg;
+      g.fillRect(0, 0, W, H);
+
+      // 背景點綴淡金光圈
+      g.save();
+      g.fillStyle = 'rgba(255, 255, 255, 0.14)';
+      g.beginPath(); g.arc(160, 220, 140, 0, Math.PI * 2); g.fill();
+      g.beginPath(); g.arc(930, 310, 170, 0, Math.PI * 2); g.fill();
+      g.restore();
+
+      // 2. 慶典紅金雙層外框
+      g.strokeStyle = '#ffd43b';
+      g.lineWidth = 22;
+      g.strokeRect(22, 22, W - 44, H - 44);
+
+      g.strokeStyle = '#ff3b4e';
+      g.lineWidth = 5;
+      g.strokeRect(42, 42, W - 84, H - 84);
+
+      // 四角紅金吉祥小方塊
+      [[42, 42], [W - 64, 42], [42, H - 64], [W - 64, H - 64]].forEach(([cx, cy]) => {
+        g.fillStyle = '#ff3b4e';
+        g.fillRect(cx, cy, 22, 22);
+        g.fillStyle = '#ffd43b';
+        g.fillRect(cx + 5, cy + 5, 12, 12);
+      });
+
+      // 3. 頂部證書標題紅金橫幅
+      g.fillStyle = '#ff3b4e';
+      g.beginPath();
+      g.roundRect(96, 66, 888, 114, 30);
+      g.fill();
+      g.strokeStyle = '#ffffff';
+      g.lineWidth = 7;
+      g.stroke();
+
+      g.fillStyle = '#ffe066';
+      g.font = `900 24px ${fontSans}`;
+      g.textAlign = 'center';
+      g.fillText('🏮 台灣廟會搞笑派對・官方頒發 🏮', 540, 102);
+
+      g.fillStyle = '#ffffff';
+      g.font = `900 46px ${fontSans}`;
+      g.fillText('藍色蜈蚣：過關榮譽證書', 540, 158);
+
+      // 4. 玩家頭像（上傳照片或預設藍蜈蚣隊長）＋封號區
+      g.fillStyle = 'rgba(255, 255, 255, 0.94)';
+      g.beginPath();
+      g.roundRect(70, 202, 940, 222, 28);
+      g.fill();
+      g.strokeStyle = '#ffd43b';
+      g.lineWidth = 5;
+      g.stroke();
+
+      // 圓形頭像外框上方的可愛藍色蜈蚣小觸角
+      const ax = 202;
+      const ay = 318;
+      const ar = 78;
+      g.save();
+      g.strokeStyle = '#0047b3';
+      g.lineWidth = 7;
+      g.lineCap = 'round';
+      g.beginPath();
+      g.moveTo(ax - 24, ay - ar + 4);
+      g.quadraticCurveTo(ax - 44, ay - ar - 34, ax - 58, ay - ar - 24);
+      g.moveTo(ax + 24, ay - ar + 4);
+      g.quadraticCurveTo(ax + 44, ay - ar - 34, ax + 58, ay - ar - 24);
+      g.stroke();
+      g.fillStyle = '#ffd43b';
+      g.beginPath();
+      g.arc(ax - 58, ay - ar - 24, 9, 0, Math.PI * 2);
+      g.arc(ax + 58, ay - ar - 24, 9, 0, Math.PI * 2);
+      g.fill();
+      g.restore();
+
+      // 繪製圓形頭像（Cover 居中裁切）
+      g.save();
+      g.beginPath();
+      g.arc(ax, ay, ar, 0, Math.PI * 2);
+      g.closePath();
+      g.clip();
+
+      if (CertState.photoImg) {
+        const img = CertState.photoImg;
+        const sw = img.naturalWidth || img.width;
+        const sh = img.naturalHeight || img.height;
+        const side = Math.min(sw, sh);
+        const sx = (sw - side) / 2;
+        const sy = (sh - side) / 2;
+        g.drawImage(img, sx, sy, side, side, ax - ar, ay - ar, ar * 2, ar * 2);
+      } else {
+        // 預設 Q 版藍蜈蚣隊長頭像
+        const avBg = g.createLinearGradient(ax, ay - ar, ax, ay + ar);
+        avBg.addColorStop(0, '#74c0fc');
+        avBg.addColorStop(1, '#1890ff');
+        g.fillStyle = avBg;
+        g.fillRect(ax - ar, ay - ar, ar * 2, ar * 2);
+        g.save();
+        g.translate(ax, ay + 115);
+        g.scale(2.15, 2.15);
+        drawCentipedeCharacter(g, 0, 0, { type: 'leader', poles: ['waist'], face: 'happy' }, 0, false);
+        g.restore();
+      }
+      g.restore();
+
+      // 頭像紅金雙圈外框
+      g.strokeStyle = '#ff3b4e';
+      g.lineWidth = 8;
+      g.beginPath(); g.arc(ax, ay, ar + 2, 0, Math.PI * 2); g.stroke();
+      g.strokeStyle = '#ffd43b';
+      g.lineWidth = 4;
+      g.beginPath(); g.arc(ax, ay, ar + 8, 0, Math.PI * 2); g.stroke();
+
+      // 右側頒發對象與搞笑封號
+      g.textAlign = 'left';
+      g.fillStyle = '#465a78';
+      g.font = `800 24px ${fontSans}`;
+      g.fillText('茲證明榮譽頒發給：', 320, 250);
+
+      g.fillStyle = '#0047b3';
+      g.font = `900 40px ${fontSans}`;
+      g.fillText(displayName, 320, 298);
+
+      // 封號徽章膠囊
+      g.fillStyle = '#1a2438';
+      g.beginPath();
+      g.roundRect(318, 316, 658, 54, 18);
+      g.fill();
+      g.fillStyle = '#ffe066';
+      g.font = `900 30px ${fontSans}`;
+      g.textAlign = 'center';
+      g.fillText(title, 318 + 329, 353);
+
+      g.textAlign = 'left';
+      g.fillStyle = '#c92a2a';
+      g.font = `900 23px ${fontSans}`;
+      g.fillText(`🔥 成功率領 ${total} 人藍色大蜈蚣完成廟會大串聯！`, 320, 404);
+
+      // 5. 藍色大蜈蚣大合照插畫區
+      g.fillStyle = 'rgba(255, 255, 255, 0.9)';
+      g.beginPath();
+      g.roundRect(70, 444, 940, 266, 26);
+      g.fill();
+      g.strokeStyle = '#74c0fc';
+      g.lineWidth = 4;
+      g.stroke();
+
+      g.fillStyle = '#0052cc';
+      g.font = `900 28px ${fontSans}`;
+      g.textAlign = 'center';
+      g.fillText('✨ 天清清！地靈靈！棒棒棒！超級棒！ ✨', 540, 488);
+
+      const sample = Game.centipede.slice(0, 14);
+      const startX = 910;
+      const stepX = sample.length > 1 ? Math.min(66, 760 / (sample.length - 1)) : 0;
+      const baseY = 676;
+
+      for (let i = sample.length - 1; i >= 0; i--) {
+        const cx = startX - i * stepX;
+        const cy = baseY + Math.sin(i * 0.7) * 12;
+        if (i > 0) {
+          const px = startX - (i - 1) * stepX;
+          const py = baseY + Math.sin((i - 1) * 0.7) * 12;
+          sample[i].poles.forEach(pk => {
+            const yo = pk === 'head' ? -68 : pk === 'shoulder' ? -40 : -20;
+            drawBambooStick(g, cx, cy + yo, px, py + yo, 7.5);
+          });
+        }
+        drawCentipedeCharacter(g, cx, cy, sample[i], i, false);
+      }
+
+      // 6. 過關戰績卡片
+      g.fillStyle = '#ffffff';
+      g.beginPath();
+      g.roundRect(70, 730, 940, 224, 24);
+      g.fill();
+      g.strokeStyle = '#0077ff';
+      g.lineWidth = 5;
+      g.stroke();
+
+      const statLines = [
+        `🐛 總串聯人數：${total} 人（自訂 ${Game.customCount} 人 ＋ 系統隨機 ${Game.bonusCount} 人）`,
+        `⭐ 總積分：${Game.score} 分  ｜  🔥 最高連擊：${Game.maxCombo} 連擊  ｜  🦘 閃避 ${s.dodges} 次`,
+        `🎋 竹竿統計：頭部 ${s.head} ／ 肩膀 ${s.shoulder} ／ 腰部 ${s.waist} ／ 三竿齊發 ${s.multi}`,
+        `📢 魔性口號：天清清地靈靈 ${s.chantTian} 次 ／ 棒棒棒超級棒 ${s.chantBang} 次`
+      ];
+
+      g.textAlign = 'left';
+      g.fillStyle = '#1a2438';
+      g.font = `900 26px ${fontSans}`;
+      statLines.forEach((line, idx) => {
+        g.fillText(line, 108, 782 + idx * 48);
+      });
+
+      // 7. 官方隨機祝福語區
+      g.fillStyle = '#fff8db';
+      g.beginPath();
+      g.roundRect(70, 974, 940, 162, 24);
+      g.fill();
+      g.save();
+      g.strokeStyle = '#ff922b';
+      g.lineWidth = 4;
+      g.setLineDash([12, 8]);
+      g.stroke();
+      g.restore();
+
+      g.fillStyle = '#d9480f';
+      g.font = `900 25px ${fontSans}`;
+      g.textAlign = 'left';
+      g.fillText('🧧 藍蜈蚣宮・今日專屬隨機祝福', 106, 1018);
+
+      g.fillStyle = '#5c2b00';
+      g.font = `900 28px ${fontSans}`;
+      drawWrappedText(g, CertState.blessing, 106, 1066, 868, 42, 2);
+
+      // 8. 玩家自訂對話漫畫氣泡（有輸入才顯示，留空則保持簡潔平衡）
+      if (dialogueText) {
+        g.fillStyle = '#ffffff';
+        g.beginPath();
+        g.roundRect(70, 1156, 940, 168, 26);
+        g.fill();
+        g.strokeStyle = '#0077ff';
+        g.lineWidth = 5;
+        g.stroke();
+
+        // 可愛對話氣泡小尾巴
+        g.fillStyle = '#ffffff';
+        g.beginPath();
+        g.moveTo(150, 1158);
+        g.lineTo(172, 1136);
+        g.lineTo(196, 1158);
+        g.closePath();
+        g.fill();
+        g.strokeStyle = '#0077ff';
+        g.lineWidth = 5;
+        g.beginPath();
+        g.moveTo(150, 1156);
+        g.lineTo(172, 1136);
+        g.lineTo(196, 1156);
+        g.stroke();
+
+        g.fillStyle = '#005ce6';
+        g.font = `900 24px ${fontSans}`;
+        g.textAlign = 'left';
+        g.fillText(`💬 ${displayName} 想說的話：`, 106, 1200);
+
+        g.fillStyle = '#1a2438';
+        g.font = `900 28px ${fontSans}`;
+        drawWrappedText(g, `「${dialogueText}」`, 106, 1248, 868, 42, 2);
+      }
+
+      // 9. 底部正式頒發日期與紅色「藍蜈蚣宮認證」圓形印章
+      const footerY = dialogueText ? 1404 : 1280;
+
+      g.textAlign = 'left';
+      g.fillStyle = '#1a2438';
+      g.font = `900 32px ${fontSans}`;
+      g.fillText(`📅 頒發日期：${todayStr}`, 96, footerY);
+
+      g.fillStyle = '#465a78';
+      g.font = `800 24px ${fontSans}`;
+      g.fillText('頒發單位：台灣廟會歡樂派對・藍蜈蚣宮總壇', 96, footerY + 46);
+
+      // 紅色圓形傳統印章
+      const sx = 880;
+      const sy = footerY + 12;
+      g.save();
+      g.translate(sx, sy);
+      g.rotate(-0.22);
+      g.strokeStyle = 'rgba(224, 36, 71, 0.88)';
+      g.fillStyle = 'rgba(224, 36, 71, 0.08)';
+      g.lineWidth = 7;
+      g.beginPath(); g.arc(0, 0, 72, 0, Math.PI * 2); g.fill(); g.stroke();
+      g.lineWidth = 3;
+      g.beginPath(); g.arc(0, 0, 60, 0, Math.PI * 2); g.stroke();
+
+      g.fillStyle = 'rgba(224, 36, 71, 0.92)';
+      g.textAlign = 'center';
+      g.font = `900 24px ${fontSans}`;
+      g.fillText('藍蜈蚣宮', 0, -14);
+      g.font = `900 22px ${fontSans}`;
+      g.fillText('官方認證', 0, 14);
+      g.font = `900 18px ${fontSans}`;
+      g.fillText('★ 超級棒 ★', 0, 39);
+      g.restore();
+
+      return pc;
+    }
+
+    function updateCertificatePreview() {
+      try {
+        const pc = renderCertificateCanvas();
+        const url = pc.toDataURL('image/png');
+        CertState.lastPngUrl = url;
+        const previewEl = document.getElementById('certPreviewImg');
+        if (previewEl) previewEl.src = url;
+      } catch (e) {}
+    }
+
+    function downloadMemoryPhoto() {
+      try {
+        const pc = renderCertificateCanvas();
+        const url = pc.toDataURL('image/png');
+        const total = Math.max(0, Game.centipede.length - 1);
+        const now = new Date();
+        const dateTag = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+        const link = document.createElement('a');
+        link.download = `藍色蜈蚣過關證書_${total}人_${dateTag}.png`;
+        link.href = url;
+        link.click();
+        showToast('📜 專屬過關榮譽證書已下載！');
+      } catch (e) {
+        showToast('下載失敗，請長按上方預覽圖儲存至相簿！');
+      }
+    }
+
+    // ---------------------------
+    // 13. 響應式畫布尺寸與事件綁定
+    // ---------------------------
+    function resizeCanvas() {
+      const rect = stageWrap.getBoundingClientRect();
+      Game.dpr = Math.min(window.devicePixelRatio || 1, 2);
+      Game.width = Math.max(300, Math.floor(rect.width));
+      Game.height = Math.max(240, Math.floor(rect.height));
+      canvas.width = Math.floor(Game.width * Game.dpr);
+      canvas.height = Math.floor(Game.height * Game.dpr);
+      ctx.setTransform(Game.dpr, 0, 0, Game.dpr, 0, 0);
+    }
+
+    function bindEvents() {
+      window.addEventListener('resize', resizeCanvas);
+
+      // 快速人數按鈕
+      document.querySelectorAll('.quick-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.getElementById('inputCustomCount').value = btn.dataset.count;
+          updateLobbyFormula();
+          SoundEngine.playTick();
+        });
+      });
+
+      document.getElementById('inputCustomCount').addEventListener('input', updateLobbyFormula);
+
+      // 拉霸重新抽籤
+      document.getElementById('btnSpinBonus').addEventListener('click', () => {
+        SoundEngine.init();
+        runBonusSlot(true);
+      });
+
+      // 測試語音與音效按鈕
+      document.getElementById('btnTestAudio').addEventListener('click', () => {
+        SoundEngine.init();
+        SpeechEngine.init();
+        SoundEngine.playSuperFanfare();
+        SpeechEngine.speak('天清清！地靈靈！棒棒棒！超級棒！', 1.25, true);
+        showToast('🔊 已觸發測試語音與鑼鼓音效！');
+      });
+
+      // 語速調整
+      document.getElementById('selectSpeechRate').addEventListener('change', e => {
+        SpeechEngine.rate = parseFloat(e.target.value) || 1.25;
+      });
+
+      // 開局按鈕
+      document.getElementById('btnStartGame').addEventListener('click', startNewGame);
+
+      // HUD 控制
+      document.getElementById('btnToggleVoice').addEventListener('click', function () {
+        SpeechEngine.enabled = !SpeechEngine.enabled;
+        this.textContent = SpeechEngine.enabled ? '🗣 語音開' : '🔇 語音關';
+        this.classList.toggle('off', !SpeechEngine.enabled);
+        if (!SpeechEngine.enabled && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+      });
+
+      document.getElementById('btnToggleSfx').addEventListener('click', function () {
+        SoundEngine.enabled = !SoundEngine.enabled;
+        this.textContent = SoundEngine.enabled ? '🔊 音效開' : '🔇 音效關';
+        this.classList.toggle('off', !SoundEngine.enabled);
+      });
+
+      document.getElementById('btnOpenLobby').addEventListener('click', () => {
+        Game.phase = 'lobby';
+        warningBanner.classList.remove('show');
+        feverBanner.classList.remove('show');
+        resultModal.classList.add('hidden');
+        lobbyModal.classList.remove('hidden');
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      });
+
+      // 四顆竹竿串聯按鈕＋起跳按鈕（同時相容滑鼠與手機觸控）
+      Object.entries(poleButtons).forEach(([key, el]) => {
+        el.addEventListener('pointerdown', e => {
+          e.preventDefault();
+          handlePoleInput(key);
+        });
+      });
+
+      btnJump.addEventListener('pointerdown', e => {
+        e.preventDefault();
+        handleJumpInput();
+      });
+
+      // 鍵盤操作支援
+      window.addEventListener('keydown', e => {
+        if (Game.phase !== 'playing') return;
+        const k = e.key.toLowerCase();
+        if (k === '1' || k === 'q') { e.preventDefault(); handlePoleInput('head'); }
+        else if (k === '2' || k === 'w') { e.preventDefault(); handlePoleInput('shoulder'); }
+        else if (k === '3' || k === 'e') { e.preventDefault(); handlePoleInput('waist'); }
+        else if (e.code === 'Space' || e.key === 'Enter') { e.preventDefault(); handlePoleInput('multi'); }
+        else if (e.key === 'ArrowUp' || e.key === 'Shift') { e.preventDefault(); handleJumpInput(); }
+      });
+
+      // 結算按鈕
+      document.getElementById('btnDownloadPhoto').addEventListener('click', downloadMemoryPhoto);
+      document.getElementById('btnPlayAgain').addEventListener('click', () => {
+        resultModal.classList.add('hidden');
+        lobbyModal.classList.remove('hidden');
+        Game.phase = 'lobby';
+        runBonusSlot(false);
+      });
+
+      // 過關證書：上傳照片、清除照片、換隨機祝福、暱稱與自訂對話即時預覽
+      const photoInput = document.getElementById('inputCertPhoto');
+      const photoThumb = document.getElementById('certPhotoThumb');
+      const btnClearPhoto = document.getElementById('btnClearPhoto');
+
+      document.getElementById('btnUploadPhoto').addEventListener('click', () => {
+        photoInput.click();
+      });
+
+      photoInput.addEventListener('change', e => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const img = new Image();
+          img.onload = () => {
+            CertState.photoImg = img;
+            photoThumb.innerHTML = '';
+            const previewThumb = document.createElement('img');
+            previewThumb.src = ev.target.result;
+            previewThumb.alt = '玩家頭像';
+            photoThumb.appendChild(previewThumb);
+            btnClearPhoto.style.display = 'inline-flex';
+            SoundEngine.playSuperFanfare();
+            updateCertificatePreview();
+            showToast('📷 照片已套用至過關證書！');
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      btnClearPhoto.addEventListener('click', () => {
+        CertState.photoImg = null;
+        photoInput.value = '';
+        photoThumb.innerHTML = '🐛';
+        btnClearPhoto.style.display = 'none';
+        updateCertificatePreview();
+        showToast('已恢復預設藍蜈蚣隊長頭像');
+      });
+
+      document.getElementById('btnRollBlessing').addEventListener('click', () => {
+        SoundEngine.init();
+        rollRandomBlessing(true);
+      });
+
+      let certDebounce = null;
+      const scheduleCertPreview = () => {
+        clearTimeout(certDebounce);
+        certDebounce = setTimeout(updateCertificatePreview, 120);
+      };
+
+      document.getElementById('inputPlayerName').addEventListener('input', e => {
+        CertState.playerName = e.target.value;
+        scheduleCertPreview();
+      });
+
+      document.getElementById('inputPlayerDialogue').addEventListener('input', e => {
+        CertState.dialogue = e.target.value;
+        document.getElementById('dialogueCharCount').textContent = `${e.target.value.length} / 60`;
+        scheduleCertPreview();
+      });
+    }
+
+    // ---------------------------
+    // 14. 啟動動畫迴圈
+    // ---------------------------
+    let lastTime = 0;
+    function gameLoop(timestamp) {
+      if (!lastTime) lastTime = timestamp;
+      const dt = Math.min(0.05, (timestamp - lastTime) / 1000);
+      lastTime = timestamp;
+
+      update(dt);
+      render();
+      requestAnimationFrame(gameLoop);
+    }
+
+    window.onload = function () {
+      resizeCanvas();
+      SpeechEngine.init();
+      bindEvents();
+      // 預設在背景放一小隊可愛藍色蜈蚣預覽走秀
+      Game.centipede = [
+        { type: 'leader', name: '隊長', poles: ['waist'], jumpOffset: 0, joinAnim: 0, face: 'happy' },
+        { type: 'normal', name: '隊員', poles: ['head'], jumpOffset: 0, joinAnim: 0, face: 'shock' },
+        { type: 'ped', name: '買菜阿嬤', ped: PEDESTRIANS[0], poles: ['shoulder', 'waist'], jumpOffset: 0, joinAnim: 0, face: 'happy' },
+        { type: 'ped', name: '廟會舞獅弟', ped: PEDESTRIANS[5], poles: ['head', 'shoulder', 'waist'], jumpOffset: 0, joinAnim: 0, face: 'happy' }
+      ];
+      runBonusSlot(false);
+      requestAnimationFrame(gameLoop);
+    };
+  </script>
+</body>
+</html>
