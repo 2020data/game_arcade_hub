@@ -1,0 +1,3750 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>水火不容：街頭烘乾大決戰</title>
+  <style>
+    /* =========================================================================
+       全域設計變數與復古街機視覺風格（零外部 CDN，純原生 CSS）
+       ========================================================================= */
+    :root {
+      --bg-deep: #0b0e1a;
+      --bg-panel: #141a2e;
+      --arcade-gold: #ffd43b;
+      --arcade-orange: #ff7b00;
+      --arcade-red: #ff2e4c;
+      --water-cyan: #22d3ee;
+      --water-blue: #0284c7;
+      --fire-orange: #f97316;
+      --fire-red: #dc2626;
+      --ink-light: #f8fafc;
+      --ink-muted: #94a3b8;
+      --border-glow: rgba(255, 212, 59, 0.55);
+      --font-arcade: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 20%, #1d2542 0%, #090c16 75%);
+      color: var(--ink-light);
+      font-family: var(--font-arcade);
+    }
+
+    /* 主機台外殼容器 */
+    .arcade-shell {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100dvh;
+      max-width: 1280px;
+      margin: 0 auto;
+      position: relative;
+      background: #0d1222;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.75);
+    }
+
+    /* 頂部街機工具列 */
+    .top-bar {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 12px;
+      background: linear-gradient(90deg, #121933 0%, #231638 50%, #121933 100%);
+      border-bottom: 2px solid var(--arcade-gold);
+      z-index: 20;
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 900;
+      font-size: clamp(0.86rem, 2.2vw, 1.12rem);
+      letter-spacing: 0.04em;
+      background: linear-gradient(90deg, #38bdf8, #ffd43b, #fb7185);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      white-space: nowrap;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .top-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1.5px solid rgba(255, 212, 59, 0.55);
+      color: #fff;
+      border-radius: 10px;
+      padding: 5px 10px;
+      font-size: clamp(0.72rem, 1.8vw, 0.82rem);
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: transform 0.1s, background 0.15s;
+      white-space: nowrap;
+    }
+
+    .top-btn:hover { background: rgba(255, 212, 59, 0.22); }
+    .top-btn:active { transform: scale(0.94); }
+    .top-btn.off { opacity: 0.52; border-color: rgba(255, 255, 255, 0.25); }
+
+    /* 中央遊戲畫布舞台（自動保持 16:9 清晰縮放） */
+    .stage-wrap {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #070a14;
+      overflow: hidden;
+      padding: 4px;
+    }
+
+    #gameCanvas {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 10px;
+      box-shadow: 0 0 28px rgba(0, 0, 0, 0.8), 0 0 0 2px rgba(255, 212, 59, 0.35);
+      background: #0d1326;
+      touch-action: none;
+    }
+
+    /* 細緻街機 CRT 掃描線覆蓋層（不阻擋滑鼠點擊） */
+    .crt-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0) 0px,
+        rgba(0, 0, 0, 0) 2px,
+        rgba(0, 0, 0, 0.08) 3px,
+        rgba(0, 0, 0, 0.08) 4px
+      );
+      z-index: 4;
+    }
+
+    /* 升旗典禮底部懸浮控制條 */
+    .ceremony-dock {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(96%, 820px);
+      background: rgba(12, 20, 42, 0.88);
+      backdrop-filter: blur(8px);
+      border: 2px solid var(--arcade-gold);
+      border-radius: 18px;
+      padding: 10px 14px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 15;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65);
+    }
+
+    .ceremony-dock.show { display: flex; }
+
+    .ceremony-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .ceremony-edit {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .ceremony-input {
+      background: rgba(255, 255, 255, 0.12);
+      border: 2px solid rgba(255, 212, 59, 0.7);
+      color: #fff;
+      border-radius: 10px;
+      padding: 6px 10px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      font-family: inherit;
+      width: 150px;
+      outline: none;
+      user-select: text;
+    }
+
+    .ceremony-input:focus {
+      border-color: #38bdf8;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* 下方虛擬街機觸控面板（手機自動開啟，桌機可切換） */
+    .touch-deck {
+      flex-shrink: 0;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+      background: linear-gradient(180deg, #131b34 0%, #0a0f1f 100%);
+      border-top: 2px solid rgba(255, 212, 59, 0.55);
+      z-index: 18;
+    }
+
+    .touch-deck.visible { display: flex; }
+
+    .dpad-cluster {
+      display: grid;
+      grid-template-columns: repeat(3, 46px);
+      grid-template-rows: repeat(2, 44px);
+      gap: 5px;
+    }
+
+    .atk-cluster {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(66px, 84px));
+      grid-template-rows: repeat(2, 44px);
+      gap: 6px;
+    }
+
+    .pad-btn {
+      border: 2px solid rgba(255, 255, 255, 0.75);
+      border-radius: 12px;
+      font-family: inherit;
+      font-weight: 900;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      line-height: 1.05;
+      touch-action: none;
+      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.55);
+      transition: transform 0.06s, filter 0.08s;
+    }
+
+    .pad-btn:active, .pad-btn.active {
+      transform: translateY(3px) scale(0.95);
+      filter: brightness(1.25);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.55);
+    }
+
+    .pad-dir { background: linear-gradient(180deg, #334155, #1e293b); font-size: 1.1rem; }
+    .pad-light { background: linear-gradient(180deg, #38bdf8, #0284c7); }
+    .pad-heavy { background: linear-gradient(180deg, #fb923c, #ea580c); }
+    .pad-spec { background: linear-gradient(180deg, #a855f7, #7e22ce); }
+    .pad-super { background: linear-gradient(180deg, #facc15, #dc2626); border-color: #fff59d; }
+
+    /* =========================================================================
+       彈窗介面（首頁大廳、招式表、紀念圖預覽）
+       ========================================================================= */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(6, 10, 22, 0.82);
+      backdrop-filter: blur(7px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      z-index: 30;
+      overflow-y: auto;
+    }
+
+    .modal-overlay.hidden { display: none; }
+
+    .modal-card {
+      width: 100%;
+      max-width: 720px;
+      max-height: 94dvh;
+      overflow-y: auto;
+      background: linear-gradient(180deg, #171f3a 0%, #0e1428 100%);
+      border: 3px solid var(--arcade-gold);
+      border-radius: 22px;
+      padding: 18px 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), inset 0 0 24px rgba(255, 212, 59, 0.08);
+      color: var(--ink-light);
+    }
+
+    .lobby-hero {
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      background: linear-gradient(90deg, #ef4444, #f97316);
+      color: #fff;
+      font-size: 0.74rem;
+      font-weight: 900;
+      padding: 3px 12px;
+      border-radius: 999px;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+      box-shadow: 0 3px 10px rgba(239, 68, 68, 0.45);
+    }
+
+    .lobby-hero h1 {
+      margin: 0;
+      font-size: clamp(1.45rem, 4.5vw, 2.15rem);
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      background: linear-gradient(180deg, #fff7cc 0%, #ffd43b 48%, #ff6b00 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.75));
+    }
+
+    .lobby-hero p {
+      margin: 5px 0 0;
+      font-size: 0.84rem;
+      color: #cbd5e1;
+    }
+
+    .section-box {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid rgba(148, 163, 184, 0.28);
+      border-radius: 16px;
+      padding: 11px 13px;
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      font-size: 0.86rem;
+      font-weight: 900;
+      color: var(--arcade-gold);
+      margin: 0 0 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .pill-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .choice-btn {
+      flex: 1;
+      min-width: 110px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 2px solid rgba(148, 163, 184, 0.4);
+      color: #e2e8f0;
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.12s;
+      text-align: center;
+    }
+
+    .choice-btn:hover { border-color: var(--arcade-gold); }
+    .choice-btn.active {
+      background: linear-gradient(135deg, rgba(255, 212, 59, 0.25), rgba(255, 123, 0, 0.28));
+      border-color: var(--arcade-gold);
+      color: #fff;
+      box-shadow: 0 0 12px rgba(255, 212, 59, 0.35);
+    }
+
+    .choice-btn.water.active {
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.28), rgba(2, 132, 199, 0.35));
+      border-color: #38bdf8;
+    }
+
+    .choice-btn.fire.active {
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.3), rgba(220, 38, 38, 0.35));
+      border-color: #fb923c;
+    }
+
+    /* 玩家榮譽資料設定（1P & 2P 名字與照片） */
+    .honor-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .honor-grid { grid-template-columns: 1fr; }
+    }
+
+    .honor-card {
+      background: rgba(10, 15, 30, 0.65);
+      border: 1.5px solid rgba(255, 255, 255, 0.16);
+      border-radius: 14px;
+      padding: 9px 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar-circle {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 2.5px solid var(--arcade-gold);
+      background: #1e293b;
+      flex-shrink: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.55rem;
+    }
+
+    .avatar-circle img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .honor-fields {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .honor-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1.5px solid rgba(148, 163, 184, 0.45);
+      color: #fff;
+      border-radius: 9px;
+      padding: 5px 8px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 800;
+      outline: none;
+      user-select: text;
+    }
+
+    .honor-input:focus { border-color: var(--arcade-gold); }
+
+    .mini-btn {
+      border: none;
+      border-radius: 9px;
+      padding: 5px 10px;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: transform 0.08s, filter 0.12s;
+      white-space: nowrap;
+    }
+
+    .mini-btn:active { transform: scale(0.95); }
+    .mini-btn.gold { background: linear-gradient(180deg, #ffe066, #f59f00); color: #2b1400; }
+    .mini-btn.cyan { background: linear-gradient(180deg, #38bdf8, #0284c7); color: #fff; }
+    .mini-btn.red { background: linear-gradient(180deg, #fb7185, #e11d48); color: #fff; }
+    .mini-btn.green { background: linear-gradient(180deg, #4ade80, #16a34a); color: #052e16; }
+    .mini-btn.ghost { background: rgba(255, 255, 255, 0.14); color: #f1f5f9; }
+
+    .start-fight-btn {
+      width: 100%;
+      border: 3px solid #fff7cc;
+      border-radius: 16px;
+      padding: 13px 18px;
+      font-family: inherit;
+      font-size: 1.16rem;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      color: #fff;
+      background: linear-gradient(90deg, #e11d48 0%, #f97316 50%, #e11d48 100%);
+      box-shadow: 0 6px 0 #881337, 0 12px 28px rgba(244, 63, 94, 0.45);
+      cursor: pointer;
+      text-shadow: 0 2px 0 rgba(0, 0, 0, 0.45);
+      transition: transform 0.08s;
+      margin-top: 4px;
+    }
+
+    .start-fight-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #881337;
+    }
+
+    /* 招式表雙欄 */
+    .moves-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 620px) {
+      .moves-grid { grid-template-columns: 1fr; }
+    }
+
+    .move-col {
+      background: rgba(10, 15, 30, 0.72);
+      border-radius: 14px;
+      padding: 11px 12px;
+      border: 1.5px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .move-col h3 {
+      margin: 0 0 8px;
+      font-size: 0.96rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .move-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      line-height: 1.38;
+    }
+
+    .move-list strong { color: var(--arcade-gold); }
+
+    /* 紀念圖預覽區 */
+    .souvenir-preview-img {
+      width: 100%;
+      max-width: 520px;
+      height: auto;
+      border-radius: 14px;
+      border: 3px solid var(--arcade-gold);
+      display: block;
+      margin: 10px auto;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
+    }
+
+    /* Toast 提示 */
+    .toast {
+      position: fixed;
+      top: 56px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-10px);
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--arcade-gold);
+      border: 2px solid var(--arcade-gold);
+      border-radius: 999px;
+      padding: 7px 18px;
+      font-size: 0.86rem;
+      font-weight: 900;
+      z-index: 99;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      white-space: nowrap;
+      max-width: 92vw;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="arcade-shell">
+    <!-- 頂部街機工具列 -->
+    <header class="top-bar">
+      <div class="brand-title">💧 水火不容：街頭烘乾大決戰 🔥</div>
+      <div class="top-actions">
+        <button class="top-btn" id="btnMoves" type="button">📜 招式表</button>
+        <button class="top-btn" id="btnToggleTouch" type="button">🎮 觸控鍵</button>
+        <button class="top-btn" id="btnToggleSound" type="button">🔊 音效開</button>
+        <button class="top-btn" id="btnBackLobby" type="button">⚙ 大廳</button>
+      </div>
+    </header>
+
+    <!-- 中央格鬥與紅竿升旗舞台 -->
+    <main class="stage-wrap" id="stageWrap">
+      <canvas id="gameCanvas" width="960" height="540"></canvas>
+      <div class="crt-overlay" id="crtOverlay"></div>
+
+      <!-- 紅竿升旗典禮互動控制面板 -->
+      <section class="ceremony-dock" id="ceremonyDock" aria-label="紅竿升旗典禮控制台">
+        <div class="ceremony-row">
+          <div class="ceremony-edit">
+            <span style="font-size:0.84rem;font-weight:900;color:#ffd43b;">🚩 獲勝榮耀旗幟：</span>
+            <input type="text" id="ceremonyNameInput" class="ceremony-input" maxlength="12" placeholder="輸入獲勝者名字" />
+            <input type="file" id="ceremonyPhotoFile" accept="image/*" style="display:none;" />
+            <button class="mini-btn cyan" id="btnCeremonyPhoto" type="button">📷 上傳／更換照片</button>
+            <button class="mini-btn ghost" id="btnCeremonyClearPhoto" type="button" style="display:none;">✕ 預設頭像</button>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="mini-btn gold" id="btnReplayFlag" type="button">🎺 重新升旗</button>
+            <button class="mini-btn green" id="btnDownloadFlag" type="button">📸 下載升旗榮耀紀念圖</button>
+            <button class="mini-btn red" id="btnRematch" type="button">🔥 再戰一場</button>
+            <button class="mini-btn ghost" id="btnCeremonyLobby" type="button">🏠 大廳</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- 下方觸控虛擬街機按鍵區 -->
+    <footer class="touch-deck" id="touchDeck">
+      <div class="dpad-cluster">
+        <div></div>
+        <button class="pad-btn pad-dir" data-key="up" type="button">▲</button>
+        <div></div>
+        <button class="pad-btn pad-dir" data-key="left" type="button">◀</button>
+        <button class="pad-btn pad-dir" data-key="down" type="button">▼</button>
+        <button class="pad-btn pad-dir" data-key="right" type="button">▶</button>
+      </div>
+      <div class="atk-cluster">
+        <button class="pad-btn pad-light" data-key="light" type="button"><span>輕攻</span><small style="opacity:0.8;font-size:0.65rem;">啪打/刺拳</small></button>
+        <button class="pad-btn pad-heavy" data-key="heavy" type="button"><span>重攻</span><small style="opacity:0.8;font-size:0.65rem;">衝撞/頭槌</small></button>
+        <button class="pad-btn pad-spec" data-key="spec" type="button"><span>特技長按</span><small style="opacity:0.8;font-size:0.65rem;">變大/狂吹</small></button>
+        <button class="pad-btn pad-super" data-key="super" type="button"><span>🔥超必殺</span><small style="opacity:0.85;font-size:0.65rem;">滿氣爆發</small></button>
+      </div>
+    </footer>
+
+    <!-- ===================================================================
+         首頁設定大廳彈窗
+         =================================================================== -->
+    <div class="modal-overlay" id="lobbyModal">
+      <div class="modal-card">
+        <div class="lobby-hero">
+          <span class="hero-tag">🕹️ 90s 復古街機格鬥 × 紅竿升旗榮耀</span>
+          <h1>水火不容：街頭烘乾大決戰</h1>
+          <p>小水滴拼命膨脹成巨型大水珠 vs 烘乾機渦輪全開把對手吹乾！贏家在紅竿升旗接受榮耀！</p>
+        </div>
+
+        <!-- 1. 對戰模式與賽制 -->
+        <div class="section-box">
+          <div class="section-title">
+            <span>⚔️ 步驟一：選擇對戰模式與賽制</span>
+          </div>
+          <div class="pill-group" style="margin-bottom:8px;">
+            <button class="choice-btn active" data-mode="1p" type="button">👤 單人對戰 (1P vs AI)</button>
+            <button class="choice-btn" data-mode="2p" type="button">👥 雙人同機對戰 (1P vs 2P)</button>
+          </div>
+          <div class="pill-group">
+            <button class="choice-btn active" data-rounds="1" type="button">🚩 一戰定勝負（KO 立即升旗）</button>
+            <button class="choice-btn" data-rounds="2" type="button">🏆 三戰兩勝（經典街機制）</button>
+          </div>
+        </div>
+
+        <!-- 2. 單人模式角色與 AI 難度 -->
+        <div class="section-box" id="singlePlayerBox">
+          <div class="section-title">
+            <span>🎭 步驟二：選擇扮演角色與電腦 AI 難度</span>
+          </div>
+          <div class="pill-group" style="margin-bottom:8px;">
+            <button class="choice-btn water active" data-char="water" type="button">💧 暴走小水滴「阿滴」</button>
+            <button class="choice-btn fire" data-char="dryer" type="button">🔥 渦輪烘乾機「烘霸」</button>
+          </div>
+          <div class="pill-group">
+            <button class="choice-btn" data-diff="easy" type="button">🌱 簡單 AI</button>
+            <button class="choice-btn active" data-diff="normal" type="button">⚡ 普通 AI</button>
+            <button class="choice-btn" data-diff="boss" type="button">👹 魔王 AI</button>
+          </div>
+        </div>
+
+        <!-- 3. 場地選擇 -->
+        <div class="section-box">
+          <div class="section-title">
+            <span>🏟️ 步驟三：選擇街機對戰場地</span>
+          </div>
+          <div class="pill-group">
+            <button class="choice-btn active" data-stage="laundry" type="button">🧺 復古自助洗衣店</button>
+            <button class="choice-btn" data-stage="bathhouse" type="button">♨️ 霓虹大澡堂</button>
+          </div>
+        </div>
+
+        <!-- 4. 賽前榮譽設定（名字與照片） -->
+        <div class="section-box">
+          <div class="section-title">
+            <span>🚩 步驟四：紅竿升旗榮譽資訊（獲勝後也可現場修改）</span>
+          </div>
+          <div class="honor-grid">
+            <!-- 1P 資訊 -->
+            <div class="honor-card">
+              <div class="avatar-circle" id="p1AvatarThumb">💧</div>
+              <div class="honor-fields">
+                <input type="text" id="p1NameInput" class="honor-input" maxlength="12" value="水神阿滴" placeholder="1P 玩家名字" />
+                <div style="display:flex;gap:5px;">
+                  <input type="file" id="p1PhotoFile" accept="image/*" style="display:none;" />
+                  <button class="mini-btn cyan" id="btnP1Photo" type="button">📷 上傳 1P 照片</button>
+                  <button class="mini-btn ghost" id="btnP1Clear" type="button" style="display:none;">✕</button>
+                </div>
+              </div>
+            </div>
+            <!-- 2P 資訊 -->
+            <div class="honor-card">
+              <div class="avatar-circle" id="p2AvatarThumb">🔥</div>
+              <div class="honor-fields">
+                <input type="text" id="p2NameInput" class="honor-input" maxlength="12" value="烘霸王" placeholder="2P / AI 名字" />
+                <div style="display:flex;gap:5px;">
+                  <input type="file" id="p2PhotoFile" accept="image/*" style="display:none;" />
+                  <button class="mini-btn red" id="btnP2Photo" type="button">📷 上傳 2P 照片</button>
+                  <button class="mini-btn ghost" id="btnP2Clear" type="button" style="display:none;">✕</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="start-fight-btn" id="btnStartMatch" type="button">🔥 INSERT COIN・開打決戰！</button>
+      </div>
+    </div>
+
+    <!-- ===================================================================
+         招式表與操作說明彈窗
+         =================================================================== -->
+    <div class="modal-overlay hidden" id="movesModal">
+      <div class="modal-card" style="max-width:680px;">
+        <div class="section-title" style="font-size:1.1rem;margin-bottom:10px;">
+          <span>📜 街機操作與雙主角招式表</span>
+          <button class="mini-btn ghost" id="btnCloseMoves" type="button">✕ 關閉</button>
+        </div>
+
+        <div class="section-box" style="font-size:0.82rem;line-height:1.55;color:#e2e8f0;">
+          <div><strong style="color:#38bdf8;">1P 鍵盤：</strong><code>W A S D</code> 移動/跳/蹲 ｜ <code>F</code> 輕攻 ｜ <code>G</code> 重攻 ｜ <code>H</code> 必殺／長按特技 ｜ <code>R</code>（或 <code>F+G</code>）超必殺</div>
+          <div><strong style="color:#fb923c;">2P 鍵盤：</strong><code>↑ ← ↓ →</code> 移動/跳/蹲 ｜ <code>J</code> 輕攻 ｜ <code>K</code> 重攻 ｜ <code>L</code> 必殺／長按特技 ｜ <code>U</code>（或 <code>J+K</code>）超必殺</div>
+          <div style="margin-top:4px;color:#ffd43b;">💥 <strong>角力拼招（CLASH）：</strong>雙方重攻或招牌特技相撞時觸發！2.5 秒內瘋狂連打攻擊鍵將對手轟飛！</div>
+        </div>
+
+        <div class="moves-grid">
+          <div class="move-col" style="border-color:rgba(56,189,248,0.5);">
+            <h3 style="color:#38bdf8;">💧 暴走小水滴「阿滴」</h3>
+            <ul class="move-list">
+              <li><strong>體型膨脹特性：</strong>血量與飽水值越高體型越大，ㄉㄨㄞ ㄉㄨㄞ 彈跳且攻擊範圍與抗風力大增！</li>
+              <li><strong>輕攻 (F)：</strong>水花啪啪打（快攻連段）</li>
+              <li><strong>重攻 (G)：</strong>水彈衝撞（高威力衝刺撞擊）</li>
+              <li><strong>蹲下＋攻 (S+F/G)：</strong>滑溜水窪掃腿（低段掃倒）</li>
+              <li><strong>輕按特技 (H)：</strong>水珠連發波（命中令烘乾機冒電火花短路卡頓）</li>
+              <li><strong>跳躍/按上＋特技 (W+H)：</strong>衝天噴泉昇龍（高壓水柱對空！）</li>
+              <li><strong>長按特技 (按住 H)：</strong>拼命變大水珠（狂吸水氣膨脹、反彈弱風、回少量水分）</li>
+              <li><strong>超必殺 (滿氣 R)：</strong>終極海嘯巨水珠（超巨型水珠重壓造成大淹水短路！）</li>
+            </ul>
+          </div>
+          <div class="move-col" style="border-color:rgba(249,115,22,0.5);">
+            <h3 style="color:#fb923c;">🔥 渦輪烘乾機「烘霸」</h3>
+            <ul class="move-list">
+              <li><strong>渦輪熱風模式：</strong>量表集滿出風口燒成赤紅、帶火焰殘影、蒸發傷害加倍！</li>
+              <li><strong>輕攻 (J)：</strong>熱風刺拳（快速出風突刺）</li>
+              <li><strong>重攻 (K)：</strong>出風口鐵頭功（高熱霸體衝撞）</li>
+              <li><strong>蹲下＋攻 (↓+J/K)：</strong>電線鞭掃（低段通電鞭擊）</li>
+              <li><strong>輕按特技 (L)：</strong>超強熱風波（滾燙氣流波蒸發水珠並擊退）</li>
+              <li><strong>跳躍/按上＋特技 (↑+L)：</strong>龍捲烘衣旋風（旋轉熱風柱吹飛對手！）</li>
+              <li><strong>長按特技 (按住 L)：</strong>極速吹乾狂風（噴出高溫強風錐，把大水珠吹扁縮水！）</li>
+              <li><strong>超必殺 (滿氣 U)：</strong>三段渦輪全開・瞬間蒸發地獄（全螢幕高溫風暴！）</li>
+            </ul>
+          </div>
+        </div>
+        <button class="start-fight-btn" id="btnCloseMovesBottom" type="button" style="padding:10px;font-size:0.98rem;">👍 了解了！繼續熱血開戰！</button>
+      </div>
+    </div>
+
+    <!-- ===================================================================
+         升旗榮耀紀念圖預覽與下載彈窗（相容手機長按存圖與電腦下載）
+         =================================================================== -->
+    <div class="modal-overlay hidden" id="souvenirModal">
+      <div class="modal-card" style="max-width:580px;text-align:center;">
+        <div class="section-title" style="font-size:1.05rem;">
+          <span>📸 紅竿升旗榮耀紀念圖已生成！</span>
+          <button class="mini-btn ghost" id="btnCloseSouvenir" type="button">✕ 關閉</button>
+        </div>
+        <img id="souvenirImg" class="souvenir-preview-img" alt="紅竿升旗榮耀紀念圖" />
+        <p style="font-size:0.8rem;color:#cbd5e1;margin:6px 0 12px;">📱 手機用戶可直接長按上方紀念圖「加入照片／儲存圖片」，電腦可直接點擊下方按鈕下載！</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+          <a id="btnRealDownload" class="mini-btn green" style="padding:10px 18px;font-size:0.92rem;text-decoration:none;" download="紅竿升旗榮耀紀念圖.png">⬇ 下載高解析 PNG</a>
+          <button class="mini-btn gold" id="btnCloseSouvenir2" type="button" style="padding:10px 18px;font-size:0.92rem;">🚩 返回欣賞旗幟飄揚</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toastBox"></div>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      /* =======================================================================
+         1. 全域常數、DOM 參照與狀態管理
+         ======================================================================= */
+      const LOGICAL_W = 960;
+      const LOGICAL_H = 540;
+      const GROUND_Y = 446;
+      const GRAVITY = 2150;
+
+      const canvas = document.getElementById('gameCanvas');
+      const ctx = canvas.getContext('2d');
+      const stageWrap = document.getElementById('stageWrap');
+      const lobbyModal = document.getElementById('lobbyModal');
+      const movesModal = document.getElementById('movesModal');
+      const souvenirModal = document.getElementById('souvenirModal');
+      const ceremonyDock = document.getElementById('ceremonyDock');
+      const touchDeck = document.getElementById('touchDeck');
+      const toastBox = document.getElementById('toastBox');
+
+      // 遊戲設定狀態
+      const config = {
+        mode: '1p',           // '1p' | '2p'
+        roundsToWin: 1,       // 1 (一戰定勝負) | 2 (三戰兩勝)
+        p1Char: 'water',      // 'water' | 'dryer' (1P vs AI 時可選)
+        aiDiff: 'normal',     // 'easy' | 'normal' | 'boss'
+        stage: 'laundry',     // 'laundry' | 'bathhouse'
+        soundEnabled: true,
+        touchVisible: false
+      };
+
+      // 玩家榮譽資料（名字與上傳照片）
+      const profiles = {
+        p1: { name: '水神阿滴', photoImg: null },
+        p2: { name: '烘霸王', photoImg: null }
+      };
+
+      // 核心遊戲狀態機：'lobby' | 'intro' | 'fight' | 'clash' | 'ko' | 'ceremony'
+      const state = {
+        phase: 'lobby',
+        round: 1,
+        timer: 99,
+        timerAcc: 0,
+        wins: { p1: 0, p2: 0 },
+        announceText: '',
+        announceSub: '',
+        announceTimer: 0,
+        hitstop: 0,
+        shakeTime: 0,
+        shakeMag: 0,
+        superFreeze: 0,
+        superBanner: '',
+        superColor: '#38bdf8',
+        phaseTimer: 0,
+        winnerSide: null, // 'p1' | 'p2'
+        bgTime: 0,
+
+        // 角力拼招狀態 (CLASH)
+        clash: {
+          active: false,
+          timer: 0,
+          maxTime: 2.5,
+          balance: 0, // -100 (P2勝) ~ +100 (P1勝)
+          p1Mashes: 0,
+          p2Mashes: 0,
+          cooldown: 0,
+          aiMashAcc: 0
+        },
+
+        // 紅竿升旗典禮狀態
+        ceremony: {
+          flagProgress: 0,      // 0 -> 1 緩緩升起
+          summitTriggered: false,
+          summitTime: 0,
+          confetti: [],
+          sparkles: [],
+          clouds: [
+            { x: 110, y: 88, s: 1.05, spd: 12 },
+            { x: 420, y: 64, s: 0.85, spd: 9 },
+            { x: 750, y: 102, s: 1.15, spd: 15 }
+          ],
+          flagCanvas: document.createElement('canvas'),
+          flagDirty: true
+        }
+      };
+
+      // 實體物件集合
+      let fighters = [];
+      let projectiles = [];
+      let particles = [];
+      let floatTexts = [];
+
+      // 鍵盤與觸控輸入追蹤
+      const keysDown = new Set();
+      const touchState = { left: false, right: false, up: false, down: false, light: false, heavy: false, spec: false, super: false };
+
+      /* =======================================================================
+         2. Toast 提示系統（取代 alert）
+         ======================================================================= */
+      let toastTimer = null;
+      function showToast(msg) {
+        toastBox.textContent = msg;
+        toastBox.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toastBox.classList.remove('show'), 2200);
+      }
+
+      /* =======================================================================
+         3. Web Audio API 復古街機音效與紅竿升旗勝利號角合成器
+         ======================================================================= */
+      const SFX = (() => {
+        let actx = null;
+        let noiseBuf = null;
+
+        function ensureCtx() {
+          if (!config.soundEnabled) return null;
+          try {
+            if (!actx) {
+              const AudioCtx = window.AudioContext || window.webkitAudioContext;
+              if (!AudioCtx) return null;
+              actx = new AudioCtx();
+            }
+            if (actx.state === 'suspended') actx.resume();
+            if (!noiseBuf && actx) {
+              noiseBuf = actx.createBuffer(1, actx.sampleRate * 1.5, actx.sampleRate);
+              const data = noiseBuf.getChannelData(0);
+              for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+            }
+            return actx;
+          } catch (e) {
+            return null;
+          }
+        }
+
+        function tone(type, freqStart, freqEnd, dur, vol = 0.18, delay = 0) {
+          const c = ensureCtx();
+          if (!c) return;
+          const now = c.currentTime + delay;
+          const osc = c.createOscillator();
+          const gain = c.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freqStart, now);
+          if (freqEnd !== freqStart) {
+            osc.frequency.exponentialRampToValueAtTime(Math.max(20, freqEnd), now + dur);
+          }
+          gain.gain.setValueAtTime(0.0001, now);
+          gain.gain.linearRampToValueAtTime(vol, now + 0.012);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+          osc.connect(gain);
+          gain.connect(c.destination);
+          osc.start(now);
+          osc.stop(now + dur + 0.02);
+        }
+
+        function noise(filterType, freq, dur, vol = 0.16, delay = 0) {
+          const c = ensureCtx();
+          if (!c || !noiseBuf) return;
+          const now = c.currentTime + delay;
+          const src = c.createBufferSource();
+          src.buffer = noiseBuf;
+          const flt = c.createBiquadFilter();
+          flt.type = filterType;
+          flt.frequency.setValueAtTime(freq, now);
+          const gain = c.createGain();
+          gain.gain.setValueAtTime(vol, now);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+          src.connect(flt);
+          flt.connect(gain);
+          gain.connect(c.destination);
+          src.start(now);
+          src.stop(now + dur + 0.02);
+        }
+
+        return {
+          unlock: () => ensureCtx(),
+          lightHit() {
+            tone('square', 320, 95, 0.09, 0.16);
+            noise('bandpass', 1400, 0.07, 0.14);
+          },
+          heavyHit() {
+            tone('sawtooth', 190, 42, 0.2, 0.24);
+            noise('lowpass', 750, 0.18, 0.24);
+          },
+          splash() {
+            noise('bandpass', 1800, 0.16, 0.15);
+            tone('sine', 420, 880, 0.12, 0.12);
+            tone('sine', 640, 1180, 0.1, 0.09, 0.04);
+          },
+          zap() {
+            tone('sawtooth', 880, 220, 0.09, 0.16);
+            tone('square', 1320, 380, 0.08, 0.14, 0.04);
+            noise('highpass', 3200, 0.14, 0.14);
+          },
+          wind() {
+            noise('bandpass', 620, 0.24, 0.14);
+            tone('triangle', 220, 340, 0.18, 0.07);
+          },
+          steam() {
+            noise('highpass', 2600, 0.22, 0.12);
+          },
+          charge() {
+            tone('sine', 280, 560, 0.13, 0.09);
+          },
+          uppercut() {
+            tone('sawtooth', 240, 960, 0.25, 0.18);
+            noise('bandpass', 1200, 0.22, 0.14);
+          },
+          superFlash() {
+            tone('sawtooth', 220, 880, 0.35, 0.22);
+            tone('square', 440, 1320, 0.35, 0.16, 0.06);
+            tone('sine', 110, 48, 0.45, 0.25, 0.08);
+          },
+          clashTick() {
+            tone('square', 520 + Math.random() * 260, 180, 0.06, 0.15);
+            noise('highpass', 2400, 0.05, 0.1);
+          },
+          roundAnnounce() {
+            tone('sawtooth', 330, 330, 0.14, 0.16, 0);
+            tone('sawtooth', 440, 440, 0.14, 0.16, 0.15);
+            tone('sawtooth', 554, 554, 0.26, 0.18, 0.3);
+          },
+          fightAnnounce() {
+            tone('square', 587, 587, 0.12, 0.2, 0);
+            tone('sawtooth', 880, 880, 0.34, 0.22, 0.12);
+          },
+          koBoom() {
+            tone('sawtooth', 160, 28, 0.65, 0.28);
+            noise('lowpass', 520, 0.65, 0.28);
+            tone('square', 280, 60, 0.4, 0.18, 0.12);
+          },
+          // 莊嚴又熱血的「紅竿升旗」勝利銅管號角（約 4.8 秒，對應旗子緩緩升起）
+          flagAnthem() {
+            const c = ensureCtx();
+            if (!c) return;
+            // 升旗進行曲主旋律 (C大調莊嚴號角)
+            const melody = [
+              { f: 392.00, t: 0.00, d: 0.30 }, // G4
+              { f: 523.25, t: 0.32, d: 0.45 }, // C5
+              { f: 523.25, t: 0.80, d: 0.22 }, // C5
+              { f: 659.25, t: 1.05, d: 0.50 }, // E5
+              { f: 587.33, t: 1.60, d: 0.25 }, // D5
+              { f: 659.25, t: 1.88, d: 0.25 }, // E5
+              { f: 783.99, t: 2.16, d: 0.65 }, // G5
+              { f: 659.25, t: 2.86, d: 0.28 }, // E5
+              { f: 783.99, t: 3.18, d: 0.32 }, // G5
+              { f: 880.00, t: 3.54, d: 0.38 }, // A5
+              { f: 987.77, t: 3.96, d: 0.40 }, // B5
+              { f: 1046.50, t: 4.40, d: 1.15 } // C6 登頂高亢榮耀！
+            ];
+            melody.forEach(n => {
+              tone('sawtooth', n.f, n.f, n.d, 0.12, n.t);
+              tone('triangle', n.f * 0.5, n.f * 0.5, n.d, 0.11, n.t);
+            });
+            // 登頂燦爛和弦與鈸聲
+            tone('triangle', 523.25, 523.25, 1.2, 0.12, 4.40);
+            tone('triangle', 659.25, 659.25, 1.2, 0.11, 4.40);
+            tone('triangle', 783.99, 783.99, 1.2, 0.11, 4.40);
+            noise('highpass', 4200, 0.75, 0.13, 4.40);
+          },
+          summitChime() {
+            tone('sine', 1046.5, 1046.5, 0.55, 0.14, 0);
+            tone('sine', 1318.5, 1318.5, 0.6, 0.12, 0.08);
+            tone('sine', 1568.0, 1568.0, 0.8, 0.14, 0.16);
+          }
+        };
+      })();
+
+      /* =======================================================================
+         4. 角色類別：暴走小水滴「阿滴」 & 渦輪烘乾機「烘霸」
+         ======================================================================= */
+      class Fighter {
+        constructor(side, type, isAI) {
+          this.side = side;          // 'p1' | 'p2'
+          this.type = type;          // 'water' | 'dryer'
+          this.isAI = isAI;
+          this.reset();
+        }
+
+        reset() {
+          this.x = this.side === 'p1' ? 250 : LOGICAL_W - 250;
+          this.y = GROUND_Y;
+          this.vx = 0;
+          this.vy = 0;
+          this.facing = this.side === 'p1' ? 1 : -1;
+
+          this.maxHp = 1000;
+          this.hp = 1000;
+          this.trailHp = 1000;
+          this.gauge = 25; // 0 ~ 100（飽水膨脹量表 / 渦輪熱風量表）
+
+          // 動作狀態機
+          this.action = 'idle'; // idle, walk, jump, crouch, light, heavy, sweep, special1, special2, holdSpec, super, hurt, ko
+          this.actionTimer = 0;
+          this.actionDur = 0;
+          this.hitDealt = false;
+          this.invuln = 0;
+          this.stunShock = 0;   // 烘乾機短路卡頓計時
+          this.shrinkTimer = 0; // 小水滴被吹扁計時
+
+          // 物理彈性動畫（小水滴ㄉㄨㄞ ㄉㄨㄞ）
+          this.squashX = 1;
+          this.squashY = 1;
+          this.walkCycle = 0;
+          this.specHoldTime = 0;
+          this.specWasDown = false;
+          this.tickAcc = 0;
+          this.afterimages = [];
+
+          // AI 決策計時
+          this.aiTimer = 0.25;
+          this.aiIntent = 'idle';
+          this.aiHoldLeft = 0;
+        }
+
+        // 小水滴體型縮放係數（視覺爽感核心）
+        getScale() {
+          if (this.type !== 'water') return 1;
+          const hpRatio = Math.max(0, this.hp / this.maxHp);
+          const gaugeBonus = (this.gauge / 100) * 0.42;
+          const shrinkPenalty = this.shrinkTimer > 0 ? 0.16 : 0;
+          const superBonus = this.action === 'super' ? 0.85 : 0;
+          return Math.max(0.62, Math.min(2.15, 0.66 + hpRatio * 0.34 + gaugeBonus - shrinkPenalty + superBonus));
+        }
+
+        // 烘乾機是否進入最高溫強風模式
+        isOverdrive() {
+          return this.type === 'dryer' && this.gauge >= 85;
+        }
+
+        getHitRadius() {
+          if (this.type === 'water') {
+            return 44 * Math.min(1.5, this.getScale());
+          }
+          return 46;
+        }
+
+        isGrounded() {
+          return this.y >= GROUND_Y - 0.5;
+        }
+
+        // 讀取本幀輸入（鍵盤 + 觸控 或 AI）
+        readInput(dt, opp) {
+          if (this.isAI) return this.computeAI(dt, opp);
+
+          const inp = { left: false, right: false, up: false, down: false, light: false, heavy: false, spec: false, super: false };
+          if (this.side === 'p1') {
+            inp.left = keysDown.has('KeyA') || touchState.left;
+            inp.right = keysDown.has('KeyD') || touchState.right;
+            inp.up = keysDown.has('KeyW') || touchState.up;
+            inp.down = keysDown.has('KeyS') || touchState.down;
+            inp.light = keysDown.has('KeyF') || touchState.light;
+            inp.heavy = keysDown.has('KeyG') || touchState.heavy;
+            inp.spec = keysDown.has('KeyH') || touchState.spec;
+            inp.super = keysDown.has('KeyR') || (inp.light && inp.heavy) || touchState.super;
+          } else {
+            inp.left = keysDown.has('ArrowLeft');
+            inp.right = keysDown.has('ArrowRight');
+            inp.up = keysDown.has('ArrowUp');
+            inp.down = keysDown.has('ArrowDown');
+            inp.light = keysDown.has('KeyJ');
+            inp.heavy = keysDown.has('KeyK');
+            inp.spec = keysDown.has('KeyL');
+            inp.super = keysDown.has('KeyU') || (inp.light && inp.heavy);
+          }
+          return inp;
+        }
+
+        // 智慧街機 AI（三段難度）
+        computeAI(dt, opp) {
+          const inp = { left: false, right: false, up: false, down: false, light: false, heavy: false, spec: false, super: false };
+          const dist = Math.abs(this.x - opp.x);
+          const dirToOpp = opp.x >= this.x ? 1 : -1;
+
+          const diffParams = {
+            easy:   { think: 0.42, aggro: 0.36, superRate: 0.35, holdDur: 0.55 },
+            normal: { think: 0.24, aggro: 0.62, superRate: 0.65, holdDur: 0.85 },
+            boss:   { think: 0.13, aggro: 0.86, superRate: 0.92, holdDur: 1.05 }
+          }[config.aiDiff];
+
+          if (this.aiHoldLeft > 0) {
+            this.aiHoldLeft -= dt;
+            inp.spec = true;
+            return inp;
+          }
+
+          this.aiTimer -= dt;
+          if (this.aiTimer <= 0) {
+            this.aiTimer = diffParams.think * (0.7 + Math.random() * 0.6);
+            const r = Math.random();
+
+            if (this.gauge >= 100 && dist < 440 && r < diffParams.superRate) {
+              this.aiIntent = 'super';
+            } else if (opp.y < GROUND_Y - 55 && dist < 170 && r < diffParams.aggro) {
+              this.aiIntent = 'antiAir';
+            } else if (dist < 135) {
+              if (r < 0.28) this.aiIntent = 'light';
+              else if (r < 0.54) this.aiIntent = 'heavy';
+              else if (r < 0.72) this.aiIntent = 'sweep';
+              else if (r < 0.86) this.aiIntent = 'holdSpec';
+              else this.aiIntent = 'retreat';
+            } else if (dist < 300) {
+              if (r < 0.35) this.aiIntent = 'approach';
+              else if (r < 0.62) this.aiIntent = 'holdSpec';
+              else if (r < 0.85) this.aiIntent = 'special1';
+              else this.aiIntent = 'jumpIn';
+            } else {
+              if (r < 0.45) this.aiIntent = 'approach';
+              else if (r < 0.75) this.aiIntent = 'special1';
+              else if (this.type === 'water' && this.gauge < 85) this.aiIntent = 'holdSpec';
+              else this.aiIntent = 'approach';
+            }
+          }
+
+          switch (this.aiIntent) {
+            case 'approach':
+              if (dirToOpp > 0) inp.right = true; else inp.left = true;
+              break;
+            case 'retreat':
+              if (dirToOpp > 0) inp.left = true; else inp.right = true;
+              break;
+            case 'jumpIn':
+              inp.up = true;
+              if (dirToOpp > 0) inp.right = true; else inp.left = true;
+              this.aiIntent = 'approach';
+              break;
+            case 'light':
+              inp.light = true;
+              this.aiIntent = 'idle';
+              break;
+            case 'heavy':
+              inp.heavy = true;
+              this.aiIntent = 'idle';
+              break;
+            case 'sweep':
+              inp.down = true;
+              inp.light = true;
+              this.aiIntent = 'idle';
+              break;
+            case 'special1':
+              inp.spec = true;
+              this.aiIntent = 'idle';
+              break;
+            case 'antiAir':
+              inp.up = true;
+              inp.spec = true;
+              this.aiIntent = 'idle';
+              break;
+            case 'holdSpec':
+              this.aiHoldLeft = diffParams.holdDur;
+              inp.spec = true;
+              this.aiIntent = 'idle';
+              break;
+            case 'super':
+              inp.super = true;
+              this.aiIntent = 'idle';
+              break;
+          }
+          return inp;
+        }
+
+        update(dt, opp) {
+          // 血條紅底緩降動畫
+          if (this.trailHp > this.hp) {
+            this.trailHp = Math.max(this.hp, this.trailHp - 260 * dt);
+          } else {
+            this.trailHp = this.hp;
+          }
+
+          if (this.invuln > 0) this.invuln -= dt;
+          if (this.stunShock > 0) this.stunShock -= dt;
+          if (this.shrinkTimer > 0) this.shrinkTimer -= dt;
+
+          // 彈性復原
+          this.squashX += (1 - this.squashX) * Math.min(1, dt * 12);
+          this.squashY += (1 - this.squashY) * Math.min(1, dt * 12);
+
+          // 烘乾機高溫殘影衰減
+          for (let i = this.afterimages.length - 1; i >= 0; i--) {
+            this.afterimages[i].alpha -= dt * 3.8;
+            if (this.afterimages[i].alpha <= 0) this.afterimages.splice(i, 1);
+          }
+          if (this.isOverdrive() && (Math.abs(this.vx) > 90 || this.action === 'heavy' || this.action === 'special2' || this.action === 'super')) {
+            if (Math.random() < 0.45) {
+              this.afterimages.push({ x: this.x, y: this.y, facing: this.facing, alpha: 0.48 });
+            }
+          }
+
+          // KO 狀態只做重力與特效
+          if (this.action === 'ko') {
+            this.vy += GRAVITY * dt;
+            this.x += this.vx * dt;
+            this.y += this.vy * dt;
+            if (this.y >= GROUND_Y) {
+              this.y = GROUND_Y;
+              this.vy = 0;
+              this.vx *= 0.85;
+            }
+            this.x = Math.max(60, Math.min(LOGICAL_W - 60, this.x));
+            return;
+          }
+
+          const canControl = state.phase === 'fight';
+          const inp = canControl ? this.readInput(dt, opp) : { left: false, right: false, up: false, down: false, light: false, heavy: false, spec: false, super: false };
+
+          // 面對對手（閒置、走路、蹲下、特技蓄力時自動轉向）
+          if (['idle', 'walk', 'crouch', 'holdSpec'].includes(this.action)) {
+            this.facing = opp.x >= this.x ? 1 : -1;
+          }
+
+          // 動作計時推進
+          if (this.actionTimer > 0) {
+            this.actionTimer -= dt;
+            this.processActiveAction(dt, opp);
+            if (this.actionTimer <= 0 && this.action !== 'holdSpec') {
+              this.action = this.isGrounded() ? 'idle' : 'jump';
+              this.hitDealt = false;
+            }
+          }
+
+          // 處理特技長按（拼命變大水珠 / 極速吹乾狂風）與短按（發射波動）
+          if (canControl && this.action !== 'hurt' && this.action !== 'super') {
+            if (inp.spec) {
+              if (!this.specWasDown) {
+                this.specHoldTime = 0;
+                // 按上＋特技：立即發動必殺技 2（昇龍噴泉 / 龍捲烘衣旋風）
+                if (inp.up && ['idle', 'walk', 'jump', 'crouch'].includes(this.action)) {
+                  this.startSpecial2();
+                }
+              }
+              this.specHoldTime += dt;
+              // 長按超過 0.18 秒進入招牌特技
+              if (this.specHoldTime >= 0.18 && ['idle', 'walk', 'crouch', 'holdSpec'].includes(this.action) && this.isGrounded()) {
+                this.action = 'holdSpec';
+                this.vx *= 0.7;
+                this.processHoldSignature(dt, opp);
+              }
+            } else if (this.specWasDown) {
+              // 放開特技鍵：如果是短按則發動必殺技 1（波動）
+              if (this.specHoldTime < 0.18 && ['idle', 'walk', 'crouch', 'jump'].includes(this.action)) {
+                this.startSpecial1();
+              } else if (this.action === 'holdSpec') {
+                this.action = 'idle';
+              }
+              this.specHoldTime = 0;
+            }
+            this.specWasDown = inp.spec;
+          }
+
+          // 可自由行動狀態下的移動與攻擊判定
+          if (canControl && ['idle', 'walk', 'crouch', 'jump'].includes(this.action)) {
+            // 超必殺技（滿氣 100）
+            if (inp.super && this.gauge >= 100) {
+              this.startSuper();
+            } else if (inp.down && (inp.light || inp.heavy) && this.isGrounded()) {
+              this.startAttack('sweep', 0.36);
+            } else if (inp.heavy) {
+              this.startAttack('heavy', 0.44);
+            } else if (inp.light) {
+              this.startAttack('light', 0.25);
+            } else {
+              // 移動 / 蹲下 / 跳躍
+              const moveSpeed = this.type === 'water' ? 285 - (this.getScale() - 1) * 35 : 275;
+              if (inp.down && this.isGrounded()) {
+                this.action = 'crouch';
+                this.vx *= 0.6;
+                this.squashX = 1.2;
+                this.squashY = 0.78;
+              } else {
+                let moving = false;
+                if (inp.left) { this.vx = -moveSpeed; moving = true; }
+                else if (inp.right) { this.vx = moveSpeed; moving = true; }
+                else { this.vx *= this.isGrounded() ? 0.72 : 0.96; }
+
+                if (inp.up && this.isGrounded()) {
+                  this.vy = -790;
+                  this.y = GROUND_Y - 1;
+                  this.action = 'jump';
+                  this.squashX = 0.78;
+                  this.squashY = 1.28;
+                  SFX.lightHit();
+                } else if (this.isGrounded()) {
+                  this.action = moving ? 'walk' : 'idle';
+                  if (moving) {
+                    this.walkCycle += dt * 11;
+                    if (this.type === 'water') {
+                      this.squashX = 1 + Math.sin(this.walkCycle * 2) * 0.08;
+                      this.squashY = 1 - Math.sin(this.walkCycle * 2) * 0.08;
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          // 重力與位置更新
+          this.vy += GRAVITY * dt;
+          this.x += this.vx * dt;
+          this.y += this.vy * dt;
+
+          // 落地彈性
+          if (this.y >= GROUND_Y) {
+            if (this.vy > 220) {
+              this.squashX = 1.28;
+              this.squashY = 0.74;
+            }
+            this.y = GROUND_Y;
+            this.vy = 0;
+            if (this.action === 'jump') this.action = 'idle';
+          }
+
+          // 牆面邊界
+          const margin = 58;
+          if (this.x < margin) this.x = margin;
+          if (this.x > LOGICAL_W - margin) this.x = LOGICAL_W - margin;
+        }
+
+        startAttack(kind, dur) {
+          this.action = kind;
+          this.actionDur = dur;
+          this.actionTimer = dur;
+          this.hitDealt = false;
+
+          if (kind === 'light') {
+            this.vx = this.facing * 120;
+            this.squashX = 1.18;
+            this.squashY = 0.88;
+            if (this.type === 'water') SFX.splash(); else SFX.wind();
+          } else if (kind === 'heavy') {
+            this.vx = this.facing * 420;
+            this.squashX = 1.32;
+            this.squashY = 0.8;
+            if (this.type === 'water') SFX.splash(); else SFX.heavyHit();
+          } else if (kind === 'sweep') {
+            this.vx = this.facing * 320;
+            this.squashX = 1.35;
+            this.squashY = 0.65;
+            SFX.lightHit();
+          }
+        }
+
+        // 必殺技 1（波動：水珠連發波 / 超強熱風波）
+        startSpecial1() {
+          this.action = 'special1';
+          this.actionDur = 0.34;
+          this.actionTimer = 0.34;
+          this.vx = -this.facing * 70;
+          this.squashX = 0.82;
+          this.squashY = 1.2;
+
+          if (this.type === 'water') {
+            SFX.splash();
+            // 連發兩顆高速水珠彈
+            for (let i = 0; i < 2; i++) {
+              projectiles.push({
+                owner: this,
+                type: 'waterBullet',
+                x: this.x + this.facing * (46 + i * 28),
+                y: this.y - 52 + (i === 0 ? -8 : 10),
+                vx: this.facing * (590 + i * 55),
+                r: 14 * Math.min(1.3, this.getScale()),
+                dmg: 44,
+                life: 1.5
+              });
+            }
+            addFloatText(this.x, this.y - 115, '水珠連發波!', '#38bdf8');
+          } else {
+            SFX.wind();
+            const od = this.isOverdrive();
+            projectiles.push({
+              owner: this,
+              type: 'heatWave',
+              x: this.x + this.facing * 56,
+              y: this.y - 54,
+              vx: this.facing * (od ? 660 : 540),
+              r: od ? 34 : 26,
+              dmg: od ? 88 : 62,
+              overdrive: od,
+              life: 1.4
+            });
+            addFloatText(this.x, this.y - 115, od ? '爆熱強風波!!' : '超強熱風波!', '#fb923c');
+          }
+          this.gauge = Math.min(100, this.gauge + 7);
+        }
+
+        // 必殺技 2（昇龍：衝天噴泉昇龍 / 龍捲烘衣旋風）
+        startSpecial2() {
+          this.action = 'special2';
+          this.actionDur = 0.56;
+          this.actionTimer = 0.56;
+          this.hitDealt = false;
+          this.invuln = 0.2;
+          this.vy = -860;
+          this.vx = this.facing * 220;
+          this.squashX = 0.68;
+          this.squashY = 1.48;
+          SFX.uppercut();
+          addFloatText(
+            this.x,
+            this.y - 125,
+            this.type === 'water' ? '衝天噴泉昇龍!' : '龍捲烘衣旋風!',
+            this.type === 'water' ? '#22d3ee' : '#f97316'
+          );
+          this.gauge = Math.min(100, this.gauge + 10);
+        }
+
+        // 招牌特技長按（拼命變大水珠 / 極速吹乾狂風）
+        processHoldSignature(dt, opp) {
+          this.tickAcc += dt;
+
+          if (this.type === 'water') {
+            // 拼命變大水珠：吸周圍水氣、膨脹、回少量血、增飽水量表
+            this.gauge = Math.min(100, this.gauge + 26 * dt);
+            this.hp = Math.min(this.maxHp, this.hp + 18 * dt);
+            this.squashX = 1.15 + Math.sin(state.bgTime * 18) * 0.08;
+            this.squashY = 1.08 - Math.sin(state.bgTime * 18) * 0.08;
+
+            if (this.tickAcc >= 0.14) {
+              this.tickAcc = 0;
+              SFX.charge();
+              // 水氣向中心匯聚粒子
+              for (let i = 0; i < 4; i++) {
+                const ang = Math.random() * Math.PI * 2;
+                const dist = 75 + Math.random() * 45;
+                particles.push({
+                  x: this.x + Math.cos(ang) * dist,
+                  y: this.y - 50 + Math.sin(ang) * dist,
+                  vx: -Math.cos(ang) * 190,
+                  vy: -Math.sin(ang) * 190,
+                  r: 4 + Math.random() * 4,
+                  color: '#38bdf8',
+                  life: 0.32,
+                  maxLife: 0.32,
+                  kind: 'water'
+                });
+              }
+            }
+          } else {
+            // 極速吹乾狂風：噴出高溫強風錐，吹扁小水滴並推退！
+            const od = this.isOverdrive();
+            this.gauge = Math.min(100, this.gauge + 14 * dt);
+
+            if (this.tickAcc >= 0.09) {
+              this.tickAcc = 0;
+              SFX.wind();
+              // 噴出熱風粒子
+              for (let i = 0; i < 4; i++) {
+                particles.push({
+                  x: this.x + this.facing * 52,
+                  y: this.y - 55 + (Math.random() - 0.5) * 44,
+                  vx: this.facing * (540 + Math.random() * 260),
+                  vy: (Math.random() - 0.5) * 110,
+                  r: od ? 10 : 7,
+                  color: od ? '#ef4444' : '#fb923c',
+                  life: 0.34,
+                  maxLife: 0.34,
+                  kind: 'wind'
+                });
+              }
+
+              // 吹風範圍判定
+              const dx = (opp.x - this.x) * this.facing;
+              const dy = Math.abs(opp.y - this.y);
+              const range = od ? 330 : 270;
+              if (dx > 0 && dx < range && dy < 120 && opp.invuln <= 0) {
+                // 若水滴正在重攻衝撞且距離近 -> 觸發角力拼招 CLASH!
+                if (opp.action === 'heavy' && dx < 165 && state.clash.cooldown <= 0) {
+                  triggerClash();
+                  return;
+                }
+                const resist = opp.action === 'holdSpec' && opp.type === 'water' ? 0.42 : 1;
+                const dmg = (od ? 18 : 11) * resist;
+                opp.applyDamage(dmg, this.facing * (od ? 260 : 180), 0, 'evaporate');
+                opp.shrinkTimer = 0.5;
+                opp.gauge = Math.max(0, opp.gauge - (od ? 5 : 3));
+                SFX.steam();
+                spawnSteam(opp.x, opp.y - 55, 4);
+              }
+            }
+          }
+        }
+
+        // 超必殺技（滿氣 100 發動）
+        startSuper() {
+          this.gauge = 0;
+          this.action = 'super';
+          this.actionDur = 0.95;
+          this.actionTimer = 0.95;
+          this.hitDealt = false;
+          this.invuln = 0.55;
+          state.superFreeze = 0.58;
+          state.superColor = this.type === 'water' ? '#22d3ee' : '#ef4444';
+          state.superBanner = this.type === 'water'
+            ? '💧 終極海嘯巨水珠！！'
+            : '🔥 三段渦輪全開・瞬間蒸發地獄！！';
+          SFX.superFlash();
+          triggerShake(0.45, 11);
+        }
+
+        // 執行攻擊生效幀
+        processActiveAction(dt, opp) {
+          const progress = 1 - (this.actionTimer / Math.max(0.01, this.actionDur));
+
+          // 攻擊中摩擦減速
+          if (this.action === 'light' || this.action === 'heavy' || this.action === 'sweep') {
+            this.vx *= 0.88;
+          }
+
+          // 必殺技 2 視覺粒子
+          if (this.action === 'special2' && Math.random() < 0.7) {
+            particles.push({
+              x: this.x + (Math.random() - 0.5) * 40,
+              y: this.y - 30,
+              vx: (Math.random() - 0.5) * 140,
+              vy: 80 + Math.random() * 140,
+              r: 9,
+              color: this.type === 'water' ? '#38bdf8' : '#fb923c',
+              life: 0.35,
+              maxLife: 0.35,
+              kind: this.type === 'water' ? 'water' : 'wind'
+            });
+          }
+
+          // 超必殺技演出與傷害
+          if (this.action === 'super') {
+            if (this.type === 'water') {
+              // 終極海嘯巨水珠：躍起膨脹重壓砸向對手
+              if (progress < 0.45) {
+                this.x += (opp.x - this.x) * Math.min(1, dt * 6);
+                this.vy = -380;
+              } else {
+                this.vy = 1150;
+              }
+              if (!this.hitDealt && progress >= 0.58) {
+                this.hitDealt = true;
+                triggerShake(0.5, 16);
+                SFX.heavyHit();
+                SFX.zap();
+                spawnSplash(this.x, GROUND_Y - 20, 26);
+                if (Math.abs(this.x - opp.x) < 260) {
+                  opp.applyDamage(215, this.facing * 420, -460, 'electric');
+                  addFloatText(opp.x, opp.y - 130, '大淹水短路!!', '#a855f7');
+                }
+              }
+            } else {
+              // 三段渦輪全開・瞬間蒸發地獄：全螢幕高溫熱風暴
+              this.vx = 0;
+              if (Math.random() < 0.85) {
+                particles.push({
+                  x: this.x + this.facing * 50,
+                  y: this.y - 50 + (Math.random() - 0.5) * 180,
+                  vx: this.facing * (850 + Math.random() * 400),
+                  vy: (Math.random() - 0.5) * 160,
+                  r: 14 + Math.random() * 10,
+                  color: Math.random() < 0.5 ? '#ef4444' : '#facc15',
+                  life: 0.45,
+                  maxLife: 0.45,
+                  kind: 'wind'
+                });
+              }
+              if (!this.hitDealt && progress >= 0.4) {
+                this.hitDealt = true;
+                triggerShake(0.55, 15);
+                SFX.koBoom();
+                const inFront = (opp.x - this.x) * this.facing > -60;
+                if (inFront) {
+                  opp.applyDamage(215, this.facing * 560, -340, 'evaporate');
+                  opp.shrinkTimer = 1.4;
+                  opp.gauge = Math.max(0, opp.gauge - 40);
+                  spawnSteam(opp.x, opp.y - 55, 22);
+                  addFloatText(opp.x, opp.y - 130, '極限蒸發!!', '#fde047');
+                }
+              }
+            }
+            return;
+          }
+
+          // 普通技與必殺技 2 碰撞判定
+          if (this.hitDealt || progress < 0.22 || progress > 0.72) return;
+
+          const scaleReach = this.type === 'water' ? this.getScale() : 1;
+          const reachMap = { light: 92, heavy: 122, sweep: 112, special2: 115 };
+          const reach = (reachMap[this.action] || 0) * (this.type === 'water' ? Math.min(1.38, scaleReach) : 1);
+          if (!reach) return;
+
+          const dx = (opp.x - this.x) * this.facing;
+          const dy = Math.abs(opp.y - this.y);
+
+          if (dx > -25 && dx < reach + opp.getHitRadius() * 0.55 && dy < 115) {
+            // 檢查是否觸發角力拼招（CLASH!）：雙方同時重攻相撞
+            if (this.action === 'heavy' && opp.action === 'heavy' && state.clash.cooldown <= 0) {
+              triggerClash();
+              return;
+            }
+
+            if (opp.invuln > 0) return;
+
+            this.hitDealt = true;
+            const odMult = this.isOverdrive() ? 1.38 : 1;
+            const waterSizeMult = this.type === 'water' ? (0.85 + scaleReach * 0.22) : 1;
+            const baseDmg = { light: 52, heavy: 108, sweep: 74, special2: 118 }[this.action] || 50;
+            const finalDmg = Math.round(baseDmg * odMult * waterSizeMult);
+            const kbX = this.facing * ({ light: 180, heavy: 390, sweep: 220, special2: 280 }[this.action]);
+            const kbY = { light: -90, heavy: -220, sweep: -310, special2: -520 }[this.action];
+            const kind = this.type === 'water' ? 'waterHit' : 'fireHit';
+
+            opp.applyDamage(finalDmg, kbX, kbY, kind);
+            this.gauge = Math.min(100, this.gauge + (this.action === 'heavy' ? 14 : 9));
+            state.hitstop = this.action === 'light' ? 0.045 : 0.085;
+            triggerShake(this.action === 'light' ? 0.1 : 0.22, this.action === 'light' ? 4 : 9);
+          }
+        }
+
+        // 受擊傷害與防禦減傷計算
+        applyDamage(dmg, kbX, kbY, kind) {
+          if (this.action === 'ko') return;
+
+          // 小水滴變大時具備更高防禦與抗風力
+          const defMult = this.type === 'water' ? Math.max(0.72, 1.08 - this.getScale() * 0.2) : 1;
+          const actual = Math.max(4, Math.round(dmg * defMult));
+          this.hp = Math.max(0, this.hp - actual);
+          this.gauge = Math.min(100, this.gauge + Math.min(12, actual * 0.08));
+
+          const kbResist = this.type === 'water' ? Math.max(0.55, 1.15 - this.getScale() * 0.32) : 1;
+          this.vx = kbX * kbResist;
+          if (kbY < 0) this.vy = Math.min(this.vy, kbY);
+
+          this.squashX = 0.72;
+          this.squashY = 1.3;
+
+          if (kind === 'electric' || (this.type === 'dryer' && (kind === 'waterHit' || kind === 'waterBullet'))) {
+            this.stunShock = 0.45;
+            SFX.zap();
+            spawnSparks(this.x, this.y - 52, 12, '#a855f7');
+          } else if (kind === 'evaporate' || kind === 'fireHit') {
+            SFX.heavyHit();
+            spawnSteam(this.x, this.y - 52, 9);
+          } else {
+            SFX.lightHit();
+            spawnSplash(this.x, this.y - 52, 8);
+          }
+
+          if (this.hp <= 0) {
+            this.action = 'ko';
+            this.vx = kbX * 1.15;
+            this.vy = -440;
+            onFighterKO(this);
+          } else if (kind !== 'evaporate') {
+            this.action = 'hurt';
+            this.actionDur = this.stunShock > 0 ? 0.34 : 0.22;
+            this.actionTimer = this.actionDur;
+          }
+        }
+      }
+
+      /* =======================================================================
+         5. 粒子、浮動文字與角力拼招（CLASH）系統
+         ======================================================================= */
+      function triggerShake(dur, mag) {
+        state.shakeTime = Math.max(state.shakeTime, dur);
+        state.shakeMag = Math.max(state.shakeMag, mag);
+      }
+
+      function addFloatText(x, y, text, color) {
+        floatTexts.push({ x, y, text, color, life: 0.85, maxLife: 0.85 });
+      }
+
+      function spawnSteam(x, y, count) {
+        for (let i = 0; i < count; i++) {
+          particles.push({
+            x: x + (Math.random() - 0.5) * 44,
+            y: y + (Math.random() - 0.5) * 30,
+            vx: (Math.random() - 0.5) * 90,
+            vy: -70 - Math.random() * 120,
+            r: 10 + Math.random() * 14,
+            color: '#f8fafc',
+            life: 0.55 + Math.random() * 0.3,
+            maxLife: 0.85,
+            kind: 'steam'
+          });
+        }
+      }
+
+      function spawnSplash(x, y, count) {
+        for (let i = 0; i < count; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const spd = 120 + Math.random() * 260;
+          particles.push({
+            x, y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd - 90,
+            r: 5 + Math.random() * 6,
+            color: Math.random() < 0.5 ? '#38bdf8' : '#e0f2fe',
+            life: 0.45 + Math.random() * 0.2,
+            maxLife: 0.65,
+            kind: 'water'
+          });
+        }
+      }
+
+      function spawnSparks(x, y, count, color = '#c084fc') {
+        for (let i = 0; i < count; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const spd = 160 + Math.random() * 320;
+          particles.push({
+            x, y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd,
+            r: 3 + Math.random() * 4,
+            color: i % 2 === 0 ? color : '#38bdf8',
+            life: 0.32 + Math.random() * 0.16,
+            maxLife: 0.48,
+            kind: 'spark'
+          });
+        }
+      }
+
+      function triggerClash() {
+        state.phase = 'clash';
+        state.clash.active = true;
+        state.clash.timer = state.clash.maxTime;
+        state.clash.balance = 0;
+        state.clash.p1Mashes = 0;
+        state.clash.p2Mashes = 0;
+        state.clash.cooldown = 5.0;
+
+        // 雙方拉到畫面中央互頂
+        const midX = Math.max(240, Math.min(LOGICAL_W - 240, (fighters[0].x + fighters[1].x) * 0.5));
+        fighters[0].x = midX - 58;
+        fighters[1].x = midX + 58;
+        fighters[0].y = GROUND_Y;
+        fighters[1].y = GROUND_Y;
+        fighters[0].vx = fighters[1].vx = 0;
+        fighters[0].vy = fighters[1].vy = 0;
+        fighters[0].facing = 1;
+        fighters[1].facing = -1;
+        fighters[0].action = 'heavy';
+        fighters[1].action = 'heavy';
+
+        state.announceText = 'CLASH!!';
+        state.announceSub = '瘋狂連打攻擊鍵互頂！';
+        state.announceTimer = 1.2;
+        triggerShake(0.4, 12);
+        SFX.superFlash();
+        spawnSteam(midX, GROUND_Y - 58, 22);
+      }
+
+      function registerClashMash(side) {
+        if (state.phase !== 'clash') return;
+        const step = 11;
+        if (side === 'p1') {
+          state.clash.p1Mashes++;
+          state.clash.balance = Math.min(100, state.clash.balance + step);
+        } else {
+          state.clash.p2Mashes++;
+          state.clash.balance = Math.max(-100, state.clash.balance - step);
+        }
+        SFX.clashTick();
+        const midX = (fighters[0].x + fighters[1].x) * 0.5;
+        spawnSteam(midX, GROUND_Y - 58, 3);
+        spawnSparks(midX, GROUND_Y - 58, 2, '#fde047');
+        triggerShake(0.08, 4);
+
+        if (Math.abs(state.clash.balance) >= 100) {
+          resolveClash();
+        }
+      }
+
+      function resolveClash() {
+        const p1Wins = state.clash.balance >= 0;
+        const winner = p1Wins ? fighters[0] : fighters[1];
+        const loser = p1Wins ? fighters[1] : fighters[0];
+
+        state.clash.active = false;
+        state.phase = 'fight';
+        winner.action = 'idle';
+        winner.gauge = Math.min(100, winner.gauge + 22);
+        loser.applyDamage(145, winner.facing * 640, -390, winner.type === 'water' ? 'electric' : 'evaporate');
+
+        triggerShake(0.42, 14);
+        SFX.koBoom();
+        spawnSteam((winner.x + loser.x) * 0.5, GROUND_Y - 60, 20);
+        addFloatText(winner.x, winner.y - 135, '拼招大勝!!', '#ffd43b');
+      }
+
+      /* =======================================================================
+         6. 回合控制、KO 演出與轉場至紅竿升旗典禮
+         ======================================================================= */
+      function startMatch() {
+        SFX.unlock();
+        lobbyModal.classList.add('hidden');
+        ceremonyDock.classList.remove('show');
+        souvenirModal.classList.add('hidden');
+
+        // 讀取玩家名字
+        const n1 = document.getElementById('p1NameInput').value.trim();
+        const n2 = document.getElementById('p2NameInput').value.trim();
+        profiles.p1.name = n1 || (config.p1Char === 'water' ? '水神阿滴' : '烘霸王');
+        profiles.p2.name = n2 || (config.mode === '1p' ? '電腦魔王' : '烘霸王');
+
+        const p1Type = config.mode === '1p' ? config.p1Char : 'water';
+        const p2Type = p1Type === 'water' ? 'dryer' : 'water';
+
+        fighters = [
+          new Fighter('p1', p1Type, false),
+          new Fighter('p2', p2Type, config.mode === '1p')
+        ];
+
+        state.round = 1;
+        state.wins = { p1: 0, p2: 0 };
+        state.winnerSide = null;
+        startRound();
+      }
+
+      function startRound() {
+        fighters.forEach(f => f.reset());
+        projectiles = [];
+        particles = [];
+        floatTexts = [];
+        state.timer = 99;
+        state.timerAcc = 0;
+        state.clash.active = false;
+        state.clash.cooldown = 0;
+        state.phase = 'intro';
+        state.phaseTimer = 1.85;
+        state.announceText = `ROUND ${state.round}`;
+        state.announceSub = 'READY...';
+        state.announceTimer = 1.85;
+        SFX.roundAnnounce();
+      }
+
+      function onFighterKO(loser) {
+        if (state.phase === 'ko' || state.phase === 'ceremony') return;
+        const winner = loser.side === 'p1' ? fighters[1] : fighters[0];
+        state.phase = 'ko';
+        state.phaseTimer = 2.4;
+        state.hitstop = 0.22;
+        triggerShake(0.55, 16);
+        SFX.koBoom();
+
+        state.wins[winner.side]++;
+        const isPerfect = winner.hp >= winner.maxHp;
+        state.announceText = isPerfect ? 'PERFECT K.O.!' : 'K.O.!';
+        state.announceSub = loser.type === 'water'
+          ? '💧 小水滴被徹底烘乾成一縷白煙！'
+          : '🔥 烘乾機嚴重進水短路報廢！';
+        state.announceTimer = 2.4;
+
+        // KO 專屬爆破特效
+        if (loser.type === 'water') {
+          spawnSteam(loser.x, loser.y - 50, 32);
+        } else {
+          spawnSparks(loser.x, loser.y - 50, 28, '#c084fc');
+          spawnSteam(loser.x, loser.y - 50, 16);
+        }
+
+        if (state.wins[winner.side] >= config.roundsToWin) {
+          state.winnerSide = winner.side;
+        }
+      }
+
+      function onTimeOver() {
+        if (state.phase !== 'fight') return;
+        const p1 = fighters[0], p2 = fighters[1];
+        const winner = p1.hp >= p2.hp ? p1 : p2;
+        state.phase = 'ko';
+        state.phaseTimer = 2.2;
+        state.wins[winner.side]++;
+        state.announceText = 'TIME OVER';
+        state.announceSub = `${profiles[winner.side].name} 判定勝出！`;
+        state.announceTimer = 2.2;
+        SFX.koBoom();
+        if (state.wins[winner.side] >= config.roundsToWin) {
+          state.winnerSide = winner.side;
+        }
+      }
+
+      /* =======================================================================
+         7. 紅竿升旗典禮（核心高潮演出 + 動態波浪旗幟 + 紀念圖匯出）
+         ======================================================================= */
+      function enterCeremony() {
+        state.phase = 'ceremony';
+        const winProfile = profiles[state.winnerSide || 'p1'];
+
+        // 同步典禮控制條欄位
+        document.getElementById('ceremonyNameInput').value = winProfile.name;
+        document.getElementById('btnCeremonyClearPhoto').style.display = winProfile.photoImg ? 'inline-flex' : 'none';
+        ceremonyDock.classList.add('show');
+
+        replayFlagRaising();
+      }
+
+      function replayFlagRaising() {
+        state.ceremony.flagProgress = 0;
+        state.ceremony.summitTriggered = false;
+        state.ceremony.summitTime = 0;
+        state.ceremony.confetti = [];
+        state.ceremony.sparkles = [];
+        state.ceremony.flagDirty = true;
+        SFX.flagAnthem();
+      }
+
+      function spawnCeremonyConfetti(cx, cy, count) {
+        const colors = ['#ffd43b', '#ff3b4e', '#38bdf8', '#4ade80', '#f472b6', '#ffffff', '#fb923c'];
+        for (let i = 0; i < count; i++) {
+          const ang = -Math.PI * 0.1 - Math.random() * Math.PI * 0.8;
+          const spd = 160 + Math.random() * 340;
+          state.ceremony.confetti.push({
+            x: cx + (Math.random() - 0.5) * 60,
+            y: cy + (Math.random() - 0.5) * 30,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd - 60,
+            w: 7 + Math.random() * 7,
+            h: 4 + Math.random() * 5,
+            rot: Math.random() * Math.PI * 2,
+            vrot: (Math.random() - 0.5) * 10,
+            color: colors[i % colors.length],
+            life: 4.5 + Math.random() * 2.5
+          });
+        }
+      }
+
+      // 繪製獲勝者客製旗面至離屏 Canvas（供動態波浪飄揚與高解析匯出共用）
+      function rebuildFlagBuffer() {
+        const fc = state.ceremony.flagCanvas;
+        fc.width = 440;
+        fc.height = 276;
+        const g = fc.getContext('2d');
+
+        const winSide = state.winnerSide || 'p1';
+        const winFighter = fighters.find(f => f.side === winSide) || fighters[0];
+        const isWater = !winFighter || winFighter.type === 'water';
+        const profile = profiles[winSide];
+        const titlePrefix = isWater ? '💧 水神' : '🔥 烘乾霸主';
+
+        // 1. 旗面神采奕奕漸層底色
+        const bgGrad = g.createLinearGradient(0, 0, fc.width, fc.height);
+        if (isWater) {
+          bgGrad.addColorStop(0, '#0284c7');
+          bgGrad.addColorStop(0.5, '#0ea5e9');
+          bgGrad.addColorStop(1, '#1d4ed8');
+        } else {
+          bgGrad.addColorStop(0, '#b91c1c');
+          bgGrad.addColorStop(0.5, '#ea580c');
+          bgGrad.addColorStop(1, '#dc2626');
+        }
+        g.fillStyle = bgGrad;
+        g.fillRect(0, 0, fc.width, fc.height);
+
+        // 2. 旗面放射光芒紋理
+        g.save();
+        g.translate(150, fc.height * 0.5);
+        g.fillStyle = 'rgba(255, 245, 180, 0.14)';
+        for (let i = 0; i < 12; i++) {
+          g.rotate(Math.PI / 6);
+          g.beginPath();
+          g.moveTo(0, 0);
+          g.lineTo(360, -18);
+          g.lineTo(360, 18);
+          g.closePath();
+          g.fill();
+        }
+        g.restore();
+
+        // 3. 雙層金色勝利勳章邊框
+        g.strokeStyle = '#ffd43b';
+        g.lineWidth = 10;
+        g.strokeRect(8, 8, fc.width - 16, fc.height - 16);
+        g.strokeStyle = '#fff9db';
+        g.lineWidth = 2.5;
+        g.strokeRect(18, 18, fc.width - 36, fc.height - 36);
+
+        // 四角金星徽飾
+        const corners = [[30, 30], [fc.width - 30, 30], [30, fc.height - 30], [fc.width - 30, fc.height - 30]];
+        corners.forEach(([cx, cy]) => drawStar(g, cx, cy, 8, 4, 5, '#ffe066'));
+
+        // 4. 左側圓框獲勝者照片（或街機帥氣像素頭像）
+        const photoX = 114;
+        const photoY = 138;
+        const photoR = 72;
+
+        // 外金光環
+        g.save();
+        g.beginPath();
+        g.arc(photoX, photoY, photoR + 8, 0, Math.PI * 2);
+        g.fillStyle = '#ffd43b';
+        g.fill();
+        g.beginPath();
+        g.arc(photoX, photoY, photoR + 3, 0, Math.PI * 2);
+        g.fillStyle = '#ffffff';
+        g.fill();
+
+        // 圓形裁切繪製照片
+        g.beginPath();
+        g.arc(photoX, photoY, photoR, 0, Math.PI * 2);
+        g.clip();
+
+        if (profile.photoImg) {
+          const img = profile.photoImg;
+          const imgRatio = img.width / img.height;
+          let dw = photoR * 2, dh = photoR * 2, dx = photoX - photoR, dy = photoY - photoR;
+          if (imgRatio > 1) {
+            dw = dh * imgRatio;
+            dx = photoX - dw / 2;
+          } else {
+            dh = dw / imgRatio;
+            dy = photoY - dh / 2;
+          }
+          g.drawImage(img, dx, dy, dw, dh);
+        } else {
+          // 預設繪製帥氣獲勝角色頭像
+          g.fillStyle = isWater ? '#0c4a6e' : '#450a0a';
+          g.fillRect(photoX - photoR, photoY - photoR, photoR * 2, photoR * 2);
+          drawHeroPortrait(g, photoX, photoY + 12, isWater ? 'water' : 'dryer', 1.25);
+        }
+        g.restore();
+
+        // 頭像頂部迷你勝利皇冠
+        g.save();
+        g.translate(photoX, photoY - photoR - 8);
+        g.fillStyle = '#ffd43b';
+        g.strokeStyle = '#92400e';
+        g.lineWidth = 2.5;
+        g.beginPath();
+        g.moveTo(-22, 6);
+        g.lineTo(-26, -14);
+        g.lineTo(-10, -4);
+        g.lineTo(0, -20);
+        g.lineTo(10, -4);
+        g.lineTo(26, -14);
+        g.lineTo(22, 6);
+        g.closePath();
+        g.fill();
+        g.stroke();
+        g.restore();
+
+        // 5. 右側獲勝稱號、超大醒目名字與榮譽標語
+        const textX = 304;
+        g.textAlign = 'center';
+
+        // 稱號徽章膠囊
+        g.fillStyle = 'rgba(15, 23, 42, 0.72)';
+        roundRect(g, 208, 42, 192, 36, 18);
+        g.fill();
+        g.strokeStyle = '#ffe066';
+        g.lineWidth = 2;
+        g.stroke();
+
+        g.fillStyle = '#ffe066';
+        g.font = '900 18px "Noto Sans TC", sans-serif';
+        g.fillText(titlePrefix, textX, 66);
+
+        // 獲勝者名字（自動調整字級確保醒目不溢出）
+        const displayName = (profile.name || '街頭霸主').slice(0, 12);
+        const nameFontSize = displayName.length <= 4 ? 44 : displayName.length <= 7 ? 34 : 26;
+        g.font = `900 ${nameFontSize}px "Noto Sans TC", sans-serif`;
+        g.lineWidth = 7;
+        g.strokeStyle = '#1e1b4b';
+        g.strokeText(displayName, textX, 146);
+        g.fillStyle = '#ffffff';
+        g.fillText(displayName, textX, 146);
+
+        // 金色勝利飄帶
+        g.fillStyle = '#ffd43b';
+        roundRect(g, 214, 172, 180, 34, 10);
+        g.fill();
+        g.fillStyle = '#7c2d12';
+        g.font = '900 17px "Noto Sans TC", sans-serif';
+        g.fillText('★ 街頭烘乾大決戰冠軍 ★', textX, 195);
+
+        // 底部小字口號
+        g.fillStyle = '#fff9db';
+        g.font = '800 14px "Noto Sans TC", sans-serif';
+        g.fillText(isWater ? '巨無霸大水珠・制霸全場！' : '渦輪極速熱風・蒸發全場！', textX, 234);
+
+        state.ceremony.flagDirty = false;
+      }
+
+      // 生成高解析度「升旗榮耀紀念圖」PNG（1200×900）
+      function generateSouvenirImage() {
+        if (state.ceremony.flagDirty) rebuildFlagBuffer();
+        const out = document.createElement('canvas');
+        out.width = 1200;
+        out.height = 900;
+        const g = out.getContext('2d');
+
+        // 繪製典禮場景到高解析畫布（確保旗子處於 100% 登頂炯炯有精神狀態）
+        const savedProg = state.ceremony.flagProgress;
+        const savedSummit = state.ceremony.summitTriggered;
+        state.ceremony.flagProgress = 1;
+        state.ceremony.summitTriggered = true;
+
+        g.save();
+        g.scale(1200 / LOGICAL_W, 900 / LOGICAL_H);
+        drawCeremonyScene(g, true);
+        g.restore();
+
+        state.ceremony.flagProgress = savedProg;
+        state.ceremony.summitTriggered = savedSummit;
+
+        // 頂部與底部榮譽紀念邊條與今日日期
+        const now = new Date();
+        const dateStr = `${now.getFullYear()} 年 ${now.getMonth() + 1} 月 ${now.getDate()} 日`;
+        const winSide = state.winnerSide || 'p1';
+        const winName = profiles[winSide].name || '街頭霸主';
+
+        // 底部典雅金邊橫幅
+        g.fillStyle = 'rgba(11, 18, 38, 0.86)';
+        g.fillRect(0, 816, 1200, 84);
+        g.fillStyle = '#ffd43b';
+        g.fillRect(0, 812, 1200, 5);
+
+        g.textAlign = 'left';
+        g.fillStyle = '#ffd43b';
+        g.font = '900 28px "Noto Sans TC", sans-serif';
+        g.fillText(`🚩 《水火不容：街頭烘乾大決戰》紅竿升旗榮耀紀念`, 34, 868);
+
+        g.textAlign = 'right';
+        g.fillStyle = '#f8fafc';
+        g.font = '800 24px "Noto Sans TC", sans-serif';
+        g.fillText(`冠軍：${winName} ｜ ${dateStr}`, 1166, 867);
+
+        const dataUrl = out.toDataURL('image/png');
+        document.getElementById('souvenirImg').src = dataUrl;
+        const dl = document.getElementById('btnRealDownload');
+        dl.href = dataUrl;
+        dl.download = `紅竿升旗榮耀_${winName}_${now.getFullYear()}${now.getMonth() + 1}${now.getDate()}.png`;
+        souvenirModal.classList.remove('hidden');
+        SFX.summitChime();
+      }
+
+      /* =======================================================================
+         8. 主更新循環 (Update)
+         ======================================================================= */
+      function update(dt) {
+        state.bgTime += dt;
+
+        if (state.shakeTime > 0) state.shakeTime -= dt;
+        if (state.announceTimer > 0) state.announceTimer -= dt;
+        if (state.clash.cooldown > 0) state.clash.cooldown -= dt;
+
+        // 紅竿升旗典禮更新
+        if (state.phase === 'ceremony') {
+          if (state.ceremony.flagDirty) rebuildFlagBuffer();
+
+          // 雲朵緩緩飄動
+          state.ceremony.clouds.forEach(c => {
+            c.x += c.spd * dt;
+            if (c.x > LOGICAL_W + 120) c.x = -120;
+          });
+
+          // 旗子緩緩升起（約 4.5 秒登頂）
+          if (state.ceremony.flagProgress < 1) {
+            state.ceremony.flagProgress = Math.min(1, state.ceremony.flagProgress + dt / 4.4);
+            if (state.ceremony.flagProgress >= 1 && !state.ceremony.summitTriggered) {
+              state.ceremony.summitTriggered = true;
+              SFX.summitChime();
+              spawnCeremonyConfetti(285, 118, 70);
+              spawnCeremonyConfetti(540, 150, 50);
+            }
+          } else {
+            state.ceremony.summitTime += dt;
+            // 登頂後持續偶爾飄落閃亮金星
+            if (Math.random() < 0.25) {
+              state.ceremony.sparkles.push({
+                x: 295 + Math.random() * 380,
+                y: 78 + Math.random() * 210,
+                life: 0.9,
+                maxLife: 0.9,
+                size: 5 + Math.random() * 7
+              });
+            }
+          }
+
+          // 更新彩帶與星芒
+          for (let i = state.ceremony.confetti.length - 1; i >= 0; i--) {
+            const p = state.ceremony.confetti[i];
+            p.vy += 320 * dt;
+            p.vx *= 0.99;
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            p.rot += p.vrot * dt;
+            p.life -= dt;
+            if (p.life <= 0 || p.y > LOGICAL_H + 40) state.ceremony.confetti.splice(i, 1);
+          }
+          for (let i = state.ceremony.sparkles.length - 1; i >= 0; i--) {
+            const s = state.ceremony.sparkles[i];
+            s.life -= dt;
+            if (s.life <= 0) state.ceremony.sparkles.splice(i, 1);
+          }
+          return;
+        }
+
+        if (state.phase === 'lobby') return;
+
+        // 超必殺黑幕特寫停頓
+        if (state.superFreeze > 0) {
+          state.superFreeze -= dt;
+          return;
+        }
+
+        // 打擊停頓 (Hitstop)
+        if (state.hitstop > 0) {
+          state.hitstop -= dt;
+          return;
+        }
+
+        // 回合開場播報
+        if (state.phase === 'intro') {
+          state.phaseTimer -= dt;
+          if (state.phaseTimer <= 0.65 && state.announceText !== 'FIGHT!') {
+            state.announceText = 'FIGHT!';
+            state.announceSub = '開打！';
+            state.announceTimer = 0.75;
+            SFX.fightAnnounce();
+          }
+          if (state.phaseTimer <= 0) {
+            state.phase = 'fight';
+          }
+        }
+
+        // 角力拼招 (CLASH) 更新
+        if (state.phase === 'clash') {
+          state.clash.timer -= dt;
+          // 單人模式時電腦 AI 也會拼命連打
+          if (fighters[1] && fighters[1].isAI) {
+            const aiMps = { easy: 4.5, normal: 6.8, boss: 9.2 }[config.aiDiff];
+            state.clash.aiMashAcc += dt * aiMps;
+            while (state.clash.aiMashAcc >= 1) {
+              state.clash.aiMashAcc -= 1;
+              registerClashMash('p2');
+            }
+          }
+          if (state.clash.timer <= 0) {
+            resolveClash();
+          }
+        }
+
+        // 戰鬥計時器
+        if (state.phase === 'fight') {
+          state.timerAcc += dt;
+          if (state.timerAcc >= 1) {
+            state.timerAcc -= 1;
+            state.timer = Math.max(0, state.timer - 1);
+            if (state.timer === 0) onTimeOver();
+          }
+        }
+
+        // KO 結算轉場計時
+        if (state.phase === 'ko') {
+          state.phaseTimer -= dt;
+          if (state.phaseTimer <= 0) {
+            if (state.winnerSide) {
+              enterCeremony();
+              return;
+            } else {
+              state.round++;
+              startRound();
+              return;
+            }
+          }
+        }
+
+        // 更新雙方角色
+        if (fighters.length === 2) {
+          fighters[0].update(dt, fighters[1]);
+          fighters[1].update(dt, fighters[0]);
+
+          // 角色防重疊推開（非跳躍時）
+          const minSep = (fighters[0].getHitRadius() + fighters[1].getHitRadius()) * 0.82;
+          const dx = fighters[1].x - fighters[0].x;
+          const dy = Math.abs(fighters[1].y - fighters[0].y);
+          if (Math.abs(dx) < minSep && dy < 75 && state.phase === 'fight') {
+            const push = (minSep - Math.abs(dx)) * 0.5;
+            const sign = dx >= 0 ? 1 : -1;
+            fighters[0].x = Math.max(58, Math.min(LOGICAL_W - 58, fighters[0].x - sign * push));
+            fighters[1].x = Math.max(58, Math.min(LOGICAL_W - 58, fighters[1].x + sign * push));
+          }
+        }
+
+        // 更新飛行道具（水珠連發波 / 超強熱風波）
+        for (let i = projectiles.length - 1; i >= 0; i--) {
+          const pr = projectiles[i];
+          pr.x += pr.vx * dt;
+          pr.life -= dt;
+
+          // 飛行道具對撞抵銷（水蒸氣爆開！）
+          let destroyed = false;
+          for (let j = i - 1; j >= 0; j--) {
+            const other = projectiles[j];
+            if (other.owner !== pr.owner && Math.hypot(pr.x - other.x, pr.y - other.y) < pr.r + other.r) {
+              spawnSteam((pr.x + other.x) * 0.5, (pr.y + other.y) * 0.5, 10);
+              SFX.steam();
+              projectiles.splice(i, 1);
+              projectiles.splice(j, 1);
+              i--;
+              destroyed = true;
+              break;
+            }
+          }
+          if (destroyed) continue;
+
+          // 命中對手判定
+          const target = pr.owner.side === 'p1' ? fighters[1] : fighters[0];
+          if (target && target.action !== 'ko' && target.invuln <= 0) {
+            const dist = Math.hypot(pr.x - target.x, pr.y - (target.y - 52));
+            if (dist < pr.r + target.getHitRadius() * 0.85) {
+              // 若小水滴正在長按「拼命變大水珠」，可彈開弱熱風波
+              if (target.type === 'water' && target.action === 'holdSpec' && !pr.overdrive) {
+                pr.vx = -pr.vx * 0.8;
+                pr.owner = target;
+                SFX.splash();
+                addFloatText(target.x, target.y - 110, 'ㄉㄨㄞ 彈開!', '#38bdf8');
+              } else {
+                const kbX = Math.sign(pr.vx) * (pr.type === 'heatWave' ? 320 : 170);
+                target.applyDamage(pr.dmg, kbX, -120, pr.type === 'waterBullet' ? 'electric' : 'evaporate');
+                if (pr.type === 'heatWave') target.shrinkTimer = 0.65;
+                projectiles.splice(i, 1);
+                continue;
+              }
+            }
+          }
+
+          if (pr.life <= 0 || pr.x < -60 || pr.x > LOGICAL_W + 60) {
+            projectiles.splice(i, 1);
+          }
+        }
+
+        // 更新粒子
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const p = particles[i];
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          if (p.kind === 'water') p.vy += 680 * dt;
+          p.life -= dt;
+          if (p.life <= 0) particles.splice(i, 1);
+        }
+
+        // 更新浮動招式文字
+        for (let i = floatTexts.length - 1; i >= 0; i--) {
+          const f = floatTexts[i];
+          f.y -= 48 * dt;
+          f.life -= dt;
+          if (f.life <= 0) floatTexts.splice(i, 1);
+        }
+      }
+
+      /* =======================================================================
+         9. 繪製引擎：舞台場景、角色、特效、HUD 與紅竿升旗典禮
+         ======================================================================= */
+      function render() {
+        ctx.clearRect(0, 0, LOGICAL_W, LOGICAL_H);
+
+        if (state.phase === 'ceremony') {
+          drawCeremonyScene(ctx, false);
+          return;
+        }
+
+        ctx.save();
+        // 螢幕震動
+        if (state.shakeTime > 0) {
+          const sx = (Math.random() - 0.5) * state.shakeMag * 2;
+          const sy = (Math.random() - 0.5) * state.shakeMag * 2;
+          ctx.translate(sx, sy);
+        }
+
+        // 1. 繪製對戰場地
+        if (config.stage === 'laundry') drawLaundryStage(ctx);
+        else drawBathhouseStage(ctx);
+
+        // 烘乾機最高溫熱浪背景特效
+        if (fighters.some(f => f.isOverdrive())) {
+          ctx.fillStyle = `rgba(255, 70, 20, ${0.07 + Math.sin(state.bgTime * 10) * 0.03})`;
+          ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
+        }
+
+        // 2. 繪製角色（含殘影與地面陰影）
+        fighters.forEach(f => drawFighter(ctx, f));
+
+        // 3. 繪製飛行道具
+        projectiles.forEach(pr => drawProjectile(ctx, pr));
+
+        // 4. 繪製粒子
+        particles.forEach(p => {
+          const a = Math.max(0, p.life / p.maxLife);
+          ctx.save();
+          ctx.globalAlpha = a;
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          if (p.kind === 'wind') {
+            ctx.ellipse(p.x, p.y, p.r * 1.9, p.r * 0.55, 0, 0, Math.PI * 2);
+          } else {
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          }
+          ctx.fill();
+          ctx.restore();
+        });
+
+        // 5. 浮動招式提示文字
+        floatTexts.forEach(f => {
+          const a = Math.min(1, f.life / f.maxLife * 1.4);
+          ctx.save();
+          ctx.globalAlpha = a;
+          ctx.font = '900 22px "Noto Sans TC", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.lineWidth = 5;
+          ctx.strokeStyle = '#0f172a';
+          ctx.strokeText(f.text, f.x, f.y);
+          ctx.fillStyle = f.color;
+          ctx.fillText(f.text, f.x, f.y);
+          ctx.restore();
+        });
+
+        // 6. 超必殺技特寫黑幕
+        if (state.superFreeze > 0) {
+          ctx.fillStyle = 'rgba(5, 8, 22, 0.72)';
+          ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
+          ctx.save();
+          ctx.fillStyle = state.superColor;
+          ctx.globalAlpha = 0.28;
+          ctx.fillRect(0, 195, LOGICAL_W, 125);
+          ctx.globalAlpha = 1;
+          ctx.font = '900 48px "Noto Sans TC", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.lineWidth = 10;
+          ctx.strokeStyle = '#090d1a';
+          ctx.strokeText(state.superBanner, LOGICAL_W / 2, 274);
+          ctx.fillStyle = '#fff9db';
+          ctx.fillText(state.superBanner, LOGICAL_W / 2, 274);
+          ctx.restore();
+        }
+
+        // 7. 角力拼招（CLASH）熱血拉鋸介面
+        if (state.phase === 'clash') {
+          drawClashOverlay(ctx);
+        }
+
+        ctx.restore();
+
+        // 8. 頂部與底部經典街機 HUD
+        if (fighters.length === 2) drawArcadeHUD(ctx);
+
+        // 9. 大字播報（ROUND 1 / FIGHT! / K.O.!）
+        if (state.announceTimer > 0 && state.announceText) {
+          drawAnnouncement(ctx);
+        }
+      }
+
+      /* ---------- 場地 A：復古自助洗衣店 ---------- */
+      function drawLaundryStage(g) {
+        // 牆面漸層
+        const wall = g.createLinearGradient(0, 0, 0, GROUND_Y);
+        wall.addColorStop(0, '#1e293b');
+        wall.addColorStop(0.6, '#334155');
+        wall.addColorStop(1, '#475569');
+        g.fillStyle = wall;
+        g.fillRect(0, 0, LOGICAL_W, GROUND_Y);
+
+        // 頂部日光燈管
+        for (let i = 0; i < 3; i++) {
+          const lx = 155 + i * 320;
+          g.fillStyle = '#e2e8f0';
+          g.fillRect(lx - 75, 22, 150, 8);
+          const glow = g.createRadialGradient(lx, 26, 10, lx, 110, 160);
+          glow.addColorStop(0, 'rgba(224, 242, 254, 0.22)');
+          glow.addColorStop(1, 'rgba(224, 242, 254, 0)');
+          g.fillStyle = glow;
+          g.fillRect(lx - 160, 22, 320, 200);
+        }
+
+        // 復古霓虹招牌「24H 街頭自助烘衣」
+        g.save();
+        roundRect(g, 330, 56, 300, 48, 12);
+        g.fillStyle = '#0f172a';
+        g.fill();
+        g.strokeStyle = '#38bdf8';
+        g.lineWidth = 3;
+        g.stroke();
+        g.font = '900 22px "Noto Sans TC", sans-serif';
+        g.textAlign = 'center';
+        g.fillStyle = '#fde047';
+        g.fillText('★ 24H 街頭自助烘衣店 ★', 480, 88);
+        g.restore();
+
+        // 一排滾筒洗衣機與烘乾機
+        for (let i = 0; i < 5; i++) {
+          const mx = 75 + i * 170;
+          const my = 215;
+          // 機身
+          roundRect(g, mx, my, 136, 188, 12);
+          g.fillStyle = i % 2 === 0 ? '#cbd5e1' : '#e2e8f0';
+          g.fill();
+          g.strokeStyle = '#1e293b';
+          g.lineWidth = 3;
+          g.stroke();
+
+          // 控制面板
+          g.fillStyle = '#1e293b';
+          g.fillRect(mx + 12, my + 14, 112, 24);
+          g.fillStyle = i % 2 === 0 ? '#38bdf8' : '#fb923c';
+          g.fillRect(mx + 18, my + 20, 38, 12);
+          g.fillStyle = '#ef4444';
+          g.beginPath();
+          g.arc(mx + 106, my + 26, 6, 0, Math.PI * 2);
+          g.fill();
+
+          // 滾筒玻璃窗（衣物旋轉中！）
+          const cx = mx + 68, cy = my + 115;
+          g.beginPath();
+          g.arc(cx, cy, 46, 0, Math.PI * 2);
+          g.fillStyle = '#475569';
+          g.fill();
+          g.beginPath();
+          g.arc(cx, cy, 38, 0, Math.PI * 2);
+          g.fillStyle = i % 2 === 0 ? '#0ea5e9' : '#f97316';
+          g.fill();
+
+          // 旋轉渦流
+          g.save();
+          g.translate(cx, cy);
+          g.rotate(state.bgTime * (i % 2 === 0 ? 3.5 : -4.2) + i);
+          g.fillStyle = 'rgba(255,255,255,0.45)';
+          g.beginPath();
+          g.arc(14, 0, 11, 0, Math.PI * 2);
+          g.arc(-12, 10, 9, 0, Math.PI * 2);
+          g.fill();
+          g.restore();
+        }
+
+        // 復古黑白磁磚地板
+        g.fillStyle = '#1e293b';
+        g.fillRect(0, GROUND_Y, LOGICAL_W, LOGICAL_H - GROUND_Y);
+        const tileW = 60;
+        for (let r = 0; r < 3; r++) {
+          for (let c = 0; c < 18; c++) {
+            g.fillStyle = (r + c) % 2 === 0 ? '#cbd5e1' : '#334155';
+            g.fillRect(c * tileW - (r * 15), GROUND_Y + r * 34, tileW, 34);
+          }
+        }
+        // 地板高光邊線
+        g.fillStyle = '#ffd43b';
+        g.fillRect(0, GROUND_Y - 3, LOGICAL_W, 5);
+      }
+
+      /* ---------- 場地 B：霓虹大澡堂 ---------- */
+      function drawBathhouseStage(g) {
+        // 深紫藍復古澡堂壁面
+        const bg = g.createLinearGradient(0, 0, 0, GROUND_Y);
+        bg.addColorStop(0, '#1e1b4b');
+        bg.addColorStop(0.55, '#312e81');
+        bg.addColorStop(1, '#4c1d95');
+        g.fillStyle = bg;
+        g.fillRect(0, 0, LOGICAL_W, GROUND_Y);
+
+        // 經典富士山壁畫
+        g.save();
+        g.beginPath();
+        g.moveTo(150, 345);
+        g.lineTo(480, 108);
+        g.lineTo(810, 345);
+        g.closePath();
+        g.fillStyle = '#2563eb';
+        g.fill();
+        // 山頂白雪
+        g.beginPath();
+        g.moveTo(390, 173);
+        g.lineTo(480, 108);
+        g.lineTo(570, 173);
+        g.lineTo(525, 162);
+        g.lineTo(480, 182);
+        g.lineTo(435, 162);
+        g.closePath();
+        g.fillStyle = '#f8fafc';
+        g.fill();
+        // 橘紅夕陽
+        g.beginPath();
+        g.arc(700, 145, 44, 0, Math.PI * 2);
+        g.fillStyle = '#fb7185';
+        g.fill();
+        g.restore();
+
+        // 兩側霓虹燈牌「湯」「沸」
+        const drawNeon = (x, y, txt, col) => {
+          g.save();
+          roundRect(g, x, y, 76, 86, 12);
+          g.fillStyle = 'rgba(15, 23, 42, 0.82)';
+          g.fill();
+          g.strokeStyle = col;
+          g.lineWidth = 3.5;
+          g.stroke();
+          g.fillStyle = col;
+          g.font = '900 42px "Noto Sans TC", sans-serif';
+          g.textAlign = 'center';
+          g.fillText(txt, x + 38, y + 60);
+          g.restore();
+        };
+        drawNeon(68, 118, '湯', '#38bdf8');
+        drawNeon(816, 118, '熱', '#fb7185');
+
+        // 熱氣蒸騰的浴池邊緣
+        g.fillStyle = '#0ea5e9';
+        g.fillRect(0, 345, LOGICAL_W, 101);
+        g.fillStyle = 'rgba(255,255,255,0.22)';
+        for (let i = 0; i < 8; i++) {
+          const wx = (i * 140 + state.bgTime * 28) % (LOGICAL_W + 120) - 60;
+          g.beginPath();
+          g.ellipse(wx, 376 + Math.sin(state.bgTime * 2 + i) * 6, 54, 14, 0, 0, Math.PI * 2);
+          g.fill();
+        }
+
+        // 澡堂石板地板
+        g.fillStyle = '#334155';
+        g.fillRect(0, GROUND_Y, LOGICAL_W, LOGICAL_H - GROUND_Y);
+        g.strokeStyle = '#64748b';
+        g.lineWidth = 2;
+        for (let i = 0; i < 12; i++) {
+          g.beginPath();
+          g.moveTo(i * 90, GROUND_Y);
+          g.lineTo(i * 90 - 35, LOGICAL_H);
+          g.stroke();
+        }
+        g.fillStyle = '#38bdf8';
+        g.fillRect(0, GROUND_Y - 3, LOGICAL_W, 5);
+      }
+
+      /* ---------- 繪製雙主角（暴走小水滴「阿滴」 / 渦輪烘乾機「烘霸」） ---------- */
+      function drawFighter(g, f) {
+        // 殘影
+        f.afterimages.forEach(ai => {
+          g.save();
+          g.globalAlpha = ai.alpha * 0.55;
+          g.translate(ai.x, ai.y);
+          g.scale(ai.facing, 1);
+          g.fillStyle = '#f97316';
+          g.beginPath();
+          g.arc(0, -56, 42, 0, Math.PI * 2);
+          g.fill();
+          g.restore();
+        });
+
+        // 地面陰影
+        g.save();
+        const shadowScale = Math.max(0.35, 1 - (GROUND_Y - f.y) / 360) * (f.type === 'water' ? Math.min(1.5, f.getScale()) : 1);
+        g.fillStyle = 'rgba(0, 0, 0, 0.36)';
+        g.beginPath();
+        g.ellipse(f.x, GROUND_Y + 4, 44 * shadowScale, 12 * shadowScale, 0, 0, Math.PI * 2);
+        g.fill();
+        g.restore();
+
+        // KO 特殊狀態（水滴化作白煙 / 烘乾機冒煙倒地）
+        if (f.action === 'ko' && f.type === 'water') {
+          g.save();
+          g.globalAlpha = Math.max(0.2, 0.75 + Math.sin(state.bgTime * 12) * 0.15);
+          g.fillStyle = '#f1f5f9';
+          for (let i = 0; i < 4; i++) {
+            g.beginPath();
+            g.arc(f.x + Math.sin(state.bgTime * 5 + i) * 14, f.y - 24 - i * 18, 22 - i * 3, 0, Math.PI * 2);
+            g.fill();
+          }
+          g.restore();
+          return;
+        }
+
+        g.save();
+        g.translate(f.x, f.y);
+        if (f.action === 'ko') {
+          g.translate(0, -24);
+          g.rotate(-f.facing * Math.PI * 0.45);
+        }
+        g.scale(f.facing * f.squashX, f.squashY);
+
+        if (f.type === 'water') {
+          drawWaterDroplet(g, f);
+        } else {
+          drawTurboDryer(g, f);
+        }
+        g.restore();
+      }
+
+      function drawWaterDroplet(g, f) {
+        const s = f.getScale();
+        g.scale(s, s);
+
+        // 蓄力變大水珠光環
+        if (f.action === 'holdSpec') {
+          g.save();
+          g.strokeStyle = '#7dd3fc';
+          g.lineWidth = 4;
+          g.beginPath();
+          g.arc(0, -52, 58 + Math.sin(state.bgTime * 20) * 6, 0, Math.PI * 2);
+          g.stroke();
+          g.restore();
+        }
+
+        // 晶瑩剔透水滴本體
+        const bodyGrad = g.createRadialGradient(-14, -68, 8, 0, -48, 56);
+        bodyGrad.addColorStop(0, '#e0f2fe');
+        bodyGrad.addColorStop(0.35, '#38bdf8');
+        bodyGrad.addColorStop(0.85, '#0284c7');
+        bodyGrad.addColorStop(1, '#0369a1');
+
+        g.fillStyle = bodyGrad;
+        g.strokeStyle = '#0c4a6e';
+        g.lineWidth = 3.5;
+        g.beginPath();
+        g.moveTo(0, -108);
+        g.bezierCurveTo(46, -68, 52, -12, 0, -4);
+        g.bezierCurveTo(-52, -12, -46, -68, 0, -108);
+        g.closePath();
+        g.fill();
+        g.stroke();
+
+        // 晶亮反光點
+        g.fillStyle = 'rgba(255, 255, 255, 0.72)';
+        g.beginPath();
+        g.ellipse(-16, -64, 9, 17, -0.35, 0, Math.PI * 2);
+        g.fill();
+
+        // 街機熱血紅色頭帶（致敬快打旋風隆！）
+        g.fillStyle = '#ef4444';
+        g.fillRect(-30, -78, 60, 10);
+        // 飄動頭帶尾
+        g.beginPath();
+        g.moveTo(-28, -74);
+        g.lineTo(-50, -82 + Math.sin(state.bgTime * 14) * 5);
+        g.lineTo(-46, -68 + Math.sin(state.bgTime * 14) * 5);
+        g.closePath();
+        g.fill();
+
+        // 炯炯有神格鬥眼神
+        g.fillStyle = '#0f172a';
+        g.beginPath();
+        g.arc(8, -54, 6, 0, Math.PI * 2);
+        g.arc(26, -54, 6, 0, Math.PI * 2);
+        g.fill();
+        g.fillStyle = '#ffffff';
+        g.beginPath();
+        g.arc(10, -56, 2.2, 0, Math.PI * 2);
+        g.arc(28, -56, 2.2, 0, Math.PI * 2);
+        g.fill();
+        // 銳利眉毛
+        g.strokeStyle = '#0f172a';
+        g.lineWidth = 3.5;
+        g.beginPath();
+        g.moveTo(2, -64); g.lineTo(16, -59);
+        g.moveTo(32, -64); g.lineTo(18, -59);
+        g.stroke();
+        // 嘴巴
+        g.fillStyle = '#e11d48';
+        g.beginPath();
+        g.arc(17, -40, f.action === 'hurt' ? 8 : 6, 0, Math.PI);
+        g.fill();
+
+        // 攻擊拳套 / 水花斬擊特效
+        if (f.action === 'light' || f.action === 'heavy') {
+          g.fillStyle = '#7dd3fc';
+          g.strokeStyle = '#0284c7';
+          g.lineWidth = 3;
+          g.beginPath();
+          g.arc(f.action === 'heavy' ? 58 : 48, -46, f.action === 'heavy' ? 24 : 16, 0, Math.PI * 2);
+          g.fill();
+          g.stroke();
+        } else if (f.action === 'sweep') {
+          g.fillStyle = '#38bdf8';
+          g.beginPath();
+          g.ellipse(46, -10, 48, 12, 0, 0, Math.PI * 2);
+          g.fill();
+        }
+      }
+
+      function drawTurboDryer(g, f) {
+        const od = f.isOverdrive();
+
+        // 機械雙腿
+        const legSwing = f.action === 'walk' ? Math.sin(f.walkCycle) * 10 : 0;
+        g.fillStyle = '#334155';
+        g.strokeStyle = '#0f172a';
+        g.lineWidth = 3;
+        roundRect(g, -22 + legSwing, -26, 16, 26, 5); g.fill(); g.stroke();
+        roundRect(g, 6 - legSwing, -26, 16, 26, 5); g.fill(); g.stroke();
+
+        // 背後電源線尾巴（蹲踢時化作電線鞭！）
+        g.strokeStyle = '#facc15';
+        g.lineWidth = 5;
+        g.beginPath();
+        if (f.action === 'sweep') {
+          g.moveTo(-10, -24);
+          g.quadraticCurveTo(35, -6, 98, -14);
+        } else {
+          g.moveTo(-34, -40);
+          g.quadraticCurveTo(-56, -24 + Math.sin(state.bgTime * 10) * 8, -46, -12);
+        }
+        g.stroke();
+
+        // 烘乾機主機身（復古金屬紅／過載赤紅）
+        const bodyGrad = g.createLinearGradient(-38, -104, 38, -24);
+        bodyGrad.addColorStop(0, od ? '#ef4444' : '#fb923c');
+        bodyGrad.addColorStop(0.5, od ? '#b91c1c' : '#dc2626');
+        bodyGrad.addColorStop(1, '#7f1d1d');
+        g.fillStyle = bodyGrad;
+        g.strokeStyle = '#0f172a';
+        g.lineWidth = 3.5;
+        roundRect(g, -38, -98, 76, 74, 18);
+        g.fill();
+        g.stroke();
+
+        // 巨大圓形熱風出風口（正面）
+        g.fillStyle = '#1e293b';
+        roundRect(g, 24, -84, 28, 46, 8);
+        g.fill();
+        g.stroke();
+
+        // 出風口紅熱發熱絲
+        const coilGlow = od || f.action === 'holdSpec' || f.action === 'super';
+        g.fillStyle = coilGlow ? '#fef08a' : '#f97316';
+        g.fillRect(46, -78, 8, 34);
+        if (coilGlow) {
+          g.fillStyle = 'rgba(255, 80, 0, 0.45)';
+          g.beginPath();
+          g.arc(52, -61, 24, 0, Math.PI * 2);
+          g.fill();
+        }
+
+        // 極速吹乾狂風錐形視覺特效
+        if (f.action === 'holdSpec') {
+          g.save();
+          const coneGrad = g.createLinearGradient(54, -60, 270, -60);
+          coneGrad.addColorStop(0, od ? 'rgba(239, 68, 68, 0.72)' : 'rgba(251, 146, 60, 0.62)');
+          coneGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+          g.fillStyle = coneGrad;
+          g.beginPath();
+          g.moveTo(54, -76);
+          g.lineTo(270, -125);
+          g.lineTo(270, 5);
+          g.lineTo(54, -44);
+          g.closePath();
+          g.fill();
+          g.restore();
+        }
+
+        // 頂部溫度旋鈕與渦輪指針
+        g.fillStyle = '#e2e8f0';
+        g.beginPath();
+        g.arc(-6, -102, 12, 0, Math.PI * 2);
+        g.fill();
+        g.stroke();
+        g.strokeStyle = od ? '#ef4444' : '#0f172a';
+        g.lineWidth = 3;
+        g.beginPath();
+        g.moveTo(-6, -102);
+        g.lineTo(-6 + (od ? 9 : -4), -109);
+        g.stroke();
+
+        // 兇猛電子格鬥眼
+        g.fillStyle = '#fef08a';
+        g.beginPath();
+        g.moveTo(-6, -76); g.lineTo(18, -68); g.lineTo(-2, -60); g.closePath();
+        g.fill();
+
+        // 輕/重攻擊熱風拳
+        if (f.action === 'light' || f.action === 'heavy') {
+          g.fillStyle = od ? '#fde047' : '#fb923c';
+          g.beginPath();
+          g.arc(f.action === 'heavy' ? 66 : 56, -58, f.action === 'heavy' ? 22 : 14, 0, Math.PI * 2);
+          g.fill();
+        }
+
+        // 短路電火花覆蓋
+        if (f.stunShock > 0) {
+          g.strokeStyle = '#c084fc';
+          g.lineWidth = 3;
+          for (let i = 0; i < 3; i++) {
+            g.beginPath();
+            g.moveTo(-30 + i * 25, -92);
+            g.lineTo(-18 + i * 22, -62);
+            g.lineTo(-28 + i * 25, -34);
+            g.stroke();
+          }
+        }
+      }
+
+      function drawProjectile(g, pr) {
+        g.save();
+        if (pr.type === 'waterBullet') {
+          g.fillStyle = '#38bdf8';
+          g.strokeStyle = '#e0f2fe';
+          g.lineWidth = 3;
+          g.beginPath();
+          g.ellipse(pr.x, pr.y, pr.r * 1.45, pr.r * 0.9, 0, 0, Math.PI * 2);
+          g.fill();
+          g.stroke();
+        } else {
+          // 滾燙熱風月牙波
+          const dir = Math.sign(pr.vx);
+          g.translate(pr.x, pr.y);
+          g.scale(dir, 1);
+          g.strokeStyle = pr.overdrive ? '#fef08a' : '#fb923c';
+          g.lineWidth = pr.overdrive ? 10 : 7;
+          g.beginPath();
+          g.arc(-10, 0, pr.r, -Math.PI * 0.42, Math.PI * 0.42);
+          g.stroke();
+          g.strokeStyle = '#ef4444';
+          g.lineWidth = 4;
+          g.beginPath();
+          g.arc(-18, 0, pr.r * 0.85, -Math.PI * 0.38, Math.PI * 0.38);
+          g.stroke();
+        }
+        g.restore();
+      }
+
+      /* ---------- 經典《快打旋風 II》風格 HUD ---------- */
+      function drawArcadeHUD(g) {
+        const p1 = fighters[0], p2 = fighters[1];
+        const barY = 22;
+        const barW = 350;
+        const barH = 26;
+
+        // 繪製單側血條
+        const drawBar = (fighter, x, alignRight) => {
+          const hpRatio = Math.max(0, fighter.hp / fighter.maxHp);
+          const trailRatio = Math.max(0, fighter.trailHp / fighter.maxHp);
+
+          // 血條底框（經典紅底）
+          g.fillStyle = '#7f1d1d';
+          g.fillRect(x, barY, barW, barH);
+
+          // 延遲扣血白橘條
+          g.fillStyle = '#fb923c';
+          if (alignRight) {
+            g.fillRect(x + barW * (1 - trailRatio), barY, barW * trailRatio, barH);
+          } else {
+            g.fillRect(x, barY, barW * trailRatio, barH);
+          }
+
+          // 主血條（經典紅黃漸層）
+          const hpGrad = g.createLinearGradient(x, barY, x, barY + barH);
+          hpGrad.addColorStop(0, '#fef08a');
+          hpGrad.addColorStop(0.55, '#facc15');
+          hpGrad.addColorStop(1, '#ea580c');
+          g.fillStyle = hpGrad;
+          if (alignRight) {
+            g.fillRect(x + barW * (1 - hpRatio), barY, barW * hpRatio, barH);
+          } else {
+            g.fillRect(x, barY, barW * hpRatio, barH);
+          }
+
+          // 金色外框
+          g.strokeStyle = '#ffffff';
+          g.lineWidth = 3;
+          g.strokeRect(x, barY, barW, barH);
+        };
+
+        drawBar(p1, 78, true);
+        drawBar(p2, LOGICAL_W - 78 - barW, false);
+
+        // 左右角色小頭像框（支援顯示上傳照片）
+        const drawHudPortrait = (side, cx, cy) => {
+          const prof = profiles[side];
+          const f = side === 'p1' ? p1 : p2;
+          g.save();
+          g.beginPath();
+          g.arc(cx, cy, 26, 0, Math.PI * 2);
+          g.fillStyle = f.type === 'water' ? '#0284c7' : '#dc2626';
+          g.fill();
+          g.lineWidth = 3;
+          g.strokeStyle = '#ffd43b';
+          g.stroke();
+          g.clip();
+          if (prof.photoImg) {
+            const img = prof.photoImg;
+            const r = img.width / img.height;
+            const dw = r > 1 ? 52 * r : 52;
+            const dh = r > 1 ? 52 : 52 / r;
+            g.drawImage(img, cx - dw / 2, cy - dh / 2, dw, dh);
+          } else {
+            drawHeroPortrait(g, cx, cy + 5, f.type, 0.45);
+          }
+          g.restore();
+        };
+
+        drawHudPortrait('p1', 42, 36);
+        drawHudPortrait('p2', LOGICAL_W - 42, 36);
+
+        // 中央 99 秒金字倒數計時器
+        g.save();
+        roundRect(g, LOGICAL_W / 2 - 44, 10, 88, 52, 10);
+        g.fillStyle = '#0f172a';
+        g.fill();
+        g.strokeStyle = '#ffd43b';
+        g.lineWidth = 3;
+        g.stroke();
+        g.font = '900 34px "Noto Sans TC", sans-serif';
+        g.textAlign = 'center';
+        g.fillStyle = state.timer <= 15 ? '#ff2e4c' : '#ffd43b';
+        g.fillText(String(state.timer).padStart(2, '0'), LOGICAL_W / 2, 48);
+        g.restore();
+
+        // 玩家名稱與勝場標記
+        g.font = '900 16px "Noto Sans TC", sans-serif';
+        g.fillStyle = '#ffffff';
+        g.strokeStyle = '#090d1a';
+        g.lineWidth = 4;
+
+        g.textAlign = 'left';
+        const p1Label = `${profiles.p1.name} (${p1.type === 'water' ? '💧阿滴' : '🔥烘霸'})`;
+        g.strokeText(p1Label, 80, 68);
+        g.fillText(p1Label, 80, 68);
+
+        g.textAlign = 'right';
+        const p2Label = `(${p2.type === 'water' ? '💧阿滴' : '🔥烘霸'}) ${profiles.p2.name}`;
+        g.strokeText(p2Label, LOGICAL_W - 80, 68);
+        g.fillText(p2Label, LOGICAL_W - 80, 68);
+
+        // 勝場金星
+        for (let i = 0; i < config.roundsToWin; i++) {
+          drawStar(g, 412 - i * 24, 62, 9, 4.5, 5, i < state.wins.p1 ? '#ffd43b' : '#334155');
+          drawStar(g, LOGICAL_W - 412 + i * 24, 62, 9, 4.5, 5, i < state.wins.p2 ? '#ffd43b' : '#334155');
+        }
+
+        // 底部左右專屬能量量表（飽水膨脹量表 / 渦輪熱風量表）
+        const drawGauge = (f, x, alignRight) => {
+          const gw = 290, gh = 18, gy = LOGICAL_H - 36;
+          const pct = Math.max(0, Math.min(1, f.gauge / 100));
+          const isMax = f.gauge >= 100;
+
+          g.fillStyle = 'rgba(15, 23, 42, 0.85)';
+          roundRect(g, x, gy, gw, gh, 9);
+          g.fill();
+
+          const grad = g.createLinearGradient(x, gy, x + gw, gy);
+          if (f.type === 'water') {
+            grad.addColorStop(0, '#0284c7');
+            grad.addColorStop(1, isMax ? '#fef08a' : '#22d3ee');
+          } else {
+            grad.addColorStop(0, '#ea580c');
+            grad.addColorStop(1, isMax ? '#fef08a' : '#ef4444');
+          }
+          g.fillStyle = grad;
+          if (alignRight) {
+            roundRect(g, x + gw * (1 - pct), gy, gw * pct, gh, 9);
+          } else {
+            roundRect(g, x, gy, gw * pct, gh, 9);
+          }
+          g.fill();
+
+          g.strokeStyle = isMax ? '#ffd43b' : 'rgba(255,255,255,0.75)';
+          g.lineWidth = isMax ? 3 : 2;
+          roundRect(g, x, gy, gw, gh, 9);
+          g.stroke();
+
+          // 量表標籤
+          g.font = '900 13px "Noto Sans TC", sans-serif';
+          g.textAlign = alignRight ? 'right' : 'left';
+          g.fillStyle = isMax ? '#ffd43b' : '#f8fafc';
+          let label = '';
+          if (f.type === 'water') {
+            const stg = f.gauge >= 100 ? 'MAX 超必殺就緒(R)!' : f.getScale() > 1.18 ? '巨型大水珠' : f.getScale() > 0.92 ? '彈力水球' : '迷你水滴';
+            label = `💧 飽水膨脹：${stg}`;
+          } else {
+            const stg = f.gauge >= 100 ? 'MAX 蒸發地獄(U)!' : f.isOverdrive() ? '最高溫強風模式🔥' : '渦輪蓄熱中';
+            label = `🔥 渦輪熱風：${stg}`;
+          }
+          g.strokeStyle = '#090d1a';
+          g.lineWidth = 3.5;
+          const tx = alignRight ? x + gw : x;
+          g.strokeText(label, tx, gy - 6);
+          g.fillText(label, tx, gy - 6);
+        };
+
+        drawGauge(p1, 28, false);
+        drawGauge(p2, LOGICAL_W - 28 - 290, true);
+      }
+
+      /* ---------- 角力拼招（CLASH）畫面 ---------- */
+      function drawClashOverlay(g) {
+        // 速度線與蒸氣暗角
+        g.save();
+        g.fillStyle = 'rgba(10, 15, 32, 0.35)';
+        g.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
+
+        const barW = 460, barH = 26;
+        const bx = LOGICAL_W / 2 - barW / 2;
+        const by = 148;
+
+        // 拉鋸條背景
+        g.fillStyle = '#dc2626';
+        roundRect(g, bx, by, barW, barH, 13);
+        g.fill();
+
+        const p1Ratio = (state.clash.balance + 100) / 200;
+        g.fillStyle = '#0ea5e9';
+        roundRect(g, bx, by, barW * p1Ratio, barH, 13);
+        g.fill();
+
+        g.strokeStyle = '#ffd43b';
+        g.lineWidth = 4;
+        roundRect(g, bx, by, barW, barH, 13);
+        g.stroke();
+
+        // 中央撞擊星芒指示器
+        const markerX = bx + barW * p1Ratio;
+        drawStar(g, markerX, by + barH / 2, 18, 8, 6, '#fef08a');
+
+        g.font = '900 22px "Noto Sans TC", sans-serif';
+        g.textAlign = 'center';
+        g.strokeStyle = '#090d1a';
+        g.lineWidth = 5;
+        const tip = `⚡ 瘋狂連打攻擊鍵！剩餘 ${state.clash.timer.toFixed(1)}s ⚡`;
+        g.strokeText(tip, LOGICAL_W / 2, by - 12);
+        g.fillStyle = '#ffd43b';
+        g.fillText(tip, LOGICAL_W / 2, by - 12);
+        g.restore();
+      }
+
+      /* ---------- 大字播報（ROUND 1 / FIGHT! / K.O.!） ---------- */
+      function drawAnnouncement(g) {
+        g.save();
+        const pulse = 1 + Math.sin(state.bgTime * 16) * 0.04;
+        g.translate(LOGICAL_W / 2, LOGICAL_H / 2 - 22);
+        g.scale(pulse, pulse);
+        g.textAlign = 'center';
+
+        g.font = '900 68px "Noto Sans TC", sans-serif';
+        g.lineWidth = 12;
+        g.strokeStyle = '#090d1a';
+        g.strokeText(state.announceText, 0, 0);
+
+        const grad = g.createLinearGradient(0, -52, 0, 12);
+        grad.addColorStop(0, '#fff9db');
+        grad.addColorStop(0.5, '#ffd43b');
+        grad.addColorStop(1, '#ff5900');
+        g.fillStyle = grad;
+        g.fillText(state.announceText, 0, 0);
+
+        if (state.announceSub) {
+          g.font = '900 24px "Noto Sans TC", sans-serif';
+          g.lineWidth = 6;
+          g.strokeText(state.announceSub, 0, 42);
+          g.fillStyle = '#ffffff';
+          g.fillText(state.announceSub, 0, 42);
+        }
+        g.restore();
+      }
+
+      /* =======================================================================
+         10. 紅竿升旗典禮場景繪製（含大紅旗竿、緩緩升起與炯炯有精神的波浪旗幟）
+         ======================================================================= */
+      function drawCeremonyScene(g, forExport) {
+        const prog = state.ceremony.flagProgress;
+        const summit = state.ceremony.summitTriggered;
+
+        // 1. 清爽燦爛的藍天漸層
+        const sky = g.createLinearGradient(0, 0, 0, LOGICAL_H);
+        sky.addColorStop(0, '#0284c7');
+        sky.addColorStop(0.55, '#38bdf8');
+        sky.addColorStop(0.85, '#bae6fd');
+        sky.addColorStop(1, '#e0f2fe');
+        g.fillStyle = sky;
+        g.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
+
+        // 2. 登頂瞬間綻放旋轉金色榮耀光芒
+        if (summit) {
+          g.save();
+          g.translate(290, 118);
+          g.rotate(state.bgTime * 0.25);
+          const rayAlpha = forExport ? 0.26 : Math.min(0.28, state.ceremony.summitTime * 0.4);
+          g.fillStyle = `rgba(255, 245, 160, ${rayAlpha})`;
+          for (let i = 0; i < 16; i++) {
+            g.rotate(Math.PI / 8);
+            g.beginPath();
+            g.moveTo(0, 0);
+            g.lineTo(780, -26);
+            g.lineTo(780, 26);
+            g.closePath();
+            g.fill();
+          }
+          g.restore();
+        }
+
+        // 3. 潔白蓬鬆雲朵
+        g.fillStyle = 'rgba(255, 255, 255, 0.86)';
+        state.ceremony.clouds.forEach(c => {
+          g.save();
+          g.translate(c.x, c.y);
+          g.scale(c.s, c.s);
+          g.beginPath();
+          g.arc(0, 0, 28, 0, Math.PI * 2);
+          g.arc(28, -8, 34, 0, Math.PI * 2);
+          g.arc(62, 0, 26, 0, Math.PI * 2);
+          g.arc(28, 12, 26, 0, Math.PI * 2);
+          g.fill();
+          g.restore();
+        });
+
+        // 4. 遠景榮耀廣場與大理石旗台
+        g.fillStyle = '#38a169';
+        g.beginPath();
+        g.ellipse(LOGICAL_W / 2, LOGICAL_H + 30, 620, 110, 0, 0, Math.PI * 2);
+        g.fill();
+
+        // 紅地毯廣場階梯
+        g.fillStyle = '#e2e8f0';
+        roundRect(g, 195, 456, 190, 28, 8); g.fill();
+        g.fillStyle = '#cbd5e1';
+        roundRect(g, 165, 478, 250, 32, 8); g.fill();
+
+        // 5. 挺拔醒目的「大紅色旗竿」
+        const poleX = 290;
+        const poleTopY = 58;
+        const poleBotY = 460;
+        const poleW = 18;
+
+        // 旗竿立體紅金光澤漸層
+        const poleGrad = g.createLinearGradient(poleX - poleW / 2, 0, poleX + poleW / 2, 0);
+        poleGrad.addColorStop(0, '#991b1b');
+        poleGrad.addColorStop(0.32, '#ef4444');
+        poleGrad.addColorStop(0.58, '#ff6b6b');
+        poleGrad.addColorStop(1, '#7f1d1d');
+        g.fillStyle = poleGrad;
+        g.fillRect(poleX - poleW / 2, poleTopY, poleW, poleBotY - poleTopY);
+
+        // 旗竿金環裝飾
+        g.fillStyle = '#ffd43b';
+        g.fillRect(poleX - 13, poleBotY - 12, 26, 12);
+        g.fillRect(poleX - 11, poleTopY + 14, 22, 6);
+
+        // 閃亮金色竿頂圓球
+        const ballGrad = g.createRadialGradient(poleX - 5, poleTopY - 6, 3, poleX, poleTopY, 18);
+        ballGrad.addColorStop(0, '#fffbeb');
+        ballGrad.addColorStop(0.45, '#ffd43b');
+        ballGrad.addColorStop(1, '#b45309');
+        g.fillStyle = ballGrad;
+        g.beginPath();
+        g.arc(poleX, poleTopY, 17, 0, Math.PI * 2);
+        g.fill();
+
+        // 金色升旗拉繩
+        g.strokeStyle = '#fef08a';
+        g.lineWidth = 2.5;
+        g.beginPath();
+        g.moveTo(poleX + 11, poleTopY + 16);
+        g.lineTo(poleX + 11, poleBotY - 10);
+        g.stroke();
+
+        // 6. 客製勝利旗幟（隨 prog 緩緩上升，登頂後獵獵飄揚、炯炯有精神！）
+        const fc = state.ceremony.flagCanvas;
+        const flagDrawW = 365;
+        const flagDrawH = 228;
+        // 緩動插值讓升旗更有莊嚴儀式感
+        const eased = 1 - Math.pow(1 - prog, 2.2);
+        const flagTopY = (poleBotY - flagDrawH - 18) * (1 - eased) + (poleTopY + 24) * eased;
+        const flagLeftX = poleX + 10;
+
+        // 綁旗金繩結
+        g.strokeStyle = '#ffd43b';
+        g.lineWidth = 3.5;
+        g.beginPath();
+        g.moveTo(poleX + 6, flagTopY + 14);
+        g.lineTo(flagLeftX + 6, flagTopY + 14);
+        g.moveTo(poleX + 6, flagTopY + flagDrawH - 14);
+        g.lineTo(flagLeftX + 6, flagTopY + flagDrawH - 14);
+        g.stroke();
+
+        // 逐條動態波浪布料繪製（讓旗幟迎風舒展、神采奕奕！）
+        const strips = 56;
+        const srcStripW = fc.width / strips;
+        const dstStripW = flagDrawW / strips;
+        const waveAmp = summit ? 11 : 4.5 + eased * 4;
+        const waveSpeed = summit ? 6.4 : 4.2;
+        const unfurlScaleX = 0.72 + eased * 0.28; // 上升過程中逐漸舒展開來
+
+        for (let i = 0; i < strips; i++) {
+          const t = i / strips; // 0 (靠竿) -> 1 (旗尾)
+          const wave = Math.sin(t * 5.2 - state.bgTime * waveSpeed) * waveAmp * Math.pow(t, 0.85);
+          const dx = flagLeftX + i * dstStripW * unfurlScaleX;
+          const dy = flagTopY + wave;
+
+          g.drawImage(
+            fc,
+            i * srcStripW, 0, srcStripW + 0.5, fc.height,
+            dx, dy, dstStripW * unfurlScaleX + 0.8, flagDrawH
+          );
+
+          // 布料立體光影褶皺（凸面亮光、凹面陰影）
+          const slope = Math.cos(t * 5.2 - state.bgTime * waveSpeed) * t;
+          if (slope > 0.05) {
+            g.fillStyle = `rgba(255, 255, 255, ${slope * 0.16})`;
+            g.fillRect(dx, dy, dstStripW * unfurlScaleX + 0.8, flagDrawH);
+          } else if (slope < -0.05) {
+            g.fillStyle = `rgba(15, 23, 42, ${-slope * 0.18})`;
+            g.fillRect(dx, dy, dstStripW * unfurlScaleX + 0.8, flagDrawH);
+          }
+        }
+
+        // 旗尾飄揚金流蘇
+        const tailX = flagLeftX + flagDrawW * unfurlScaleX;
+        const tailWave = Math.sin(5.2 - state.bgTime * waveSpeed) * waveAmp;
+        g.strokeStyle = '#ffd43b';
+        g.lineWidth = 3;
+        for (let k = 0; k < 10; k++) {
+          const ty = flagTopY + tailWave + 12 + k * 22;
+          g.beginPath();
+          g.moveTo(tailX, ty);
+          g.lineTo(tailX + 14 + Math.sin(state.bgTime * 9 + k) * 5, ty + 4);
+          g.stroke();
+        }
+
+        // 7. 頂部榮耀提示文字
+        g.save();
+        g.textAlign = 'center';
+        g.font = '900 28px "Noto Sans TC", sans-serif';
+        g.lineWidth = 6;
+        g.strokeStyle = '#0f172a';
+        const statusTxt = summit
+          ? '🎺 旗開得勝！炯炯有精神的榮耀之旗登頂！ 🎺'
+          : '🚩 勝利旗幟正在紅竿上緩緩升起...';
+        g.strokeText(statusTxt, LOGICAL_W / 2 + 75, 42);
+        g.fillStyle = '#fff9db';
+        g.fillText(statusTxt, LOGICAL_W / 2 + 75, 42);
+        g.restore();
+
+        // 8. 閃耀星芒與慶典彩帶
+        state.ceremony.sparkles.forEach(s => {
+          g.save();
+          g.globalAlpha = Math.sin((s.life / s.maxLife) * Math.PI);
+          drawStar(g, s.x, s.y, s.size, s.size * 0.35, 4, '#fffbeb');
+          g.restore();
+        });
+
+        state.ceremony.confetti.forEach(p => {
+          g.save();
+          g.translate(p.x, p.y);
+          g.rotate(p.rot);
+          g.fillStyle = p.color;
+          g.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          g.restore();
+        });
+      }
+
+      /* ---------- 輔助繪圖工具（圓角矩形、星形、預設角色大頭照） ---------- */
+      function roundRect(g, x, y, w, h, r) {
+        g.beginPath();
+        g.moveTo(x + r, y);
+        g.lineTo(x + w - r, y);
+        g.quadraticCurveTo(x + w, y, x + w, y + r);
+        g.lineTo(x + w, y + h - r);
+        g.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        g.lineTo(x + r, y + h);
+        g.quadraticCurveTo(x, y + h, x, y + h - r);
+        g.lineTo(x, y + r);
+        g.quadraticCurveTo(x, y, x + r, y);
+        g.closePath();
+      }
+
+      function drawStar(g, cx, cy, outerR, innerR, pts, color) {
+        g.save();
+        g.fillStyle = color;
+        g.beginPath();
+        for (let i = 0; i < pts * 2; i++) {
+          const r = i % 2 === 0 ? outerR : innerR;
+          const ang = (i * Math.PI) / pts - Math.PI / 2;
+          const x = cx + Math.cos(ang) * r;
+          const y = cy + Math.sin(ang) * r;
+          if (i === 0) g.moveTo(x, y); else g.lineTo(x, y);
+        }
+        g.closePath();
+        g.fill();
+        g.restore();
+      }
+
+      function drawHeroPortrait(g, cx, cy, type, scale) {
+        g.save();
+        g.translate(cx, cy);
+        g.scale(scale, scale);
+        if (type === 'water') {
+          g.fillStyle = '#38bdf8';
+          g.beginPath();
+          g.moveTo(0, -56);
+          g.bezierCurveTo(42, -20, 44, 34, 0, 38);
+          g.bezierCurveTo(-44, 34, -42, -20, 0, -56);
+          g.fill();
+          g.fillStyle = '#ef4444';
+          g.fillRect(-26, -28, 52, 9);
+          g.fillStyle = '#0f172a';
+          g.beginPath();
+          g.arc(-11, -6, 5.5, 0, Math.PI * 2);
+          g.arc(11, -6, 5.5, 0, Math.PI * 2);
+          g.fill();
+          g.fillStyle = '#fff';
+          g.beginPath();
+          g.arc(-9, -8, 2, 0, Math.PI * 2);
+          g.arc(13, -8, 2, 0, Math.PI * 2);
+          g.fill();
+        } else {
+          g.fillStyle = '#ef4444';
+          roundRect(g, -34, -38, 68, 64, 14);
+          g.fill();
+          g.fillStyle = '#1e293b';
+          roundRect(g, 20, -24, 24, 36, 6);
+          g.fill();
+          g.fillStyle = '#fef08a';
+          g.fillRect(38, -18, 7, 24);
+          g.beginPath();
+          g.moveTo(-14, -18); g.lineTo(12, -10); g.lineTo(-10, -2); g.closePath();
+          g.fill();
+        }
+        g.restore();
+      }
+
+      /* =======================================================================
+         11. 照片上傳處理、按鈕綁定與響應式縮放
+         ======================================================================= */
+      function bindPhotoUpload(fileInputId, triggerBtnId, clearBtnId, thumbId, targetSide, onDone) {
+        const input = document.getElementById(fileInputId);
+        const btn = document.getElementById(triggerBtnId);
+        const clearBtn = document.getElementById(clearBtnId);
+
+        btn.addEventListener('click', () => input.click());
+        input.addEventListener('change', e => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = ev => {
+            const img = new Image();
+            img.onload = () => {
+              const side = typeof targetSide === 'function' ? targetSide() : targetSide;
+              profiles[side].photoImg = img;
+              if (thumbId) {
+                const thumb = document.getElementById(thumbId);
+                thumb.innerHTML = '';
+                const preview = document.createElement('img');
+                preview.src = ev.target.result;
+                thumb.appendChild(preview);
+              }
+              if (clearBtn) clearBtn.style.display = 'inline-flex';
+              state.ceremony.flagDirty = true;
+              showToast('✅ 照片已套用至角色與紅竿勝利旗幟！');
+              if (onDone) onDone();
+            };
+            img.src = ev.target.result;
+          };
+          reader.readAsDataURL(file);
+          input.value = '';
+        });
+
+        if (clearBtn) {
+          clearBtn.addEventListener('click', () => {
+            const side = typeof targetSide === 'function' ? targetSide() : targetSide;
+            profiles[side].photoImg = null;
+            if (thumbId) {
+              document.getElementById(thumbId).textContent = side === 'p1' ? '💧' : '🔥';
+            }
+            clearBtn.style.display = 'none';
+            state.ceremony.flagDirty = true;
+            showToast('已恢復預設街機頭像');
+          });
+        }
+      }
+
+      bindPhotoUpload('p1PhotoFile', 'btnP1Photo', 'btnP1Clear', 'p1AvatarThumb', 'p1');
+      bindPhotoUpload('p2PhotoFile', 'btnP2Photo', 'btnP2Clear', 'p2AvatarThumb', 'p2');
+      bindPhotoUpload(
+        'ceremonyPhotoFile',
+        'btnCeremonyPhoto',
+        'btnCeremonyClearPhoto',
+        null,
+        () => state.winnerSide || 'p1',
+        () => {
+          const side = state.winnerSide || 'p1';
+          const thumb = document.getElementById(side === 'p1' ? 'p1AvatarThumb' : 'p2AvatarThumb');
+          const clearLobby = document.getElementById(side === 'p1' ? 'btnP1Clear' : 'btnP2Clear');
+          if (profiles[side].photoImg) {
+            thumb.innerHTML = '';
+            const im = document.createElement('img');
+            im.src = profiles[side].photoImg.src;
+            thumb.appendChild(im);
+            clearLobby.style.display = 'inline-flex';
+          }
+        }
+      );
+
+      // 典禮中即時修改獲勝者名字
+      document.getElementById('ceremonyNameInput').addEventListener('input', e => {
+        const side = state.winnerSide || 'p1';
+        profiles[side].name = e.target.value.trim() || '街頭霸主';
+        document.getElementById(side === 'p1' ? 'p1NameInput' : 'p2NameInput').value = profiles[side].name;
+        state.ceremony.flagDirty = true;
+      });
+
+      // 大廳選項按鈕互動
+      function bindChoiceGroup(attr, onSelect) {
+        document.querySelectorAll(`[${attr}]`).forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll(`[${attr}]`).forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            onSelect(btn.getAttribute(attr));
+          });
+        });
+      }
+
+      bindChoiceGroup('data-mode', val => {
+        config.mode = val;
+        document.getElementById('singlePlayerBox').style.display = val === '1p' ? 'block' : 'none';
+      });
+      bindChoiceGroup('data-rounds', val => { config.roundsToWin = Number(val); });
+      bindChoiceGroup('data-char', val => {
+        config.p1Char = val;
+        if (!profiles.p1.photoImg) document.getElementById('p1AvatarThumb').textContent = val === 'water' ? '💧' : '🔥';
+        if (!profiles.p2.photoImg) document.getElementById('p2AvatarThumb').textContent = val === 'water' ? '🔥' : '💧';
+      });
+      bindChoiceGroup('data-diff', val => { config.aiDiff = val; });
+      bindChoiceGroup('data-stage', val => { config.stage = val; });
+
+      // 核心按鈕事件
+      document.getElementById('btnStartMatch').addEventListener('click', startMatch);
+      document.getElementById('btnRematch').addEventListener('click', startMatch);
+      document.getElementById('btnReplayFlag').addEventListener('click', () => {
+        replayFlagRaising();
+        showToast('🎺 勝利號角響起！旗幟重新緩緩升起！');
+      });
+      document.getElementById('btnDownloadFlag').addEventListener('click', generateSouvenirImage);
+
+      const openLobby = () => {
+        state.phase = 'lobby';
+        ceremonyDock.classList.remove('show');
+        souvenirModal.classList.add('hidden');
+        lobbyModal.classList.remove('hidden');
+      };
+      document.getElementById('btnBackLobby').addEventListener('click', openLobby);
+      document.getElementById('btnCeremonyLobby').addEventListener('click', openLobby);
+
+      document.getElementById('btnMoves').addEventListener('click', () => movesModal.classList.remove('hidden'));
+      document.getElementById('btnCloseMoves').addEventListener('click', () => movesModal.classList.add('hidden'));
+      document.getElementById('btnCloseMovesBottom').addEventListener('click', () => movesModal.classList.add('hidden'));
+
+      document.getElementById('btnCloseSouvenir').addEventListener('click', () => souvenirModal.classList.add('hidden'));
+      document.getElementById('btnCloseSouvenir2').addEventListener('click', () => souvenirModal.classList.add('hidden'));
+
+      document.getElementById('btnToggleSound').addEventListener('click', e => {
+        config.soundEnabled = !config.soundEnabled;
+        e.currentTarget.textContent = config.soundEnabled ? '🔊 音效開' : '🔇 靜音';
+        e.currentTarget.classList.toggle('off', !config.soundEnabled);
+        if (config.soundEnabled) SFX.unlock();
+      });
+
+      const toggleTouchBtn = document.getElementById('btnToggleTouch');
+      function setTouchVisible(v) {
+        config.touchVisible = v;
+        touchDeck.classList.toggle('visible', v);
+        toggleTouchBtn.classList.toggle('off', !v);
+        resizeCanvas();
+      }
+      toggleTouchBtn.addEventListener('click', () => setTouchVisible(!config.touchVisible));
+      // 行動裝置自動開啟虛擬街機按鍵
+      if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth < 820) {
+        setTouchVisible(true);
+      }
+
+      // 虛擬街機按鈕 Pointer 事件（支援長按蓄力與連打拼招）
+      document.querySelectorAll('[data-key]').forEach(btn => {
+        const k = btn.getAttribute('data-key');
+        const down = e => {
+          e.preventDefault();
+          SFX.unlock();
+          touchState[k] = true;
+          btn.classList.add('active');
+          if (state.phase === 'clash' && ['light', 'heavy', 'spec', 'super'].includes(k)) {
+            registerClashMash('p1');
+          }
+        };
+        const up = e => {
+          e.preventDefault();
+          touchState[k] = false;
+          btn.classList.remove('active');
+        };
+        btn.addEventListener('pointerdown', down);
+        btn.addEventListener('pointerup', up);
+        btn.addEventListener('pointerleave', up);
+        btn.addEventListener('pointercancel', up);
+      });
+
+      // 鍵盤事件監聽（輸入名字時自動忽略）
+      window.addEventListener('keydown', e => {
+        if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
+          return;
+        }
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+          e.preventDefault();
+        }
+        SFX.unlock();
+        const isFirstPress = !keysDown.has(e.code);
+        keysDown.add(e.code);
+
+        if (isFirstPress && state.phase === 'clash') {
+          if (['KeyF', 'KeyG', 'KeyH', 'KeyR'].includes(e.code)) registerClashMash('p1');
+          if (['KeyJ', 'KeyK', 'KeyL', 'KeyU'].includes(e.code)) registerClashMash('p2');
+        }
+      });
+
+      window.addEventListener('keyup', e => {
+        keysDown.delete(e.code);
+      });
+
+      // 響應式 Canvas 等比例縮放
+      function resizeCanvas() {
+        const rect = stageWrap.getBoundingClientRect();
+        const pad = 8;
+        const availW = Math.max(240, rect.width - pad);
+        const availH = Math.max(160, rect.height - pad);
+        const ratio = LOGICAL_W / LOGICAL_H;
+
+        let cssW = availW;
+        let cssH = cssW / ratio;
+        if (cssH > availH) {
+          cssH = availH;
+          cssW = cssH * ratio;
+        }
+        canvas.style.width = `${Math.floor(cssW)}px`;
+        canvas.style.height = `${Math.floor(cssH)}px`;
+      }
+
+      window.addEventListener('resize', resizeCanvas);
+
+      /* =======================================================================
+         12. 啟動主動畫循環（window.onload）
+         ======================================================================= */
+      let lastTime = 0;
+      function gameLoop(ts) {
+        if (!lastTime) lastTime = ts;
+        const dt = Math.min(0.05, (ts - lastTime) / 1000);
+        lastTime = ts;
+
+        try {
+          update(dt);
+          render();
+        } catch (err) {
+          console.error('Game loop error:', err);
+        }
+        requestAnimationFrame(gameLoop);
+      }
+
+      window.onload = function () {
+        resizeCanvas();
+        // 預先繪製背景讓大廳背後也有復古舞台感
+        fighters = [new Fighter('p1', 'water', false), new Fighter('p2', 'dryer', true)];
+        requestAnimationFrame(gameLoop);
+      };
+    })();
+  </script>
+</body>
+</html>
